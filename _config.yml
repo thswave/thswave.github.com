@@ -13,3 +13,23 @@ markdown : redcarpet
 
 # Build settings
 # markdown: kramdown
+
+# dbyll setting
+paginate: 10 # pagination based on number of posts
+paginate_path: "page:num"
+exclude: ["README.md"] # files to exclude
+
+description: Try hard Try Hard!
+author:
+  name: thswave
+  email: thswave@gmail.com
+  github: thswave
+  twitter: thswave
+  bio: try hard, try hard!
+
+rss_path: feed.xml
+categories_path: categories.html
+tags_path: tags.html
+
+BASE_PATH:
+# end dbyll setting
