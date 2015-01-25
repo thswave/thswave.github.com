@@ -35,3 +35,29 @@ tags_path: tags.html
 
 BASE_PATH:
 # end dbyll setting
+
+# Prose
+prose:
+  media: 'assets/media'
+  metadata:
+    _posts:
+      - name: "layout"
+        field:
+          element: "hidden"
+          value: "post"
+      - name: "published"
+        field:
+          element: "hidden"
+          value: "true"
+      - name: "title"
+        field:
+          label: "Title"
+          element: "text"
+      - name: "date"
+        field:
+          label: "Date"
+          element: "text"
+      - name: "category"
+        field:
+          label: "Category"
+          element: "text"
