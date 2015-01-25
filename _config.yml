@@ -8,8 +8,8 @@ baseurl: "" # the subpath of your site, e.g. /blog/
 url: "http://thswave.github.io" # the base hostname & protocol for your site
 twitter_username: thswave
 github_username:  thswave
-pygments: true
+highlighter: pygments
 markdown : redcarpet
 
 # Build settings
-markdown: kramdown
+# markdown: kramdown
