@@ -6,7 +6,7 @@ tags: [javascript, event handler]
 description: javascript event handler 등록
 ---
 
-{% highlight javascript %}
+```
 var test = document.getElementById("id");
 
 test.onclick = functionName1;
@@ -17,7 +17,7 @@ test.onclick = functionName2;
 test.addEventListener("click", functionName1, false); 
 test.addEventListener("click", functionName2, false);
 
-{% endhighlight %}
+```
 
 
 이벤트 리스너의 세번째 매개변수는 이벤트 처리단계가 캡처(true)단계인지 버블링 단계(false)인지 구분
@@ -47,10 +47,10 @@ mouseout
 
 마우스는 문서상의 동일한 위치에 있지만 이벤트가 발생할 경우 이벤트가 문서의 어떤 좌표에서 발생했는지 알아내려면 스크롤된 값을 반영해 주어야 한다.
 
-{% highlight javascript %}
+```
 scrollLeft +=document.documentElement.scrollLeft
 scrollTop += document.documentElement.scrollTop
-{% endhighlight %}
+```
 
 마우스 클릭 버튼 판별
 
