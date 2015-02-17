@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>스프링 &lt;context:component-scan&gt; 분석</title>
+	
+	<meta name="description" content="스프링 &lt;context:component-scan&gt; 분석">
+	
+	<meta name="author" content="thswave">
+
+	<!-- Enable responsive viewport -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<!-- Le styles -->
+	<link href="/assets/resources/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/assets/resources/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+	<link href="/assets/resources/syntax/syntax.css" rel="stylesheet">
+	<link href="/assets/css/style.css" rel="stylesheet">
+
+	<!-- Le fav and touch icons -->
+	<!-- Update these with your own images
+	<link rel="shortcut icon" href="images/favicon.ico">
+	<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+	-->
+
+	<link rel="alternate" type="application/rss+xml" title="thswave" href="/feed.xml">
+</head>
+
+<body>
+	<nav class="navbar navbar-default visible-xs" role="navigation">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			
+			<a type="button" class="navbar-toggle nav-link" href="http://github.com/thswave">
+				<i class="fa fa-github"></i>
+			</a>
+			
+			
+			<a type="button" class="navbar-toggle nav-link" href="http://twitter.com/thswave">
+				<i class="fa fa-twitter"></i>
+			</a>
+			
+			
+			<a type="button" class="navbar-toggle nav-link" href="mailto:thswave@gmail.com">
+				<i class="fa fa-envelope"></i>
+			</a>
+			
+			<a class="navbar-brand" href="/">
+				<img src="http://www.gravatar.com/avatar/c1e626278fb674ec46bde944b163f3d9?s=35" class="img-circle" />
+				thswave
+			</a>
+		</div>
+
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="/">Home</a></li>
+				<li><a href="/categories.html">Categories</a></li>
+				<li><a href="/tags.html">Tags</a></li>
+			</ul>
+		</div><!-- /.navbar-collapse -->
+	</nav>
+
+	<!-- nav-menu-dropdown -->
+	<div class="btn-group hidden-xs" id="nav-menu">
+		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+			<i class="fa fa-bars"></i>
+		</button>
+		<ul class="dropdown-menu" role="menu">
+			<li><a href="/"><i class="fa fa-home"></i>Home</a></li>
+			<li><a href="/categories.html"><i class="fa fa-folder"></i>Categories</a></li>
+			<li><a href="/tags.html"><i class="fa fa-tags"></i>Tags</a></li>
+			<li class="divider"></li>
+			<li><a href="#"><i class="fa fa-arrow-up"></i>Top of Page</a></li>
+		</ul>
+	</div>
+	
+	<div class="col-sm-3 sidebar hidden-xs">
+		<! -- sidebar.html -->
+<header class="sidebar-header" role="banner">
+	<a href="/">
+		<img src="http://www.gravatar.com/avatar/c1e626278fb674ec46bde944b163f3d9?s=150" class="img-circle" />
+	</a>
+	<h3 class="title">
+        <a href="/">thswave</a>
+    </h3>
+</header>
+
+
+<div id="bio" class="text-center">
+	try hard, try hard!
+</div>
+
+
+<div id="contact-list" class="text-center">
+	<ul class="list-unstyled list-inline">
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="https://github.com/thswave">
+				<i class="fa fa-github-alt fa-lg"></i>
+			</a>
+		</li>
+		
+		<!-- 
+		<li>
+			<a class="btn btn-default btn-sm" href="https://facebook.com/changwon.sohn">
+				<i class="fa fa-facebook fa-lg"></i>
+			</a>
+		</li>
+		 -->
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="mailto:thswave@gmail.com">
+				<i class="fa fa-envelope fa-lg"></i>
+			</a>
+		</li>
+		
+	</ul>
+	<!-- <ul id="contact-list-secondary" class="list-unstyled list-inline">
+		
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="/feed.xml">
+				<i class="fa fa-rss fa-lg"></i>
+			</a>
+		</li>
+	</ul> -->
+</div>
+<! -- sidebar.html end -->
+
+	</div>
+	<div class="col-sm-9 col-sm-offset-3">
+		<div class="page-header">
+  <h1>스프링 &lt;context:component-scan&gt; 분석 </h1>
+</div>
+	
+<article>
+
+	<div class="col-sm-10">
+	 <span class="post-date">
+	   
+	   February 
+	   2nd,
+	     
+	   2015
+	 </span>
+	  <div class="article_body">
+	  <h3>스프링 <code>&lt;context:component-scan&gt;</code> 분석</h3>
+
+<p>a</p>
+
+<p>처음으로 스프링 MVC로 프로젝트를 개발하다보니 모르는것도 많고 어떻게 해야하는지 정확히 잘 몰라 구글링과 스프링 설정에 대한 블로그들을 보면서 이것저것 복사 붙여넣기 식으로 수행했습니다.
+그 중에서 스프링 XML 설정 지옥에서 벗어나게 해준 어노테이션. 스프링이 제공하는 어노테이션 기반 설정은 많지만 가장 유용했던 단 한 줄로 설정할 수 있었습니다.</p>
+
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;context:component-scan</span> <span class="na">base-package=</span><span class="s">&quot;com.nhnent.spring&quot;</span> <span class="nt">/&gt;</span></code></pre></div>
+
+<ul>
+<li>Component Scan이 어떻게 내부적으로 수행하는지 살펴보겠습니다.</li>
+</ul>
+
+<h3>Component Scan</h3>
+
+<p>Component Scan은 XML에 일일이 빈등록을 하지않고 각 빈 클래스에 @Component를 통해 자동 빈 등록
+@Component는 스프링이 어노테이션에 담긴 메타정보를 이용하기 시작했을 때 @Autowired와 함께 소개된 대표적인 어노테이션. @Component 어노테이션을 클래스에 작성하면 빈 스캐너를 통해 자동 빈 등록됩니다.
+특정 패키지 아래에 위치한 빈들을 Component Scan하기 위한 방법은 다음과 같습니다. </p>
+
+<ol>
+<li>XML에서 <code>&lt;context:component-scan base-package=&quot;com.nhnent.spring&quot; /&gt;</code></li>
+<li>자바 파일의 설정 클래스(@Configuration)에서 @ConponentScan 어노테이션 설정 </li>
+</ol>
+
+<p>Context Scan을 처리하는 부분은 spring-context-버전.jar에 위치하고 있으며 본문에 나오는 테스트코드와 소스는 스프링 프로젝트에서 확인하실 수 있습니다.
+<a href="https://github.com/spring-projects/spring-framework.git">스프링 프로젝트 소스</a> 에서 구할 수 있습니다.</p>
+
+<p>분석은 크게 3가지 방향으로 진행하였습니다.</p>
+
+<ol>
+<li>Component scan를 수행하는 과정.</li>
+<li>컨테이너에서 getBean(beanName.class)을 호출하여 빈이 호출되는 과정. </li>
+<li>Spring MVC에서 Component Scan </li>
+</ol>
+
+<p>스프링 컨테이너가 실행되면서 수행하는 여러가지 초기화 과정 중에서 Component Scan부분만 딱 잘라서 설명할 경우 앞뒤 과정이 없어 생소할 수 있기 때문에 기본적인 빈 등록, 빈 검색을 같이 연관성있는 부분들도 같이 설명하도록 하겠습니다. 
+실질적인 Component scan이 진행되기까지 절차가 길기 때문에 요약을 하자면 아래와 같은 순서로 진행됩니다.</p>
+
+<ol>
+<li>@Configuration 어노테이션 클래스 파싱 (보통 @Configuration 설정 클래스에 @ComponentScan이 설정)</li>
+<li>@ComponentScan 어노테이션 클래스 파싱</li>
+<li>ComponentScanAnnotationParser 클래스</li>
+<li>실질적으로 Component scan 패키지 디렉토리에서 리소스를 찾는 ClassPathBeanDefinitionScanner </li>
+</ol>
+
+<h4>ComponentScan Test Code</h4>
+
+<p>ComponentScan에 대한 테스트 케이스는 아래와 같습니다. ComponentScan수행시 기본적으로는 base-package를 지정하지만 이 외에도 IncludeFilter, ExcludeFilter, ScopeProxy 등 다양항 설정 가능합니다.
+여기서는 가장 기본적인 base-package를 기반으로 빈 등록하는 과정만 집중적으로 살펴보겠습니다.</p>
+
+<ul>
+<li>org.springframework.context.annotation.ComponentScanAnnotationIntegrationTests.java</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ComponentScanAnnotationIntegrationTests</span> <span class="o">{</span>
+
+    <span class="nd">@Test</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">viaContextRegistration_WithValueAttribute</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">AnnotationConfigApplicationContext</span> <span class="n">ctx</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">AnnotationConfigApplicationContext</span><span class="o">();</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">ComponentScanAnnotatedConfig_WithValueAttribute</span><span class="o">.</span><span class="na">class</span><span class="o">);</span> <span class="c1">// 1. 빈 등록</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">refresh</span><span class="o">();</span>                                                      <span class="c1">// 2. Component scan 수행</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">ComponentScanAnnotatedConfig_WithValueAttribute</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">TestBean</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>                                       <span class="c1">// 3. 빈 호출</span>
+        <span class="n">assertThat</span><span class="o">(</span><span class="s">&quot;config class bean not found&quot;</span><span class="o">,</span> <span class="n">ctx</span><span class="o">.</span><span class="na">containsBeanDefinition</span><span class="o">(</span><span class="s">&quot;componentScanAnnotatedConfig_WithValueAttribute&quot;</span><span class="o">),</span> <span class="n">is</span><span class="o">(</span><span class="kc">true</span><span class="o">));</span>
+        <span class="n">assertThat</span><span class="o">(</span><span class="s">&quot;@ComponentScan annotated @Configuration class registered directly against &quot;</span> <span class="o">+</span>
+                <span class="s">&quot;AnnotationConfigApplicationContext did not trigger component scanning as expected&quot;</span><span class="o">,</span>
+                <span class="n">ctx</span><span class="o">.</span><span class="na">containsBean</span><span class="o">(</span><span class="s">&quot;fooServiceImpl&quot;</span><span class="o">),</span> <span class="n">is</span><span class="o">(</span><span class="kc">true</span><span class="o">));</span>
+    <span class="o">}</span>
+
+    <span class="c1">// 다른 테스트 케이스 생략 ...</span>
+<span class="o">}</span>
+
+
+<span class="nd">@Configuration</span>
+<span class="nd">@ComponentScan</span><span class="o">(</span><span class="s">&quot;example.scannable&quot;</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">ComponentScanAnnotatedConfig_WithValueAttribute</span> <span class="o">{</span>
+    <span class="nd">@Bean</span>
+    <span class="kd">public</span> <span class="n">TestBean</span> <span class="nf">testBean</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">TestBean</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></div>
+
+<p>5번째 줄의 AnnotationConfigApplicationContext 클래스는 스크링 컨테이너로 이름에서 유추할 수 있듯 어노테이션 설정을 처리할 수 있는 Context.</p>
+
+<p>19~21번째 줄의 @Configuration(설정 어노테이션)과 @ComponentScan 어노테이션이 붙은 클래스(ComponentScanAnnotatedConfig_WithValueAttribute)를 등록(register)하고 이를 호출하는 테스트 코드입니다. &quot;example.scannable&quot; 패키지 위치에는 @Component 어노테이션을 가진 클래스 파일들이 위치해 있습니다.</p>
+
+<p>Component scan을 수행하기 전에 register() 메서드로 검색할 패키지에 대한 정보를 가지는 @ComponentScan 어노테이션과 설정에 관련된 클래스임을 알려주는 @Configuration을 가진 ComponentScanAnnotatedConfig_WithValueAttribute.class를 빈 등록. (빈을 등록하는 절차 조금 복잡한 절차이지만 생략해도 Componentscan을 이해하는데 지장이 없으므로 분석을 건너뛰도록 하겠습니다.)</p>
+
+<p>7번째 줄의 ctx.refresh() 메서드에 Component Scan 처리 부분이 담겨있습니다.</p>
+
+<h4>component scan 분석</h4>
+
+<ul>
+<li>AnnotationConfigApplicationContext.refresh()</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">refresh</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">BeansException</span><span class="o">,</span> <span class="n">IllegalStateException</span> <span class="o">{</span>
+    <span class="c1">// 동기화 코드 생략..</span>
+
+    <span class="c1">// Prepare this context for refreshing.</span>
+    <span class="n">prepareRefresh</span><span class="o">();</span>
+
+    <span class="c1">// Tell the subclass to refresh the internal bean factory.</span>
+    <span class="n">ConfigurableListableBeanFactory</span> <span class="n">beanFactory</span> <span class="o">=</span> <span class="n">obtainFreshBeanFactory</span><span class="o">();</span>
+
+    <span class="c1">// Prepare the bean factory for use in this context.</span>
+    <span class="n">prepareBeanFactory</span><span class="o">(</span><span class="n">beanFactory</span><span class="o">);</span>
+
+    <span class="c1">// Allows post-processing of the bean factory in context subclasses.</span>
+    <span class="n">postProcessBeanFactory</span><span class="o">(</span><span class="n">beanFactory</span><span class="o">);</span>
+
+    <span class="c1">// Invoke factory processors registered as beans in the context.</span>
+    <span class="n">invokeBeanFactoryPostProcessors</span><span class="o">(</span><span class="n">beanFactory</span><span class="o">);</span> <span class="c1">// 여기서 Component Scan 작업 수행</span>
+
+    <span class="c1">// Register bean processors that intercept bean creation.</span>
+    <span class="n">registerBeanPostProcessors</span><span class="o">(</span><span class="n">beanFactory</span><span class="o">);</span>
+
+    <span class="c1">// Initialize message source for this context.</span>
+    <span class="n">initMessageSource</span><span class="o">();</span>
+
+    <span class="c1">// Initialize event multicaster for this context.</span>
+    <span class="n">initApplicationEventMulticaster</span><span class="o">();</span>
+
+    <span class="c1">// Initialize other special beans in specific context subclasses.</span>
+    <span class="n">onRefresh</span><span class="o">();</span>
+
+    <span class="c1">// Check for listener beans and register them.</span>
+    <span class="n">registerListeners</span><span class="o">();</span>
+
+    <span class="c1">// Instantiate all remaining (non-lazy-init) singletons.</span>
+    <span class="n">finishBeanFactoryInitialization</span><span class="o">(</span><span class="n">beanFactory</span><span class="o">);</span>
+
+    <span class="c1">// Last step: publish corresponding event.</span>
+    <span class="n">finishRefresh</span><span class="o">();</span>
+
+    <span class="c1">// 예외처리 생략.</span>
+<span class="o">}</span></code></pre></div>
+
+<p>AnnotationConfigApplicationContext의 빈 등록(register)을 마친 후 refresh() 메서드를 호출하는데 여기서 9번째 줄에서 빈 팩토리를 준비하고(prepareBeanFactory(beanFactory)) 이와 관련된 후처리(PostProcessor) 작업과 같은 몇몇 절차가 있으나 그 중 Component Scan은 19번째 줄의 <code>invokeBeanFactoryPostProcessors(beanFactory)</code> 메서드에서 이뤄집니다.
+Component Scan 부분만 살펴보기 위해 나머지 메서드들에 대한 내용은 생략하겠습니다.
+여기서 매개변수로 넘겨준 beanFactory는 DefaultListableBeanFactory 구체 클래스로 빈들을 등록/검색할 수 있는 BeanDefinitionRegistry 인터페이스를 상속하고 있습니다. 등록된 빈들은 DefaultListableBeanFactory 클래스의 ConcurrentHashMap타입의 beanDefinitionMap에 저장됩니다. </p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">BeanDefinition</span><span class="o">&gt;</span> <span class="n">beanDefinitionMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ConcurrentHashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">BeanDefinition</span><span class="o">&gt;(</span><span class="mi">64</span><span class="o">);</span></code></pre></div>
+
+<p>DefaultListableBeanFactory 팩토리에서 상속하는 인터페이스의 타입 계층 구조를 살펴보면 이름을 통해 어떤 역활을 해주는지 유추해 볼 수 있습니다. </p>
+
+<p>DefaultListableBeanFactory 클래스는 빈을 싱글톤으로 관리해주는 SingletonRegistry 인터페이스 역시 상속하고 있습니다. 
+타입 계층 구조의 각 클래스에는 의존성이나 빈의 등록과 세세한 설정에 대한 사항을 다루는 부분이 담겨있습니다.</p>
+
+<p>invokeBeanFactoryPostProcessors(beanFactory)에서 빈 팩토리를 BeanDefinitionRegistry로 형 변환 하여 넘기게 됩니다.(단순 형변환하여 넘기는게 아니라 부가 작업들이 있지만 중요한 내용이 아니므로 생략하였습니다.)</p>
+
+<h4>@Configuration 어노테이션 클래스 파싱</h4>
+
+<ul>
+<li>ConfigurationClassPostProcessor.processConfigBeanDefinitions(BeanDefinitionRegistry registry)</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">processConfigBeanDefinitions</span><span class="o">(</span><span class="n">BeanDefinitionRegistry</span> <span class="n">registry</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">Set</span><span class="o">&lt;</span><span class="n">BeanDefinitionHolder</span><span class="o">&gt;</span> <span class="n">configCandidates</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LinkedHashSet</span><span class="o">&lt;</span><span class="n">BeanDefinitionHolder</span><span class="o">&gt;();</span>
+    <span class="c1">// 매개변수 registry로 부터 Configuration 정보를 담고있는 BeanDefinitionHolder를 찾아 configCandidates에 넣어주는 작업</span>
+
+    <span class="c1">// 생략..</span>
+
+    <span class="c1">// Parse each @Configuration class</span>
+    <span class="n">ConfigurationClassParser</span> <span class="n">parser</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ConfigurationClassParser</span><span class="o">(</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">metadataReaderFactory</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">problemReporter</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">environment</span><span class="o">,</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">resourceLoader</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">componentScanBeanNameGenerator</span><span class="o">,</span> <span class="n">registry</span><span class="o">);</span>
+
+    <span class="n">Set</span><span class="o">&lt;</span><span class="n">ConfigurationClass</span><span class="o">&gt;</span> <span class="n">alreadyParsed</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;</span><span class="n">ConfigurationClass</span><span class="o">&gt;(</span><span class="n">configCandidates</span><span class="o">.</span><span class="na">size</span><span class="o">());</span>
+    
+    <span class="n">parser</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">configCandidates</span><span class="o">);</span>
+    <span class="n">parser</span><span class="o">.</span><span class="na">validate</span><span class="o">();</span>
+
+    <span class="c1">// 생략...</span>
+    <span class="c1">// Component Scan 과정 후 빈을 찾을때 활용되는 코드 생략. 나중에 getBean()으로 빈을 찾을때 다시 언급</span>
+    <span class="c1">//</span></code></pre></div>
+                
+
+<p>invokeBeanFactoryPostProcessors() 메서드 빈 등록을 처리하기 위해 여러 작업을 수행하지만 실질적으로 @Configuration 어노테이션 클래스를 파싱하는 것은  ConfigurationClassParser 클래스의 parse() 메서드입니다.</p>
+
+<p>이 때 매개변수로 BeanDefinitionRegistry(beanFactory에 포함된 빈 registry)를 넘겨줍니다. 그리고 이 beanFactory에는 테스트 코드에서 컨텍스트에 등록해주었던 ComponentScanAnnotatedConfig_WithValueAttribute 클래스의 정보도 같이 포함되어 있습니다.</p>
+
+<p>parse 메서드 안에서도 다시 몇 번의 메서드 호출 뒤 doProcessConfigurationClass 메서드로 넘어오며 여기서 실질적으로 Component Scan작업이 수행됩니다.</p>
+
+<h4>@ComponentScan 어노테이션 클래스 파싱</h4>
+
+<ul>
+<li>ConfigurationClassParser.doProcessConfigurationClass()</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">protected</span> <span class="kd">final</span> <span class="n">SourceClass</span> <span class="nf">doProcessConfigurationClass</span><span class="o">(</span><span class="n">ConfigurationClass</span> <span class="n">configClass</span><span class="o">,</span> <span class="n">SourceClass</span> <span class="n">sourceClass</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+        
+        <span class="c1">// Process any @PropertySource annotations</span>
+        <span class="c1">// 생략...</span>
+
+        <span class="c1">// Process any @ComponentScan annotations</span>
+        <span class="n">AnnotationAttributes</span> <span class="n">componentScan</span> <span class="o">=</span> <span class="n">AnnotationConfigUtils</span><span class="o">.</span><span class="na">attributesFor</span><span class="o">(</span><span class="n">sourceClass</span><span class="o">.</span><span class="na">getMetadata</span><span class="o">(),</span> <span class="n">ComponentScan</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">componentScan</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="k">this</span><span class="o">.</span><span class="na">conditionEvaluator</span><span class="o">.</span><span class="na">shouldSkip</span><span class="o">(</span><span class="n">sourceClass</span><span class="o">.</span><span class="na">getMetadata</span><span class="o">(),</span> <span class="n">ConfigurationPhase</span><span class="o">.</span><span class="na">REGISTER_BEAN</span><span class="o">))</span> <span class="o">{</span>
+            <span class="c1">// The config class is annotated with @ComponentScan -&gt; perform the scan immediately</span>
+            <span class="n">Set</span><span class="o">&lt;</span><span class="n">BeanDefinitionHolder</span><span class="o">&gt;</span> <span class="n">scannedBeanDefinitions</span> <span class="o">=</span>
+                    <span class="k">this</span><span class="o">.</span><span class="na">componentScanParser</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">componentScan</span><span class="o">,</span> <span class="n">sourceClass</span><span class="o">.</span><span class="na">getMetadata</span><span class="o">().</span><span class="na">getClassName</span><span class="o">());</span>  <span class="c1">// &lt;- 여기서 Component scan 수행!</span>
+            <span class="c1">// Check the set of scanned definitions for any further config classes and parse recursively if necessary</span>
+            <span class="k">for</span> <span class="o">(</span><span class="n">BeanDefinitionHolder</span> <span class="n">holder</span> <span class="o">:</span> <span class="n">scannedBeanDefinitions</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">ConfigurationClassUtils</span><span class="o">.</span><span class="na">checkConfigurationClassCandidate</span><span class="o">(</span><span class="n">holder</span><span class="o">.</span><span class="na">getBeanDefinition</span><span class="o">(),</span> <span class="k">this</span><span class="o">.</span><span class="na">metadataReaderFactory</span><span class="o">))</span> <span class="o">{</span>
+                    <span class="n">parse</span><span class="o">(</span><span class="n">holder</span><span class="o">.</span><span class="na">getBeanDefinition</span><span class="o">().</span><span class="na">getBeanClassName</span><span class="o">(),</span> <span class="n">holder</span><span class="o">.</span><span class="na">getBeanName</span><span class="o">());</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="c1">// Process any @Import annotations</span>
+        <span class="c1">// 생략...</span>
+
+        <span class="c1">// Process any @ImportResource annotations</span>
+        <span class="c1">// 생략...</span>
+
+        <span class="c1">// Process individual @Bean methods</span>
+        <span class="c1">// 생략...</span>
+
+        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="o">}</span></code></pre></div>
+
+<p>생략된 코드의 주석을 보시면 @ComponentScan 어노테이션을 처리하는 부분 외에도 @PropertySource, @Import, @ImportResource, @Bean을 처리하는 부분도 같이 있습니다. </p>
+
+<p>여기서 나머지 가장 핵심은 11번째 줄인데 ConfigurationClassParser 클래스에는 내부적으로 ComponentScanAnnotationParser 클래스의 인스턴스를 componentScanParser 이름의 필드로 가지고 있습니다. </p>
+
+<h4>ComponentScanAnnotationParser 클래스</h4>
+
+<ul>
+<li>ComponentScanAnnotationParser.java</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="nf">ComponentScanAnnotationParser</span><span class="o">(</span><span class="n">ResourceLoader</span> <span class="n">resourceLoader</span><span class="o">,</span> <span class="n">Environment</span> <span class="n">environment</span><span class="o">,</span>
+            <span class="n">BeanNameGenerator</span> <span class="n">beanNameGenerator</span><span class="o">,</span> <span class="n">BeanDefinitionRegistry</span> <span class="n">registry</span><span class="o">)</span></code></pre></div>
+
+<p>ComponentScanAnnotationParser 생성자로 넘어가는 매개변수의 이름을 살펴보면 
+* ResourceLoader : 스프링은 file이나 어떠한 형태의 자원을 Resource로 관리
+* Environment : @PropertySource나 XML에 명시된 properties관련 파일에 있는 property 정보가 들어있는 Environment
+* BeanNameGenerator : 빈의 이름을 생성해주느는 BeanNameGenerator
+* BeanDefinitionRegistry : BeanDefinition을 등록/관리하는 BeanDefinitionRegistry</p>
+
+<p>componentScanParser.parse() 메서드로 넘어가는 매개변수 componentScan와 sourceClass.getMetadata().getClassName()를 하나씩 살펴보겠습니다. 
+<em>componentScan</em> : AnnotationAttributes 클래스로 Component Scan시 옵션으로 설정할수 있는 필드들을 가지는 LinkedHashMap 상속 클래스. 
+* value, basePackageClasses, nameGenerator, scopeResolver, scopedProxy, lazyInit, includeFilters, excludeFilters, resourcePattern, useDefaultFilters, basePackages
+* 테스트 케이스에서 componentScan에 설정된 값은 아래와 같습니다. </p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">value</span><span class="o">=[</span><span class="n">example</span><span class="o">.</span><span class="na">scannable</span><span class="o">],</span>
+     <span class="n">basePackageClasses</span><span class="o">=[],</span>
+     <span class="n">nameGenerator</span><span class="o">=</span><span class="kd">interface</span> <span class="nc">org</span><span class="o">.</span><span class="na">springframework</span><span class="o">.</span><span class="na">beans</span><span class="o">.</span><span class="na">factory</span><span class="o">.</span><span class="na">support</span><span class="o">.</span><span class="na">BeanNameGenerator</span><span class="o">,</span>
+     <span class="n">scopeResolver</span><span class="o">=</span><span class="kd">class</span> <span class="nc">org</span><span class="o">.</span><span class="na">springframework</span><span class="o">.</span><span class="na">context</span><span class="o">.</span><span class="na">annotation</span><span class="o">.</span><span class="na">AnnotationScopeMetadataResolver</span><span class="o">,</span>
+     <span class="n">scopedProxy</span><span class="o">=</span><span class="n">DEFAULT</span><span class="o">,</span>
+     <span class="n">lazyInit</span><span class="o">=</span><span class="kc">false</span><span class="o">,</span>
+     <span class="n">includeFilters</span><span class="o">=[],</span>
+     <span class="n">excludeFilters</span><span class="o">=[],</span>
+     <span class="n">resourcePattern</span><span class="o">=**/*.</span><span class="na">class</span><span class="o">,</span>
+     <span class="n">useDefaultFilters</span><span class="o">=</span><span class="kc">true</span><span class="o">,</span>
+     <span class="n">basePackages</span><span class="o">=[]</span></code></pre></div>
+
+<p>테스트 코드의 설정 클래스에서 @ComponentScan(&quot;example.scannable&quot;)로 설정했기 때문에 basePackages 값이 비어있고 기본값을 넣어주는 value에 &quot;example.scannable&quot; 값이 들어가 있는것을 확인할 수 있습니다. 하지만 내부에서 처리할 때에는 basePackages나 value에 넣어두나 동일한 과정을 거치게 됩니다. </p>
+
+<p><em>sourceClass.getMetadata().getClassName()</em></p>
+
+<p>SourceClass 클래스는 간단히 설명하자면 Configuration 정보가 있는 클래스의 인스턴스와 이 클래스의 어노테이션과 같은 메타정보를 분석해주는 AnnotationMetadata을 가지도록 Wrapping한 것이라 보시면 됩니다. 그렇기 때문에 sourceClass.getMetadata().getClassName()는 @Configuration 어노테이션이 있는 &quot;org.springframework.context.annotation.ComponentScanAnnotatedConfig_WithValueAttribute&quot; 가 됩니다. </p>
+
+<ul>
+<li>ComponentScanAnnotationParser.parse(AnnotationAttributes, String)</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">BeanDefinitionHolder</span><span class="o">&gt;</span> <span class="nf">parse</span><span class="o">(</span><span class="n">AnnotationAttributes</span> <span class="n">componentScan</span><span class="o">,</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">declaringClass</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">ClassPathBeanDefinitionScanner</span> <span class="n">scanner</span> <span class="o">=</span>
+            <span class="k">new</span> <span class="nf">ClassPathBeanDefinitionScanner</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">registry</span><span class="o">,</span> <span class="n">componentScan</span><span class="o">.</span><span class="na">getBoolean</span><span class="o">(</span><span class="s">&quot;useDefaultFilters&quot;</span><span class="o">));</span>
+ 
+    <span class="c1">// scanner.setBeanNameGenerator() 설정</span>
+    <span class="c1">// scanner.setScopedProxyMode(scopedProxyMode) 설정</span>
+    <span class="c1">// scanner.setResourcePattern(componentScan.getString(&quot;resourcePattern&quot;)) 설정</span>
+    <span class="c1">// scanner.addIncludeFilter(typeFilter) 설정</span>
+    <span class="c1">// scanner.addExcludeFilter(typeFilter) 설정</span>
+    <span class="c1">// scanner.getBeanDefinitionDefaults().setLazyInit(true) 설정 </span>
+
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">basePackages</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;();</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">pkg</span> <span class="o">:</span> <span class="n">componentScan</span><span class="o">.</span><span class="na">getStringArray</span><span class="o">(</span><span class="s">&quot;value&quot;</span><span class="o">))</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">hasText</span><span class="o">(</span><span class="n">pkg</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">basePackages</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">pkg</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">pkg</span> <span class="o">:</span> <span class="n">componentScan</span><span class="o">.</span><span class="na">getStringArray</span><span class="o">(</span><span class="s">&quot;basePackages&quot;</span><span class="o">))</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">hasText</span><span class="o">(</span><span class="n">pkg</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">basePackages</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">pkg</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">Class</span><span class="o">&lt;?&gt;</span> <span class="n">clazz</span> <span class="o">:</span> <span class="n">componentScan</span><span class="o">.</span><span class="na">getClassArray</span><span class="o">(</span><span class="s">&quot;basePackageClasses&quot;</span><span class="o">))</span> <span class="o">{</span>
+        <span class="n">basePackages</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">ClassUtils</span><span class="o">.</span><span class="na">getPackageName</span><span class="o">(</span><span class="n">clazz</span><span class="o">));</span>
+    <span class="o">}</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">basePackages</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+        <span class="n">basePackages</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">ClassUtils</span><span class="o">.</span><span class="na">getPackageName</span><span class="o">(</span><span class="n">declaringClass</span><span class="o">));</span>
+    <span class="o">}</span>
+
+    <span class="k">return</span> <span class="n">scanner</span><span class="o">.</span><span class="na">doScan</span><span class="o">(</span><span class="n">StringUtils</span><span class="o">.</span><span class="na">toStringArray</span><span class="o">(</span><span class="n">basePackages</span><span class="o">));</span>
+<span class="o">}</span></code></pre></div>
+
+<p>위 메서드 두 번째 줄에 선언된 ClassPathBeanDefinitionScanner 클래스의 인스턴스는 이름에서 알 수 있듯 클래스패스에서 BeanDefinition을 찾는다. </p>
+
+<p>위 코드의 생략된 부분은 첫 번째 매개변수인 componentScan에 포함되어있는 @ComponentScan의 각 옵션들(excludeFilters, scopeProxy, nameGenerator 등)을 읽어 이를 처리할 수 있도록  ClassPathBeanDefinitionScanner의 인스턴스 scanner에 설정하는 코드. </p>
+
+<p>그리고 나머지 부분은 scan작업을 할 package, classes들을 설정하여 scanner.doScan() 메서드를 통해 스캔작업을 실행한다. 이 예제에서는 특정 패키지(example.scannable)를 스캔하게 된다.</p>
+
+<h4>실질적으로 Component scan 패키지 디렉토리에서 리소스를 찾는 ClassPathBeanDefinitionScanner</h4>
+
+<ul>
+<li>ClassPathBeanDefinitionScanner.doScan(String...)</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">protected</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">BeanDefinitionHolder</span><span class="o">&gt;</span> <span class="nf">doScan</span><span class="o">(</span><span class="n">String</span><span class="o">...</span> <span class="n">basePackages</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">Assert</span><span class="o">.</span><span class="na">notEmpty</span><span class="o">(</span><span class="n">basePackages</span><span class="o">,</span> <span class="s">&quot;At least one base package must be specified&quot;</span><span class="o">);</span>
+    <span class="n">Set</span><span class="o">&lt;</span><span class="n">BeanDefinitionHolder</span><span class="o">&gt;</span> <span class="n">beanDefinitions</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LinkedHashSet</span><span class="o">&lt;</span><span class="n">BeanDefinitionHolder</span><span class="o">&gt;();</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">basePackage</span> <span class="o">:</span> <span class="n">basePackages</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Set</span><span class="o">&lt;</span><span class="n">BeanDefinition</span><span class="o">&gt;</span> <span class="n">candidates</span> <span class="o">=</span> <span class="n">findCandidateComponents</span><span class="o">(</span><span class="n">basePackage</span><span class="o">);</span> <span class="c1">// 특정 패키지에 리소스를 모두 읽어온다.</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">BeanDefinition</span> <span class="n">candidate</span> <span class="o">:</span> <span class="n">candidates</span><span class="o">)</span> <span class="o">{</span>  <span class="c1">// 리소스를 검사하기 각 리소스를 순회</span>
+            <span class="n">ScopeMetadata</span> <span class="n">scopeMetadata</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">scopeMetadataResolver</span><span class="o">.</span><span class="na">resolveScopeMetadata</span><span class="o">(</span><span class="n">candidate</span><span class="o">);</span>
+            <span class="n">candidate</span><span class="o">.</span><span class="na">setScope</span><span class="o">(</span><span class="n">scopeMetadata</span><span class="o">.</span><span class="na">getScopeName</span><span class="o">());</span>
+            <span class="n">String</span> <span class="n">beanName</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">beanNameGenerator</span><span class="o">.</span><span class="na">generateBeanName</span><span class="o">(</span><span class="n">candidate</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">registry</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">candidate</span> <span class="k">instanceof</span> <span class="n">AbstractBeanDefinition</span><span class="o">)</span> <span class="o">{</span>  
+                <span class="n">postProcessBeanDefinition</span><span class="o">((</span><span class="n">AbstractBeanDefinition</span><span class="o">)</span> <span class="n">candidate</span><span class="o">,</span> <span class="n">beanName</span><span class="o">);</span> <span class="c1">// 해당 빈의 Autowired가 있는지 검사</span>
+            <span class="o">}</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">candidate</span> <span class="k">instanceof</span> <span class="n">AnnotatedBeanDefinition</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">AnnotationConfigUtils</span><span class="o">.</span><span class="na">processCommonDefinitionAnnotations</span><span class="o">((</span><span class="n">AnnotatedBeanDefinition</span><span class="o">)</span> <span class="n">candidate</span><span class="o">);</span> <span class="c1">// 다른 어노테이션들 검사(@Lazy, @Role 등..)</span>
+            <span class="o">}</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">checkCandidate</span><span class="o">(</span><span class="n">beanName</span><span class="o">,</span> <span class="n">candidate</span><span class="o">))</span> <span class="o">{</span> <span class="c1">// includeFilter, excludeFilter 검사로 빈 필터링</span>
+                <span class="n">BeanDefinitionHolder</span> <span class="n">definitionHolder</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">BeanDefinitionHolder</span><span class="o">(</span><span class="n">candidate</span><span class="o">,</span> <span class="n">beanName</span><span class="o">);</span>
+                <span class="n">definitionHolder</span> <span class="o">=</span> <span class="n">AnnotationConfigUtils</span><span class="o">.</span><span class="na">applyScopedProxyMode</span><span class="o">(</span><span class="n">scopeMetadata</span><span class="o">,</span> <span class="n">definitionHolder</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">registry</span><span class="o">);</span>
+                <span class="n">beanDefinitions</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">definitionHolder</span><span class="o">);</span>
+                <span class="n">registerBeanDefinition</span><span class="o">(</span><span class="n">definitionHolder</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">registry</span><span class="o">);</span> <span class="c1">// bean registry에 등록</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">beanDefinitions</span><span class="o">;</span>
+<span class="o">}</span></code></pre></div>
+
+<p>여기서 5번째 줄의  Set<BeanDefinition> candidates = findCandidateComponents(basePackage); 에서 특정 패키지에 속한 리소스들(파일들)을 모두 읽어온다. </p>
+
+<ul>
+<li>ClassPathBeanDefinitionScanner.findCandidateComponents(String...)</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">BeanDefinition</span><span class="o">&gt;</span> <span class="nf">findCandidateComponents</span><span class="o">(</span><span class="n">String</span> <span class="n">basePackage</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">Set</span><span class="o">&lt;</span><span class="n">BeanDefinition</span><span class="o">&gt;</span> <span class="n">candidates</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LinkedHashSet</span><span class="o">&lt;</span><span class="n">BeanDefinition</span><span class="o">&gt;();</span>
+    
+    <span class="c1">// error loggin부분 생략,  예외처리 코드 생략...</span>
+
+    <span class="n">String</span> <span class="n">packageSearchPath</span> <span class="o">=</span> <span class="n">ResourcePatternResolver</span><span class="o">.</span><span class="na">CLASSPATH_ALL_URL_PREFIX</span> <span class="o">+</span>
+            <span class="n">resolveBasePackage</span><span class="o">(</span><span class="n">basePackage</span><span class="o">)</span> <span class="o">+</span> <span class="s">&quot;/&quot;</span> <span class="o">+</span> <span class="k">this</span><span class="o">.</span><span class="na">resourcePattern</span><span class="o">;</span>
+
+    <span class="n">Resource</span><span class="o">[]</span> <span class="n">resources</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">resourcePatternResolver</span><span class="o">.</span><span class="na">getResources</span><span class="o">(</span><span class="n">packageSearchPath</span><span class="o">);</span>
+
+    <span class="k">for</span> <span class="o">(</span><span class="n">Resource</span> <span class="n">resource</span> <span class="o">:</span> <span class="n">resources</span><span class="o">)</span> <span class="o">{</span>
+        
+        <span class="n">MetadataReader</span> <span class="n">metadataReader</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">metadataReaderFactory</span><span class="o">.</span><span class="na">getMetadataReader</span><span class="o">(</span><span class="n">resource</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">isCandidateComponent</span><span class="o">(</span><span class="n">metadataReader</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">ScannedGenericBeanDefinition</span> <span class="n">sbd</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">ScannedGenericBeanDefinition</span><span class="o">(</span><span class="n">metadataReader</span><span class="o">);</span>
+            <span class="n">sbd</span><span class="o">.</span><span class="na">setResource</span><span class="o">(</span><span class="n">resource</span><span class="o">);</span>
+            <span class="n">sbd</span><span class="o">.</span><span class="na">setSource</span><span class="o">(</span><span class="n">resource</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">isCandidateComponent</span><span class="o">(</span><span class="n">sbd</span><span class="o">))</span> <span class="o">{</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">debugEnabled</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&quot;Identified candidate component class: &quot;</span> <span class="o">+</span> <span class="n">resource</span><span class="o">);</span>
+                <span class="o">}</span>
+                <span class="n">candidates</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">sbd</span><span class="o">);</span>
+            <span class="o">}</span>
+            
+        <span class="o">}</span>
+        
+    <span class="o">}</span>
+    
+    <span class="k">return</span> <span class="n">candidates</span><span class="o">;</span>
+<span class="o">}</span></code></pre></div>
+
+<p>6번째 줄에서 packageSearchPath에는 &quot;classpath<em>:example/scannable/</em><em>/</em>.class&quot; 와 같은 문자열로 설정되어 특정 클래스 패스의 특정 패키지 밑에 소속한 모든 .class파일들이 스캔 대상이 된다. </p>
+
+<p>9 번째 줄의 this.resourcePatternResolver.getResources(packageSearchPath)을 통해 Resource들을(여기선 모두 파일이기 때문에 FileSystemReosource) 구할 수 있다. 즉, example.scannable 패키지에 위치한 모든 클래스 파일들을 구할 수 있다.(inner class포함)</p>
+
+<p>메소드 실행 후 리소스들을 구했다면 다음에 실행되는 for문에서 각 리소스를 순회하는데 if문의 isCandidateComponent(metadataReader)를 통해 ComponentScan에 excludeFilter, includeFilter와 같은 필터를 설정해두었다면 이를 검사한다.(아래코드 참조) </p>
+
+<ul>
+<li>ClassPathBeanDefinitionScanner.isCandidateComponent(MetadataReader metadataReader)</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">protected</span> <span class="kt">boolean</span> <span class="nf">isCandidateComponent</span><span class="o">(</span><span class="n">MetadataReader</span> <span class="n">metadataReader</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">TypeFilter</span> <span class="n">tf</span> <span class="o">:</span> <span class="k">this</span><span class="o">.</span><span class="na">excludeFilters</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">tf</span><span class="o">.</span><span class="na">match</span><span class="o">(</span><span class="n">metadataReader</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">metadataReaderFactory</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">TypeFilter</span> <span class="n">tf</span> <span class="o">:</span> <span class="k">this</span><span class="o">.</span><span class="na">includeFilters</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">tf</span><span class="o">.</span><span class="na">match</span><span class="o">(</span><span class="n">metadataReader</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">metadataReaderFactory</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="nf">isConditionMatch</span><span class="o">(</span><span class="n">metadataReader</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+<span class="o">}</span></code></pre></div>
+
+<p>위 코드에서 별도의 excludeFilter를 설정해두지 않았기 때문에 생략되지만 includeFilter에는 기본적으로 3가지 필터가 있는데 그 중 하나가 클래스의 어노테이션 중 org.springframework.stereotype.Component 어노테이션을 가졌는지 검사하는 필터가 있다. 즉 여기서 @Component 어노테이션을 가진 클래스들은 필터를 통과해 빈 등록 과정을 거치게 된다. </p>
+
+<p>리소스들 중 필터를 거친 리소스들을 읽어와 그다음으로 수행하는 for문에서 빈이 싱글톤으로 관리될지 아니면 새로운 인스턴스를 만드는지를 판별하는 Scoped Proxy와 beanNameGenerator를 통해 bean의 이름을 생성한 뒤 이를 BeanDefinitionHolder로 만들어 beanDefinitions(LinkedHashSet)에 담아두고 이를 registry에서 등록하게 됩니다.</p>
+
+<p>여기서 registry는 제일 처음 매개변수로 넘겨주었던 beanFactory로 DefaultListableBeanFactory 클래스의 인스턴스입니다. 
+결론적으로 빈 팩토리의 beanResgitry에 등록된다. </p>
+
+<h3>빈 호출과정</h3>
+
+<p>Component scan으로 빈이 등록되었고, 테스트 코드의 9번째 줄에서 ctx.getBean(TestBean.class);를 처리하는 과정을 살펴보겠습니다.
+빈을 등록했을때 beanFactory를 활용했듯이 역시 beanFactory에서 getBean(Class<T>) 메서드로 찾고자 하는 빈의 클래스정보를 넘겨주면 beanFactory(DefaultListableBeanFactory)의 상위 타입인 SingletonBeanRegistry의 getSingleton(beanName)을 호출하게됩니다.  </p>
+
+<ul>
+<li>DefaultSingletonBeanRegistry.getSingleton(String, boolean)</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">protected</span> <span class="n">Object</span> <span class="nf">getSingleton</span><span class="o">(</span><span class="n">String</span> <span class="n">beanName</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">allowEarlyReference</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">Object</span> <span class="n">singletonObject</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">singletonObjects</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">beanName</span><span class="o">);</span>  <span class="c1">// singletonObjects에 singleton 빈들이 등록되어 있다.</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">singletonObject</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">isSingletonCurrentlyInCreation</span><span class="o">(</span><span class="n">beanName</span><span class="o">))</span> <span class="o">{</span>
+        <span class="kd">synchronized</span> <span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">singletonObjects</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">singletonObject</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">earlySingletonObjects</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">beanName</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">singletonObject</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">allowEarlyReference</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">ObjectFactory</span><span class="o">&lt;?&gt;</span> <span class="n">singletonFactory</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">singletonFactories</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">beanName</span><span class="o">);</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">singletonFactory</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">singletonObject</span> <span class="o">=</span> <span class="n">singletonFactory</span><span class="o">.</span><span class="na">getObject</span><span class="o">();</span>
+                    <span class="k">this</span><span class="o">.</span><span class="na">earlySingletonObjects</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">beanName</span><span class="o">,</span> <span class="n">singletonObject</span><span class="o">);</span>
+                    <span class="k">this</span><span class="o">.</span><span class="na">singletonFactories</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="n">beanName</span><span class="o">);</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="o">(</span><span class="n">singletonObject</span> <span class="o">!=</span> <span class="n">NULL_OBJECT</span> <span class="o">?</span> <span class="n">singletonObject</span> <span class="o">:</span> <span class="kc">null</span><span class="o">);</span>
+<span class="o">}</span></code></pre></div>
+
+<ul>
+<li>2번째 줄의 this.singletonObjects.get(beanName); 을통해 실질적인 TestBean 빈을 찾게되는데 singletonObjects는 이전 빈 등록과정에서 registry 처럼 ConcurrentHashMap<String, Object>(64) 타입이다. </li>
+<li><p>Component Scan시 빈이 등록되는 곳은 DefaultListableBeanFactory클래스의 beanDefinitionMap 이라고 언급했는데 Component Scan을 진행하는 메서드 stack 중 ConfigurationClassPostProcessor.processConfigBeanDefinitions() 메서드(본 글의 3번째 코드를 참조) 진행 후 </p></li>
+<li><p>ConfigurationClassPostProcessor.processConfigBeanDefinitions()</p></li>
+</ul>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="c1">// 생략..</span>
+<span class="n">parser</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">configCandidates</span><span class="o">);</span> <span class="c1">// Component Scan 수행 부분</span>
+<span class="c1">// 생략...</span>
+
+<span class="k">if</span> <span class="o">(</span><span class="n">singletonRegistry</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(!</span><span class="n">singletonRegistry</span><span class="o">.</span><span class="na">containsSingleton</span><span class="o">(</span><span class="n">IMPORT_REGISTRY_BEAN_NAME</span><span class="o">))</span> <span class="o">{</span>
+        <span class="n">singletonRegistry</span><span class="o">.</span><span class="na">registerSingleton</span><span class="o">(</span><span class="n">IMPORT_REGISTRY_BEAN_NAME</span><span class="o">,</span> <span class="n">parser</span><span class="o">.</span><span class="na">getImportRegistry</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></div>
+
+<p>위 코드에서 singletonRegistry가 BeanFactory인 DefaultListableBeanFactory. 
+singletonRegistry.registerSingleton(IMPORT<em>REGISTRY</em>BEAN_NAME, parser.getImportRegistry()); 는 singletonRegistry의 상위 클래스인 DefaultSingletonBeanRegistry에 자신의 registry에 등록된 빈들을 singleton일 경우 넘겨준다. </p>
+
+<p>DefaultListableBeanFactory.registerSingleton()</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">registerSingleton</span><span class="o">(</span><span class="n">String</span> <span class="n">beanName</span><span class="o">,</span> <span class="n">Object</span> <span class="n">singletonObject</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IllegalStateException</span> <span class="o">{</span>
+    <span class="kd">super</span><span class="o">.</span><span class="na">registerSingleton</span><span class="o">(</span><span class="n">beanName</span><span class="o">,</span> <span class="n">singletonObject</span><span class="o">);</span> <span class="c1">// 상위 클래스가 DefaultSingletonBeanRegistry</span>
+    <span class="n">clearByTypeCache</span><span class="o">();</span>
+<span class="o">}</span></code></pre></div>
+
+<p>지금까지가 Singleton 빈이 호출되는 과정이다. 
+지금까지 설명한 빈 검색은 싱글톤이 아닐경우나 다른 설정들이 있을 경우 다른 방식으로 진행되지만 기본적인 싱글톤 빈의 경우의 검색의 경우에 해당한다.</p>
+
+<h3>Spring MVC에서의 Component Scan</h3>
+
+<p>위 분석에서는 AnnotationConfigApplicationContext 클래스가 스프링 컨테이너로 사용되었지만 우리가 실질적으로 사용하는 Spring MVC에서 사용되는 Context는 org.springframework.web.context.support.XmlWebApplicationContext 다.
+이는 spring-web-버전.jar에서 org.springframework.web.context 패키지에 ContextLoader.properties 파일을 열어보면 알 수 있다.</p>
+
+<ul>
+<li>ContextLoader.properties</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="err">#</span> <span class="n">Default</span> <span class="n">WebApplicationContext</span> <span class="n">implementation</span> <span class="kd">class</span> <span class="nc">for</span> <span class="n">ContextLoader</span><span class="o">.</span>
+<span class="err">#</span> <span class="n">Used</span> <span class="n">as</span> <span class="n">fallback</span> <span class="n">when</span> <span class="n">no</span> <span class="n">explicit</span> <span class="n">context</span> <span class="n">implementation</span> <span class="n">has</span> <span class="n">been</span> <span class="n">specified</span> <span class="n">as</span> <span class="n">context</span><span class="o">-</span><span class="n">param</span><span class="o">.</span>
+<span class="err">#</span> <span class="n">Not</span> <span class="n">meant</span> <span class="n">to</span> <span class="n">be</span> <span class="n">customized</span> <span class="n">by</span> <span class="n">application</span> <span class="n">developers</span><span class="o">.</span>
+
+<span class="n">org</span><span class="o">.</span><span class="na">springframework</span><span class="o">.</span><span class="na">web</span><span class="o">.</span><span class="na">context</span><span class="o">.</span><span class="na">WebApplicationContext</span><span class="o">=</span><span class="n">org</span><span class="o">.</span><span class="na">springframework</span><span class="o">.</span><span class="na">web</span><span class="o">.</span><span class="na">context</span><span class="o">.</span><span class="na">support</span><span class="o">.</span><span class="na">XmlWebApplicationContext</span></code></pre></div>
+
+<p>XmlWebAppplicationContext에서는 초기화 과정에서 상위 클래스인 AbstractRefreshableApplicationContext.refreshBeanFactory() 메서드를 통해  DefaultListableBeanFactory를 생성하여 사용한다. </p>
+
+<ul>
+<li>AbstractRefreshableApplicationContext.refreshBeanFactory()</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">protected</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">refreshBeanFactory</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">BeansException</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">hasBeanFactory</span><span class="o">())</span> <span class="o">{</span>
+        <span class="n">destroyBeans</span><span class="o">();</span>
+        <span class="n">closeBeanFactory</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">DefaultListableBeanFactory</span> <span class="n">beanFactory</span> <span class="o">=</span> <span class="n">createBeanFactory</span><span class="o">();</span> <span class="c1">// beanFactory 생성.</span>
+        <span class="n">beanFactory</span><span class="o">.</span><span class="na">setSerializationId</span><span class="o">(</span><span class="n">getId</span><span class="o">());</span>
+        <span class="n">customizeBeanFactory</span><span class="o">(</span><span class="n">beanFactory</span><span class="o">);</span>
+        <span class="n">loadBeanDefinitions</span><span class="o">(</span><span class="n">beanFactory</span><span class="o">);</span>
+        <span class="kd">synchronized</span> <span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">beanFactoryMonitor</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">beanFactory</span> <span class="o">=</span> <span class="n">beanFactory</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">ApplicationContextException</span><span class="o">(</span><span class="s">&quot;I/O error parsing bean definition source for &quot;</span>
+            <span class="o">+</span> <span class="n">getDisplayName</span><span class="o">(),</span> <span class="n">ex</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></div>
+
+<ul>
+<li>이후의 과정은 생략된 부분이 많이 있지만 Component Scan은 앞서 설명한 과정을 통해 빈을 등록하게 된다. </li>
+</ul>
+
+<h3>부록 1. @Component</h3>
+
+<p>@Component는 스프링이 어노테이션에 담긴 메타정보를 이용하기 시작했을 때 @Autowired와 함께 소개된 대표적인 어노테이션입니다. @Component는 클래스에 부여되는데 이는 빈 스캐너를 통해 자동으로 빈으로 등록됩니다. 정확히는 @Component 또는 @Component를 메타 어노테이션으로 갖고 있는 어노테이션(@Controller, @Repository, @Service를 말함)이 붙은 클래스가 빈 등록 대상이 됩니다.</p>
+
+<p>@Component의 @Controller, @Repository, @Service</p>
+
+<p>보통 스프링 MVC 코드를 작성할 때 @Controller, @Repository, @Service를 각 클래스의 성격에 맞추어 붙여주곤 했습니다. 
+가끔 @Component를 붙여도 별다른 차이 없이 동작하는걸 확인 할 수 있는데 이는 @Component 어노테이션이 앞서 언급한 3개의 어노테이션의 메타 어노테이션(어노테이션에 대한 어노테이션)으로 사용되었기 때문입니다. 
+스프링 컨테이너가 초기화 될 때 설정에따라(XML이나 어노테이션 기반 설정) 빈 등록과정에서 특정 클래스의 어노테이션을 읽어(리플렉션 API인 getDeclaredAnnoations(), getAnnotations()를 활용)들입니다. 이 때 해당 특정 어노테이션을 만나면 해당 어노테이션의 메타 어노테이션을 재귀적으로 읽어들이기 때문에 @Controller, @Repository, @Service를 만나면 그 메타 어노테이션인 @Component 어노테이션을 읽어들이게 되고 하나의 빈으로 등록하게 됩니다.</p>
+
+<p>이 어노테이션들의 패키지명이 org.springframework.stereotype인데 왜 org.springframework.annotation이라는 패키지가 아닌 stereotype인가 의문이긴 한데 streotype를 사전에서 찾아보면 &#39;정형화 하다, 형식화 하다&#39; 라는 의미가 있어 그 의미에 맞추어 패키지명을 정하지 않았는가 짐작해봅니다.
+네 개의 어노테이션 말고도 @Component를 메타 어노테이션으로 가진 사용자 정의 어노테이션도 정의 가능합니다. 어노테이션의 용도가 AOP에서 포인트컷을 작성할 경우와 같이 다양한 용도로 활용할 수 있습니다.
+일반적으로 @Component와 나머지 세 개의 어노테이션이 차이점이 없음에도 불구하고 각 클래스의 성격에 맞추어 어노테이션을 붙이길 권장하는데 이는 각 클래스의 성격에 맞게 작성하는게 가독성이나 적합한 의미부여에 좋습니다. </p>
+
+<p>@Controller의 코드를 확인하면 @Conponent 어노테이션을 어노테이션으로 가지고 있습니다.</p>
+
+<ul>
+<li>Controller.java</li>
+</ul>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Target</span><span class="o">({</span><span class="n">ElementType</span><span class="o">.</span><span class="na">TYPE</span><span class="o">})</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="n">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="nd">@Documented</span>
+<span class="nd">@Component</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="n">Controller</span> <span class="o">{</span>
+
+    <span class="n">String</span> <span class="nf">value</span><span class="o">()</span> <span class="k">default</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
+
+<span class="o">}</span></code></pre></div>
+
+	  </div>
+
+		
+		<ul class="tag_box list-unstyled list-inline">
+		  <li><i class="fa fa-folder-open"></i></li>
+		  
+		  
+			 
+				<li><a href="/categories.html#javascript-ref">
+					javascript <span>(2)</span>
+					
+				</a></li>
+			
+		  
+		</ul>
+		  
+
+		
+		<ul class="list-inline">
+		  <li><i class="fa fa-tags"></i></li>
+		  
+		  
+			 
+				<li>
+					<a href="/tags.html#javascript-ref">
+					javascript <span>(2)</span>
+					,
+					</a>
+				</li>
+			 
+				<li>
+					<a href="/tags.html#date-ref">
+					date <span>(2)</span>
+					
+					</a>
+				</li>
+			
+		  
+		  
+		</ul>
+		  
+
+		<hr>
+
+		<div>
+      <section class="share col-sm-6">
+        <h4 class="section-title">Share Post</h4>
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=스프링 &lt;context:component-scan&gt; 분석&via=thswave"
+           onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+          <i class="fa fa-twitter fa-lg"></i>
+          Twitter
+        </a>
+        <a class="btn btn-default btn-sm facebook" href="https://www.facebook.com/sharer/sharer.php"
+           onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+          <i class="fa fa-facebook fa-lg"></i>
+          Facebook
+        </a>
+        <a class="btn btn-default btn-sm gplus"
+           onclick="window.open('https://plus.google.com/share?url='+window.location.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <i class="fa fa-google-plus fa-lg"></i>
+          Google+
+        </a>
+      </section>
+
+      <section class="col-sm-6 author">
+        <img src="http://www.gravatar.com/avatar/c1e626278fb674ec46bde944b163f3d9" class="img-rounded author-image" />
+        <h4 class="section-title author-name">thswave</h4>
+        <p class="author-bio">try hard, try hard!</p>
+      </section>
+    </div>
+
+    <div class="clearfix"></div>
+
+		<ul class="pager">
+		  
+		  <li class="previous"><a href="/linux/2015/02/01/logrotate.html" title="logrotate">&larr; Previous</a></li>
+		  
+		  
+			<li class="next disabled"><a>Next &rarr;</a>
+		  
+		</ul>
+
+		<hr>
+	</div>
+	<div class="col-sm-2 sidebar-2">
+	
+	</div>
+	 
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'thswavegithubio'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</article>
+<div class="clearfix"></div>
+
+
+
+		<div id="disqus_thread"></div>
+	    <script type="text/javascript">
+	        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+	        var disqus_shortname = 'thswavegithubio'; // required: replace example with your forum shortname
+
+	        /* * * DON'T EDIT BELOW THIS LINE * * */
+	        (function() {
+	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	        })();
+	    </script>
+	    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+		<footer>
+			<hr/>
+			<p>
+				&copy; 2015 thswave with Jekyll. Theme: dbyll by dbtek.
+			</p>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="/assets/resources/jquery/jquery.min.js"></script>
+	<script type="text/javascript" src="/assets/resources/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/assets/js/app.js"></script>
+	<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-58937114-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>
+

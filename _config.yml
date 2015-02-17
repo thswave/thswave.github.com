@@ -61,3 +61,7 @@ prose:
         field:
           label: "Category"
           element: "text"
+
+# guard
+destination: ./public
+exclude: ['scss','Gem*','Guard*','*.rb','.sass-cache','.git']

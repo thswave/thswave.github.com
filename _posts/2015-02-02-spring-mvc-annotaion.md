@@ -6,8 +6,8 @@ tags: [javascript, date]
 description: 스프링 &lt;context:component-scan&gt; 분석
 ---
 
-
-## 스프링 `<context:component-scan>` 분석
+### 스프링 `<context:component-scan>` 분석
+asd
 
 처음으로 스프링 MVC로 프로젝트를 개발하다보니 모르는것도 많고 어떻게 해야하는지 정확히 잘 몰라 구글링과 스프링 설정에 대한 블로그들을 보면서 이것저것 복사 붙여넣기 식으로 수행했습니다.
 그 중에서 스프링 XML 설정 지옥에서 벗어나게 해준 어노테이션. 스프링이 제공하는 어노테이션 기반 설정은 많지만 가장 유용했던 단 한 줄로 설정할 수 있었습니다.

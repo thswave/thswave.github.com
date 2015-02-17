@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>logrotate</title>
+	
+	<meta name="description" content="로그 로테이트, 아파치 로그 파일을 주기적으로(하루 단위로 rotation) 압축하여 일 별 관리하고 싶을 경우">
+	
+	<meta name="author" content="thswave">
+
+	<!-- Enable responsive viewport -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<!-- Le styles -->
+	<link href="/assets/resources/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/assets/resources/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+	<link href="/assets/resources/syntax/syntax.css" rel="stylesheet">
+	<link href="/assets/css/style.css" rel="stylesheet">
+
+	<!-- Le fav and touch icons -->
+	<!-- Update these with your own images
+	<link rel="shortcut icon" href="images/favicon.ico">
+	<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+	-->
+
+	<link rel="alternate" type="application/rss+xml" title="thswave" href="/feed.xml">
+</head>
+
+<body>
+	<nav class="navbar navbar-default visible-xs" role="navigation">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			
+			<a type="button" class="navbar-toggle nav-link" href="http://github.com/thswave">
+				<i class="fa fa-github"></i>
+			</a>
+			
+			
+			<a type="button" class="navbar-toggle nav-link" href="http://twitter.com/thswave">
+				<i class="fa fa-twitter"></i>
+			</a>
+			
+			
+			<a type="button" class="navbar-toggle nav-link" href="mailto:thswave@gmail.com">
+				<i class="fa fa-envelope"></i>
+			</a>
+			
+			<a class="navbar-brand" href="/">
+				<img src="http://www.gravatar.com/avatar/c1e626278fb674ec46bde944b163f3d9?s=35" class="img-circle" />
+				thswave
+			</a>
+		</div>
+
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="/">Home</a></li>
+				<li><a href="/categories.html">Categories</a></li>
+				<li><a href="/tags.html">Tags</a></li>
+			</ul>
+		</div><!-- /.navbar-collapse -->
+	</nav>
+
+	<!-- nav-menu-dropdown -->
+	<div class="btn-group hidden-xs" id="nav-menu">
+		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+			<i class="fa fa-bars"></i>
+		</button>
+		<ul class="dropdown-menu" role="menu">
+			<li><a href="/"><i class="fa fa-home"></i>Home</a></li>
+			<li><a href="/categories.html"><i class="fa fa-folder"></i>Categories</a></li>
+			<li><a href="/tags.html"><i class="fa fa-tags"></i>Tags</a></li>
+			<li class="divider"></li>
+			<li><a href="#"><i class="fa fa-arrow-up"></i>Top of Page</a></li>
+		</ul>
+	</div>
+	
+	<div class="col-sm-3 sidebar hidden-xs">
+		<! -- sidebar.html -->
+<header class="sidebar-header" role="banner">
+	<a href="/">
+		<img src="http://www.gravatar.com/avatar/c1e626278fb674ec46bde944b163f3d9?s=150" class="img-circle" />
+	</a>
+	<h3 class="title">
+        <a href="/">thswave</a>
+    </h3>
+</header>
+
+
+<div id="bio" class="text-center">
+	try hard, try hard!
+</div>
+
+
+<div id="contact-list" class="text-center">
+	<ul class="list-unstyled list-inline">
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="https://github.com/thswave">
+				<i class="fa fa-github-alt fa-lg"></i>
+			</a>
+		</li>
+		
+		<!-- 
+		<li>
+			<a class="btn btn-default btn-sm" href="https://facebook.com/changwon.sohn">
+				<i class="fa fa-facebook fa-lg"></i>
+			</a>
+		</li>
+		 -->
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="mailto:thswave@gmail.com">
+				<i class="fa fa-envelope fa-lg"></i>
+			</a>
+		</li>
+		
+	</ul>
+	<!-- <ul id="contact-list-secondary" class="list-unstyled list-inline">
+		
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="/feed.xml">
+				<i class="fa fa-rss fa-lg"></i>
+			</a>
+		</li>
+	</ul> -->
+</div>
+<! -- sidebar.html end -->
+
+	</div>
+	<div class="col-sm-9 col-sm-offset-3">
+		<div class="page-header">
+  <h1>logrotate </h1>
+</div>
+	
+<article>
+
+	<div class="col-sm-10">
+	 <span class="post-date">
+	   
+	   February 
+	   1st,
+	     
+	   2015
+	 </span>
+	  <div class="article_body">
+	  <h3>상황 : 아파치 로그 파일을 주기적으로(하루 단위로 rotation) 압축하여 일 별 관리하고 싶을 경우</h3>
+
+<p>기존 아파치 설정  httpd.conf</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">CustomLog    &quot;|/program/httpd-2.2.20/bin/rotatelogs -l /program/httpd-2.2.20/logs/%y%m%d.sample.activity_log 86400&quot; combined env=!nolog
+
+ErrorLog     &quot;|/program/httpd-2.2.20/bin/rotatelogs -l /program/httpd-2.2.20/logs/%y%m%d.sample.error_log 86400&quot;
+</code></pre></div>
+<ul>
+<li>하루 단위로 rotation 하고 있었지만 압축 저장하고 있지 않음.</li>
+</ul>
+
+<h3>해결방법 : 리눅스 기본 logrotate 활용!</h3>
+
+<ul>
+<li><em>logrotate란?</em> </li>
+</ul>
+
+<p>로그 파일(시스템 로그)을 rotates, compresses, and mails 을 할 수 있다.
+설정 파일을 변경해도 관련 프로세스를 새로 시작할 필요 없이 cron 데몬이 주기적으로 실행 시켜준다.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ vi /etc/cron.daily 
+</code></pre></div>
+<p>위 cron을 확인해보면 logrotate 설정 부분을 확인할 수 있다.</p>
+
+<p>logrotate 관련 파일</p>
+
+<ul>
+<li>/usr/sbin/logrotate : 데몬의 위치 및 데몬프로그램</li>
+<li>/etc/logrotate.conf : 설정 파일.</li>
+<li>/etc/logrotate.d : logrotate를 적용할 로그 파일 보관 디렉토리.</li>
+<li>/var/lib/logrotate.status : logrotate가 작업 내역 보관 파일.</li>
+<li>/etc/cron.daily/logrotate : logrotate : cron 에 의해 일 단위로 실행한다.</li>
+</ul>
+
+<p>동작 순서를 살펴보면 
+1. cron.daily 에서 /usr/sbin/logrotate 호출 
+2. /usr/sbin/logrotate 에서 /etc/logrotate.conf 설정파일 참조 
+3. /etc/logrotate.conf 설정 파일에서 /etc/logrotate.d 참조 ( logrotate.conf 파일 안에 &quot;include /etc/logrotate.d&quot;)</p>
+
+<p>logrotate가 정상 동작 하는지 최소한의 설정으로 확인해 보자</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ sudo vi /etc/logrotate.d/apache
+
+/program/apache/logs/access_log {
+  size +1k
+  missingok
+  notifempty
+  create 0600 root root
+  compress
+  dateext
+  postrotate
+    /usr/bin/killall -HUP httpd
+  endscript
+}
+</code></pre></div>
+<p>각 옵션들은 잠시 뒤에 상세 설명하고 우선 당장 실행 시켜 보자.</p>
+
+<p>루트 권한으로 아래 명령 실행.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ /usr/sbin/logrotate -f /etc/logrotate.conf
+</code></pre></div>
+<p>-f 옵션은 강제 실행 옵션이다 (Tells logrotate to force the rotation, even if it doesn&#39;t think this is necessary)</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ /usr/sbin/logrotate -d /etc/logrotate.conf
+</code></pre></div>
+<p>-d 옵션 : 디버그 모드 (Turns on debug mode and implies -v. In debug mode, no changes will be made to the logs or to the logrotate state file.)</p>
+
+<ul>
+<li><p>주의사항 : f 옵션이나 d 옵션 하나만 넣고 실행해야 한다. (두 옵션을 동시에 넣고 실행시 정상 동작안되서 한동안 삽질....)</p></li>
+<li><p>logrotate 옵션
+copytruncate : Truncate the original log file to zero size in place after creating a copy, instead of moving the old log file and optionally creating a new one 
+copytruncate옵션을 활용하면 postrotate를 통한 httpd 재시작 없이 무중단 로깅이 가능하다.</p></li>
+</ul>
+<div class="highlight"><pre><code class="language-text" data-lang="text">/path/to/log {
+  daily
+  copytruncate
+  create 0700 root root
+  compress
+  notifempty
+  missingok
+  dateext
+}
+</code></pre></div>
+<ul>
+<li>rotate 30(숫자)  : log파일 30개 이상 되면 삭제</li>
+<li>maxage 30(숫자) : 30일 이산된 로그 파일 삭제</li>
+<li>size : 지정한 용량이 되면 로그로테이트를 실행한다. 10k, 10M 이런식으로 지정한다.</li>
+<li>create : [권한 유저 그룹] 으로 rotation된 로그파일 생성</li>
+<li>notifempty : log 내용이 없으면 rotation 하지 않는다.</li>
+<li>ifempty : 로그파일이 비어있는 경우에도 로테이트한다.</li>
+<li>monthly : 월 단위로 로테이트 한다.</li>
+<li>daily : 월 단위로 로테이트 한다.</li>
+<li>weekly : 월 단위로 로테이트 한다.</li>
+<li>compress : rotate 된 로그 gzip 압축</li>
+<li>nocompress : 압축을 원치 않는다.</li>
+<li>mail admin@mail : 로테이트 설정에 의해 보관주기가 끝난 파일을 메일로 발송한다.</li>
+<li>mailfirst admin@mail : 로테이트시 신규파일 이전의 로그를 메일로 발송한다.</li>
+<li>nomail : 메일로 통보받지 않음.</li>
+<li>errors admin@mail : 로테이트 실행시 에러가 발생하면 이메일로 통보한다.</li>
+<li>prerotate-endscript : 사이의 명령어를 로그파일 처리전에 실행한다.</li>
+<li>postrotate-endscript : 사이의 명령어를 로그파일 처리후에 실행한다.</li>
+<li>extension : 로테이트 후 생성되는 파일의 확정자를 지정한다.</li>
+<li>copytruncate : 이옵션을 넣지 않으면 현재 사용중인 로그를 다른이름으로 move하고 새로운 파일을 생성한다.</li>
+</ul>
+
+<p>이 외의 옵션은 하단 참조에 link를 참조하거나 man logrotate를 확인하면 된다. </p>
+
+<p>보통은 rotation 후 아래 postrotate를 통해 httpd 를 재시작 해준다. </p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">postrotate
+    /usr/bin/killall -HUP httpd
+endscript
+</code></pre></div>
+<p>이 때 두가지 대안이 있다. </p>
+
+<ol>
+<li>killall -HUP 프로세스이름  (예&gt; /usr/bin/killall -HUP httpd)</li>
+<li>kill -HUP 프로세스번호 (예&gt; /usr/bin/kill -HUP <code>cat /daum/program/apache/logs/httpd.pid 2&gt; /dev/null</code> 2&gt; /dev/null || true)</li>
+</ol>
+
+<h3>참조 링크</h3>
+
+<ul>
+<li><a href="http://manpages.ubuntu.com/manpages/precise/man8/logrotate.8.html">logrotate 정의</a></li>
+<li><a href="http://www.rackspace.com/knowledge_center/article/understanding-logrotate-*%20part-1">Understanding logrotate - part 1</a></li>
+<li><a href="http://www.thegeekstuff.com/2011/07/rotate-apache-logs/">How to Rotate Apache Log Files in Linux</a></li>
+<li><a href="http://www.thegeekstuff.com/2010/07/logrotate-examples/">logrotate example</a></li>
+<li><a href="http://unix.stackexchange.com/questions/47688/how-to-avoid-apache-reload-when-rotating-logs">stackexchange</a></li>
+</ul>
+
+	  </div>
+
+		
+		<ul class="tag_box list-unstyled list-inline">
+		  <li><i class="fa fa-folder-open"></i></li>
+		  
+		  
+			 
+				<li><a href="/categories.html#linux-ref">
+					linux <span>(1)</span>
+					
+				</a></li>
+			
+		  
+		</ul>
+		  
+
+		
+		<ul class="list-inline">
+		  <li><i class="fa fa-tags"></i></li>
+		  
+		  
+			 
+				<li>
+					<a href="/tags.html#logrotate-ref">
+					logrotate <span>(1)</span>
+					
+					</a>
+				</li>
+			
+		  
+		  
+		</ul>
+		  
+
+		<hr>
+
+		<div>
+      <section class="share col-sm-6">
+        <h4 class="section-title">Share Post</h4>
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=logrotate&via=thswave"
+           onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+          <i class="fa fa-twitter fa-lg"></i>
+          Twitter
+        </a>
+        <a class="btn btn-default btn-sm facebook" href="https://www.facebook.com/sharer/sharer.php"
+           onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+          <i class="fa fa-facebook fa-lg"></i>
+          Facebook
+        </a>
+        <a class="btn btn-default btn-sm gplus"
+           onclick="window.open('https://plus.google.com/share?url='+window.location.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <i class="fa fa-google-plus fa-lg"></i>
+          Google+
+        </a>
+      </section>
+
+      <section class="col-sm-6 author">
+        <img src="http://www.gravatar.com/avatar/c1e626278fb674ec46bde944b163f3d9" class="img-rounded author-image" />
+        <h4 class="section-title author-name">thswave</h4>
+        <p class="author-bio">try hard, try hard!</p>
+      </section>
+    </div>
+
+    <div class="clearfix"></div>
+
+		<ul class="pager">
+		  
+		  <li class="previous"><a href="/javascript/2015/02/01/javascript-date.html" title="javascript 날짜 계산 Date 사용법">&larr; Previous</a></li>
+		  
+		  
+		  <li class="next"><a href="/javascript/2015/02/02/spring-mvc-annotaion.html" title="스프링 &lt;context:component-scan&gt; 분석">Next &rarr;</a></li>
+		  
+		</ul>
+
+		<hr>
+	</div>
+	<div class="col-sm-2 sidebar-2">
+	
+	</div>
+	 
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'thswavegithubio'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</article>
+<div class="clearfix"></div>
+
+
+
+		<div id="disqus_thread"></div>
+	    <script type="text/javascript">
+	        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+	        var disqus_shortname = 'thswavegithubio'; // required: replace example with your forum shortname
+
+	        /* * * DON'T EDIT BELOW THIS LINE * * */
+	        (function() {
+	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	        })();
+	    </script>
+	    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+		<footer>
+			<hr/>
+			<p>
+				&copy; 2015 thswave with Jekyll. Theme: dbyll by dbtek.
+			</p>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="/assets/resources/jquery/jquery.min.js"></script>
+	<script type="text/javascript" src="/assets/resources/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/assets/js/app.js"></script>
+	<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-58937114-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>
+

@@ -1,0 +1,731 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>thswave</title>
+		<description>Try hard Try Hard!</description>
+		<link>/</link>
+		<atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
+		
+			<item>
+				<title>스프링 &lt;context:component-scan&gt; 분석</title>
+				<description>&lt;h3&gt;스프링 &lt;code&gt;&amp;lt;context:component-scan&amp;gt;&lt;/code&gt; 분석&lt;/h3&gt;
+
+&lt;p&gt;a&lt;/p&gt;
+
+&lt;p&gt;처음으로 스프링 MVC로 프로젝트를 개발하다보니 모르는것도 많고 어떻게 해야하는지 정확히 잘 몰라 구글링과 스프링 설정에 대한 블로그들을 보면서 이것저것 복사 붙여넣기 식으로 수행했습니다.
+그 중에서 스프링 XML 설정 지옥에서 벗어나게 해준 어노테이션. 스프링이 제공하는 어노테이션 기반 설정은 많지만 가장 유용했던 단 한 줄로 설정할 수 있었습니다.&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;context:component-scan&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;base-package=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;com.nhnent.spring&amp;quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Component Scan이 어떻게 내부적으로 수행하는지 살펴보겠습니다.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;Component Scan&lt;/h3&gt;
+
+&lt;p&gt;Component Scan은 XML에 일일이 빈등록을 하지않고 각 빈 클래스에 @Component를 통해 자동 빈 등록
+@Component는 스프링이 어노테이션에 담긴 메타정보를 이용하기 시작했을 때 @Autowired와 함께 소개된 대표적인 어노테이션. @Component 어노테이션을 클래스에 작성하면 빈 스캐너를 통해 자동 빈 등록됩니다.
+특정 패키지 아래에 위치한 빈들을 Component Scan하기 위한 방법은 다음과 같습니다. &lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;XML에서 &lt;code&gt;&amp;lt;context:component-scan base-package=&amp;quot;com.nhnent.spring&amp;quot; /&amp;gt;&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;자바 파일의 설정 클래스(@Configuration)에서 @ConponentScan 어노테이션 설정 &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Context Scan을 처리하는 부분은 spring-context-버전.jar에 위치하고 있으며 본문에 나오는 테스트코드와 소스는 스프링 프로젝트에서 확인하실 수 있습니다.
+&lt;a href=&quot;https://github.com/spring-projects/spring-framework.git&quot;&gt;스프링 프로젝트 소스&lt;/a&gt; 에서 구할 수 있습니다.&lt;/p&gt;
+
+&lt;p&gt;분석은 크게 3가지 방향으로 진행하였습니다.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Component scan를 수행하는 과정.&lt;/li&gt;
+&lt;li&gt;컨테이너에서 getBean(beanName.class)을 호출하여 빈이 호출되는 과정. &lt;/li&gt;
+&lt;li&gt;Spring MVC에서 Component Scan &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;스프링 컨테이너가 실행되면서 수행하는 여러가지 초기화 과정 중에서 Component Scan부분만 딱 잘라서 설명할 경우 앞뒤 과정이 없어 생소할 수 있기 때문에 기본적인 빈 등록, 빈 검색을 같이 연관성있는 부분들도 같이 설명하도록 하겠습니다. 
+실질적인 Component scan이 진행되기까지 절차가 길기 때문에 요약을 하자면 아래와 같은 순서로 진행됩니다.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;@Configuration 어노테이션 클래스 파싱 (보통 @Configuration 설정 클래스에 @ComponentScan이 설정)&lt;/li&gt;
+&lt;li&gt;@ComponentScan 어노테이션 클래스 파싱&lt;/li&gt;
+&lt;li&gt;ComponentScanAnnotationParser 클래스&lt;/li&gt;
+&lt;li&gt;실질적으로 Component scan 패키지 디렉토리에서 리소스를 찾는 ClassPathBeanDefinitionScanner &lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4&gt;ComponentScan Test Code&lt;/h4&gt;
+
+&lt;p&gt;ComponentScan에 대한 테스트 케이스는 아래와 같습니다. ComponentScan수행시 기본적으로는 base-package를 지정하지만 이 외에도 IncludeFilter, ExcludeFilter, ScopeProxy 등 다양항 설정 가능합니다.
+여기서는 가장 기본적인 base-package를 기반으로 빈 등록하는 과정만 집중적으로 살펴보겠습니다.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;org.springframework.context.annotation.ComponentScanAnnotationIntegrationTests.java&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ComponentScanAnnotationIntegrationTests&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;nd&quot;&gt;@Test&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;viaContextRegistration_WithValueAttribute&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;AnnotationConfigApplicationContext&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ctx&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;AnnotationConfigApplicationContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;register&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ComponentScanAnnotatedConfig_WithValueAttribute&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 1. 빈 등록&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;refresh&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;                                                      &lt;span class=&quot;c1&quot;&gt;// 2. Component scan 수행&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getBean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ComponentScanAnnotatedConfig_WithValueAttribute&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getBean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TestBean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;                                       &lt;span class=&quot;c1&quot;&gt;// 3. 빈 호출&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;assertThat&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;config class bean not found&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;containsBeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;componentScanAnnotatedConfig_WithValueAttribute&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;is&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;assertThat&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;@ComponentScan annotated @Configuration class registered directly against &amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;
+                &lt;span class=&quot;s&quot;&gt;&amp;quot;AnnotationConfigApplicationContext did not trigger component scanning as expected&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;ctx&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;containsBean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;fooServiceImpl&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;is&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// 다른 테스트 케이스 생략 ...&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+
+&lt;span class=&quot;nd&quot;&gt;@Configuration&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@ComponentScan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;example.scannable&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ComponentScanAnnotatedConfig_WithValueAttribute&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nd&quot;&gt;@Bean&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;TestBean&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;testBean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;TestBean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;5번째 줄의 AnnotationConfigApplicationContext 클래스는 스크링 컨테이너로 이름에서 유추할 수 있듯 어노테이션 설정을 처리할 수 있는 Context.&lt;/p&gt;
+
+&lt;p&gt;19~21번째 줄의 @Configuration(설정 어노테이션)과 @ComponentScan 어노테이션이 붙은 클래스(ComponentScanAnnotatedConfig_WithValueAttribute)를 등록(register)하고 이를 호출하는 테스트 코드입니다. &amp;quot;example.scannable&amp;quot; 패키지 위치에는 @Component 어노테이션을 가진 클래스 파일들이 위치해 있습니다.&lt;/p&gt;
+
+&lt;p&gt;Component scan을 수행하기 전에 register() 메서드로 검색할 패키지에 대한 정보를 가지는 @ComponentScan 어노테이션과 설정에 관련된 클래스임을 알려주는 @Configuration을 가진 ComponentScanAnnotatedConfig_WithValueAttribute.class를 빈 등록. (빈을 등록하는 절차 조금 복잡한 절차이지만 생략해도 Componentscan을 이해하는데 지장이 없으므로 분석을 건너뛰도록 하겠습니다.)&lt;/p&gt;
+
+&lt;p&gt;7번째 줄의 ctx.refresh() 메서드에 Component Scan 처리 부분이 담겨있습니다.&lt;/p&gt;
+
+&lt;h4&gt;component scan 분석&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;AnnotationConfigApplicationContext.refresh()&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;refresh&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeansException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IllegalStateException&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// 동기화 코드 생략..&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Prepare this context for refreshing.&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;prepareRefresh&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Tell the subclass to refresh the internal bean factory.&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;ConfigurableListableBeanFactory&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanFactory&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;obtainFreshBeanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Prepare the bean factory for use in this context.&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;prepareBeanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Allows post-processing of the bean factory in context subclasses.&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;postProcessBeanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Invoke factory processors registered as beans in the context.&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;invokeBeanFactoryPostProcessors&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 여기서 Component Scan 작업 수행&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Register bean processors that intercept bean creation.&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;registerBeanPostProcessors&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Initialize message source for this context.&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;initMessageSource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Initialize event multicaster for this context.&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;initApplicationEventMulticaster&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Initialize other special beans in specific context subclasses.&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;onRefresh&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Check for listener beans and register them.&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;registerListeners&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Instantiate all remaining (non-lazy-init) singletons.&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;finishBeanFactoryInitialization&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Last step: publish corresponding event.&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;finishRefresh&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// 예외처리 생략.&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;AnnotationConfigApplicationContext의 빈 등록(register)을 마친 후 refresh() 메서드를 호출하는데 여기서 9번째 줄에서 빈 팩토리를 준비하고(prepareBeanFactory(beanFactory)) 이와 관련된 후처리(PostProcessor) 작업과 같은 몇몇 절차가 있으나 그 중 Component Scan은 19번째 줄의 &lt;code&gt;invokeBeanFactoryPostProcessors(beanFactory)&lt;/code&gt; 메서드에서 이뤄집니다.
+Component Scan 부분만 살펴보기 위해 나머지 메서드들에 대한 내용은 생략하겠습니다.
+여기서 매개변수로 넘겨준 beanFactory는 DefaultListableBeanFactory 구체 클래스로 빈들을 등록/검색할 수 있는 BeanDefinitionRegistry 인터페이스를 상속하고 있습니다. 등록된 빈들은 DefaultListableBeanFactory 클래스의 ConcurrentHashMap타입의 beanDefinitionMap에 저장됩니다. &lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanDefinitionMap&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ConcurrentHashMap&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;64&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;DefaultListableBeanFactory 팩토리에서 상속하는 인터페이스의 타입 계층 구조를 살펴보면 이름을 통해 어떤 역활을 해주는지 유추해 볼 수 있습니다. &lt;/p&gt;
+
+&lt;p&gt;DefaultListableBeanFactory 클래스는 빈을 싱글톤으로 관리해주는 SingletonRegistry 인터페이스 역시 상속하고 있습니다. 
+타입 계층 구조의 각 클래스에는 의존성이나 빈의 등록과 세세한 설정에 대한 사항을 다루는 부분이 담겨있습니다.&lt;/p&gt;
+
+&lt;p&gt;invokeBeanFactoryPostProcessors(beanFactory)에서 빈 팩토리를 BeanDefinitionRegistry로 형 변환 하여 넘기게 됩니다.(단순 형변환하여 넘기는게 아니라 부가 작업들이 있지만 중요한 내용이 아니므로 생략하였습니다.)&lt;/p&gt;
+
+&lt;h4&gt;@Configuration 어노테이션 클래스 파싱&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ConfigurationClassPostProcessor.processConfigBeanDefinitions(BeanDefinitionRegistry registry)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;processConfigBeanDefinitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BeanDefinitionRegistry&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;registry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BeanDefinitionHolder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;configCandidates&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LinkedHashSet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BeanDefinitionHolder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;();&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// 매개변수 registry로 부터 Configuration 정보를 담고있는 BeanDefinitionHolder를 찾아 configCandidates에 넣어주는 작업&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// 생략..&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// Parse each @Configuration class&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;ConfigurationClassParser&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;parser&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ConfigurationClassParser&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;metadataReaderFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;problemReporter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;environment&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;resourceLoader&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;componentScanBeanNameGenerator&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;registry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;Set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ConfigurationClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;alreadyParsed&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HashSet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ConfigurationClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;configCandidates&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;parser&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;configCandidates&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;parser&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;validate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;// 생략...&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// Component Scan 과정 후 빈을 찾을때 활용되는 코드 생략. 나중에 getBean()으로 빈을 찾을때 다시 언급&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;//&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+                
+
+&lt;p&gt;invokeBeanFactoryPostProcessors() 메서드 빈 등록을 처리하기 위해 여러 작업을 수행하지만 실질적으로 @Configuration 어노테이션 클래스를 파싱하는 것은  ConfigurationClassParser 클래스의 parse() 메서드입니다.&lt;/p&gt;
+
+&lt;p&gt;이 때 매개변수로 BeanDefinitionRegistry(beanFactory에 포함된 빈 registry)를 넘겨줍니다. 그리고 이 beanFactory에는 테스트 코드에서 컨텍스트에 등록해주었던 ComponentScanAnnotatedConfig_WithValueAttribute 클래스의 정보도 같이 포함되어 있습니다.&lt;/p&gt;
+
+&lt;p&gt;parse 메서드 안에서도 다시 몇 번의 메서드 호출 뒤 doProcessConfigurationClass 메서드로 넘어오며 여기서 실질적으로 Component Scan작업이 수행됩니다.&lt;/p&gt;
+
+&lt;h4&gt;@ComponentScan 어노테이션 클래스 파싱&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ConfigurationClassParser.doProcessConfigurationClass()&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;protected&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SourceClass&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;doProcessConfigurationClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ConfigurationClass&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;configClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;SourceClass&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sourceClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IOException&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        
+        &lt;span class=&quot;c1&quot;&gt;// Process any @PropertySource annotations&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// 생략...&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;// Process any @ComponentScan annotations&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;AnnotationAttributes&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;componentScan&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AnnotationConfigUtils&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;attributesFor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sourceClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getMetadata&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ComponentScan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;componentScan&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;conditionEvaluator&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;shouldSkip&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sourceClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getMetadata&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ConfigurationPhase&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;REGISTER_BEAN&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;c1&quot;&gt;// The config class is annotated with @ComponentScan -&amp;gt; perform the scan immediately&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;Set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BeanDefinitionHolder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;scannedBeanDefinitions&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
+                    &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;componentScanParser&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;componentScan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sourceClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getMetadata&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getClassName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;// &amp;lt;- 여기서 Component scan 수행!&lt;/span&gt;
+            &lt;span class=&quot;c1&quot;&gt;// Check the set of scanned definitions for any further config classes and parse recursively if necessary&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BeanDefinitionHolder&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;holder&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;scannedBeanDefinitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ConfigurationClassUtils&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;checkConfigurationClassCandidate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;holder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getBeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;metadataReaderFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                    &lt;span class=&quot;n&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;holder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getBeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;().&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getBeanClassName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;holder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getBeanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;// Process any @Import annotations&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// 생략...&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;// Process any @ImportResource annotations&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// 생략...&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;// Process individual @Bean methods&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// 생략...&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;생략된 코드의 주석을 보시면 @ComponentScan 어노테이션을 처리하는 부분 외에도 @PropertySource, @Import, @ImportResource, @Bean을 처리하는 부분도 같이 있습니다. &lt;/p&gt;
+
+&lt;p&gt;여기서 나머지 가장 핵심은 11번째 줄인데 ConfigurationClassParser 클래스에는 내부적으로 ComponentScanAnnotationParser 클래스의 인스턴스를 componentScanParser 이름의 필드로 가지고 있습니다. &lt;/p&gt;
+
+&lt;h4&gt;ComponentScanAnnotationParser 클래스&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ComponentScanAnnotationParser.java&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ComponentScanAnnotationParser&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ResourceLoader&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;resourceLoader&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Environment&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;environment&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;BeanNameGenerator&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanNameGenerator&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeanDefinitionRegistry&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;registry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;ComponentScanAnnotationParser 생성자로 넘어가는 매개변수의 이름을 살펴보면 
+* ResourceLoader : 스프링은 file이나 어떠한 형태의 자원을 Resource로 관리
+* Environment : @PropertySource나 XML에 명시된 properties관련 파일에 있는 property 정보가 들어있는 Environment
+* BeanNameGenerator : 빈의 이름을 생성해주느는 BeanNameGenerator
+* BeanDefinitionRegistry : BeanDefinition을 등록/관리하는 BeanDefinitionRegistry&lt;/p&gt;
+
+&lt;p&gt;componentScanParser.parse() 메서드로 넘어가는 매개변수 componentScan와 sourceClass.getMetadata().getClassName()를 하나씩 살펴보겠습니다. 
+&lt;em&gt;componentScan&lt;/em&gt; : AnnotationAttributes 클래스로 Component Scan시 옵션으로 설정할수 있는 필드들을 가지는 LinkedHashMap 상속 클래스. 
+* value, basePackageClasses, nameGenerator, scopeResolver, scopedProxy, lazyInit, includeFilters, excludeFilters, resourcePattern, useDefaultFilters, basePackages
+* 테스트 케이스에서 componentScan에 설정된 값은 아래와 같습니다. &lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;example&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;scannable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;],&lt;/span&gt;
+     &lt;span class=&quot;n&quot;&gt;basePackageClasses&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=[],&lt;/span&gt;
+     &lt;span class=&quot;n&quot;&gt;nameGenerator&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;springframework&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;beans&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;factory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;support&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;BeanNameGenerator&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+     &lt;span class=&quot;n&quot;&gt;scopeResolver&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;springframework&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;annotation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;AnnotationScopeMetadataResolver&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+     &lt;span class=&quot;n&quot;&gt;scopedProxy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;DEFAULT&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+     &lt;span class=&quot;n&quot;&gt;lazyInit&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+     &lt;span class=&quot;n&quot;&gt;includeFilters&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=[],&lt;/span&gt;
+     &lt;span class=&quot;n&quot;&gt;excludeFilters&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=[],&lt;/span&gt;
+     &lt;span class=&quot;n&quot;&gt;resourcePattern&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=**/*.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+     &lt;span class=&quot;n&quot;&gt;useDefaultFilters&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+     &lt;span class=&quot;n&quot;&gt;basePackages&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=[]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;테스트 코드의 설정 클래스에서 @ComponentScan(&amp;quot;example.scannable&amp;quot;)로 설정했기 때문에 basePackages 값이 비어있고 기본값을 넣어주는 value에 &amp;quot;example.scannable&amp;quot; 값이 들어가 있는것을 확인할 수 있습니다. 하지만 내부에서 처리할 때에는 basePackages나 value에 넣어두나 동일한 과정을 거치게 됩니다. &lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;sourceClass.getMetadata().getClassName()&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;SourceClass 클래스는 간단히 설명하자면 Configuration 정보가 있는 클래스의 인스턴스와 이 클래스의 어노테이션과 같은 메타정보를 분석해주는 AnnotationMetadata을 가지도록 Wrapping한 것이라 보시면 됩니다. 그렇기 때문에 sourceClass.getMetadata().getClassName()는 @Configuration 어노테이션이 있는 &amp;quot;org.springframework.context.annotation.ComponentScanAnnotatedConfig_WithValueAttribute&amp;quot; 가 됩니다. &lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ComponentScanAnnotationParser.parse(AnnotationAttributes, String)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BeanDefinitionHolder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;AnnotationAttributes&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;componentScan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;declaringClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;ClassPathBeanDefinitionScanner&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;scanner&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ClassPathBeanDefinitionScanner&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;registry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;componentScan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getBoolean&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;useDefaultFilters&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+ 
+    &lt;span class=&quot;c1&quot;&gt;// scanner.setBeanNameGenerator() 설정&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// scanner.setScopedProxyMode(scopedProxyMode) 설정&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// scanner.setResourcePattern(componentScan.getString(&amp;quot;resourcePattern&amp;quot;)) 설정&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// scanner.addIncludeFilter(typeFilter) 설정&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// scanner.addExcludeFilter(typeFilter) 설정&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// scanner.getBeanDefinitionDefaults().setLazyInit(true) 설정 &lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;basePackages&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArrayList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;();&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pkg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;componentScan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getStringArray&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;value&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;StringUtils&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;hasText&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pkg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;basePackages&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pkg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pkg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;componentScan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getStringArray&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;basePackages&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;StringUtils&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;hasText&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pkg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;basePackages&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pkg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;?&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;clazz&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;componentScan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getClassArray&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;basePackageClasses&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;basePackages&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ClassUtils&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getPackageName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;clazz&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;basePackages&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;isEmpty&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;basePackages&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ClassUtils&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getPackageName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;declaringClass&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;scanner&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;doScan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;StringUtils&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;toStringArray&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;basePackages&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;위 메서드 두 번째 줄에 선언된 ClassPathBeanDefinitionScanner 클래스의 인스턴스는 이름에서 알 수 있듯 클래스패스에서 BeanDefinition을 찾는다. &lt;/p&gt;
+
+&lt;p&gt;위 코드의 생략된 부분은 첫 번째 매개변수인 componentScan에 포함되어있는 @ComponentScan의 각 옵션들(excludeFilters, scopeProxy, nameGenerator 등)을 읽어 이를 처리할 수 있도록  ClassPathBeanDefinitionScanner의 인스턴스 scanner에 설정하는 코드. &lt;/p&gt;
+
+&lt;p&gt;그리고 나머지 부분은 scan작업을 할 package, classes들을 설정하여 scanner.doScan() 메서드를 통해 스캔작업을 실행한다. 이 예제에서는 특정 패키지(example.scannable)를 스캔하게 된다.&lt;/p&gt;
+
+&lt;h4&gt;실질적으로 Component scan 패키지 디렉토리에서 리소스를 찾는 ClassPathBeanDefinitionScanner&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ClassPathBeanDefinitionScanner.doScan(String...)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;protected&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BeanDefinitionHolder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;doScan&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;basePackages&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Assert&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;notEmpty&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;basePackages&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;At least one base package must be specified&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BeanDefinitionHolder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanDefinitions&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LinkedHashSet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BeanDefinitionHolder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;();&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;basePackage&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;basePackages&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;Set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;candidates&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;findCandidateComponents&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;basePackage&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 특정 패키지에 리소스를 모두 읽어온다.&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BeanDefinition&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;candidate&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;candidates&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;// 리소스를 검사하기 각 리소스를 순회&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;ScopeMetadata&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;scopeMetadata&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;scopeMetadataResolver&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;resolveScopeMetadata&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;candidate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;candidate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setScope&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;scopeMetadata&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getScopeName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;beanNameGenerator&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;generateBeanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;candidate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;registry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;candidate&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;instanceof&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AbstractBeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;  
+                &lt;span class=&quot;n&quot;&gt;postProcessBeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;AbstractBeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;candidate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 해당 빈의 Autowired가 있는지 검사&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;candidate&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;instanceof&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AnnotatedBeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;AnnotationConfigUtils&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;processCommonDefinitionAnnotations&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;AnnotatedBeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;candidate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 다른 어노테이션들 검사(@Lazy, @Role 등..)&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;checkCandidate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;candidate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// includeFilter, excludeFilter 검사로 빈 필터링&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;BeanDefinitionHolder&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;definitionHolder&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;BeanDefinitionHolder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;candidate&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;definitionHolder&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;AnnotationConfigUtils&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;applyScopedProxyMode&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;scopeMetadata&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;definitionHolder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;registry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;beanDefinitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;definitionHolder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;registerBeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;definitionHolder&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;registry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// bean registry에 등록&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanDefinitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;여기서 5번째 줄의  Set&lt;BeanDefinition&gt; candidates = findCandidateComponents(basePackage); 에서 특정 패키지에 속한 리소스들(파일들)을 모두 읽어온다. &lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ClassPathBeanDefinitionScanner.findCandidateComponents(String...)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;findCandidateComponents&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;basePackage&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Set&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;candidates&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;LinkedHashSet&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;();&lt;/span&gt;
+    
+    &lt;span class=&quot;c1&quot;&gt;// error loggin부분 생략,  예외처리 코드 생략...&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packageSearchPath&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ResourcePatternResolver&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;CLASSPATH_ALL_URL_PREFIX&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;resolveBasePackage&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;basePackage&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;/&amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;resourcePattern&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;Resource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;resources&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;resourcePatternResolver&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getResources&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;packageSearchPath&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Resource&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;resource&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;resources&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        
+        &lt;span class=&quot;n&quot;&gt;MetadataReader&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;metadataReader&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;metadataReaderFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getMetadataReader&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;resource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;isCandidateComponent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;metadataReader&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;ScannedGenericBeanDefinition&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sbd&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ScannedGenericBeanDefinition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;metadataReader&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;sbd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setResource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;resource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;sbd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setSource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;resource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;isCandidateComponent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sbd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;debugEnabled&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                    &lt;span class=&quot;n&quot;&gt;logger&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;debug&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Identified candidate component class: &amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;resource&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;candidates&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sbd&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+            
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+        
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;candidates&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;6번째 줄에서 packageSearchPath에는 &amp;quot;classpath&lt;em&gt;:example/scannable/&lt;/em&gt;&lt;em&gt;/&lt;/em&gt;.class&amp;quot; 와 같은 문자열로 설정되어 특정 클래스 패스의 특정 패키지 밑에 소속한 모든 .class파일들이 스캔 대상이 된다. &lt;/p&gt;
+
+&lt;p&gt;9 번째 줄의 this.resourcePatternResolver.getResources(packageSearchPath)을 통해 Resource들을(여기선 모두 파일이기 때문에 FileSystemReosource) 구할 수 있다. 즉, example.scannable 패키지에 위치한 모든 클래스 파일들을 구할 수 있다.(inner class포함)&lt;/p&gt;
+
+&lt;p&gt;메소드 실행 후 리소스들을 구했다면 다음에 실행되는 for문에서 각 리소스를 순회하는데 if문의 isCandidateComponent(metadataReader)를 통해 ComponentScan에 excludeFilter, includeFilter와 같은 필터를 설정해두었다면 이를 검사한다.(아래코드 참조) &lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ClassPathBeanDefinitionScanner.isCandidateComponent(MetadataReader metadataReader)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;protected&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;isCandidateComponent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MetadataReader&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;metadataReader&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IOException&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TypeFilter&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tf&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;excludeFilters&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;match&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;metadataReader&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;metadataReaderFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;TypeFilter&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tf&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;includeFilters&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tf&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;match&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;metadataReader&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;metadataReaderFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;isConditionMatch&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;metadataReader&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;위 코드에서 별도의 excludeFilter를 설정해두지 않았기 때문에 생략되지만 includeFilter에는 기본적으로 3가지 필터가 있는데 그 중 하나가 클래스의 어노테이션 중 org.springframework.stereotype.Component 어노테이션을 가졌는지 검사하는 필터가 있다. 즉 여기서 @Component 어노테이션을 가진 클래스들은 필터를 통과해 빈 등록 과정을 거치게 된다. &lt;/p&gt;
+
+&lt;p&gt;리소스들 중 필터를 거친 리소스들을 읽어와 그다음으로 수행하는 for문에서 빈이 싱글톤으로 관리될지 아니면 새로운 인스턴스를 만드는지를 판별하는 Scoped Proxy와 beanNameGenerator를 통해 bean의 이름을 생성한 뒤 이를 BeanDefinitionHolder로 만들어 beanDefinitions(LinkedHashSet)에 담아두고 이를 registry에서 등록하게 됩니다.&lt;/p&gt;
+
+&lt;p&gt;여기서 registry는 제일 처음 매개변수로 넘겨주었던 beanFactory로 DefaultListableBeanFactory 클래스의 인스턴스입니다. 
+결론적으로 빈 팩토리의 beanResgitry에 등록된다. &lt;/p&gt;
+
+&lt;h3&gt;빈 호출과정&lt;/h3&gt;
+
+&lt;p&gt;Component scan으로 빈이 등록되었고, 테스트 코드의 9번째 줄에서 ctx.getBean(TestBean.class);를 처리하는 과정을 살펴보겠습니다.
+빈을 등록했을때 beanFactory를 활용했듯이 역시 beanFactory에서 getBean(Class&lt;T&gt;) 메서드로 찾고자 하는 빈의 클래스정보를 넘겨주면 beanFactory(DefaultListableBeanFactory)의 상위 타입인 SingletonBeanRegistry의 getSingleton(beanName)을 호출하게됩니다.  &lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;DefaultSingletonBeanRegistry.getSingleton(String, boolean)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;protected&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getSingleton&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;allowEarlyReference&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;singletonObject&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;singletonObjects&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;// singletonObjects에 singleton 빈들이 등록되어 있다.&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;singletonObject&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;isSingletonCurrentlyInCreation&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;kd&quot;&gt;synchronized&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;singletonObjects&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;singletonObject&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;earlySingletonObjects&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;singletonObject&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;allowEarlyReference&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;ObjectFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;?&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;singletonFactory&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;singletonFactories&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;singletonFactory&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+                    &lt;span class=&quot;n&quot;&gt;singletonObject&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;singletonFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getObject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+                    &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;earlySingletonObjects&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;singletonObject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+                    &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;singletonFactories&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;remove&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+                &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;singletonObject&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;NULL_OBJECT&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;?&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;singletonObject&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+&lt;li&gt;2번째 줄의 this.singletonObjects.get(beanName); 을통해 실질적인 TestBean 빈을 찾게되는데 singletonObjects는 이전 빈 등록과정에서 registry 처럼 ConcurrentHashMap&lt;String, Object&gt;(64) 타입이다. &lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Component Scan시 빈이 등록되는 곳은 DefaultListableBeanFactory클래스의 beanDefinitionMap 이라고 언급했는데 Component Scan을 진행하는 메서드 stack 중 ConfigurationClassPostProcessor.processConfigBeanDefinitions() 메서드(본 글의 3번째 코드를 참조) 진행 후 &lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;ConfigurationClassPostProcessor.processConfigBeanDefinitions()&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;c1&quot;&gt;// 생략..&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;parser&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;configCandidates&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Component Scan 수행 부분&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// 생략...&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;singletonRegistry&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(!&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;singletonRegistry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;containsSingleton&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IMPORT_REGISTRY_BEAN_NAME&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;singletonRegistry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;registerSingleton&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IMPORT_REGISTRY_BEAN_NAME&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;parser&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getImportRegistry&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;위 코드에서 singletonRegistry가 BeanFactory인 DefaultListableBeanFactory. 
+singletonRegistry.registerSingleton(IMPORT&lt;em&gt;REGISTRY&lt;/em&gt;BEAN_NAME, parser.getImportRegistry()); 는 singletonRegistry의 상위 클래스인 DefaultSingletonBeanRegistry에 자신의 registry에 등록된 빈들을 singleton일 경우 넘겨준다. &lt;/p&gt;
+
+&lt;p&gt;DefaultListableBeanFactory.registerSingleton()&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;registerSingleton&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;singletonObject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IllegalStateException&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;kd&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;registerSingleton&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;singletonObject&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// 상위 클래스가 DefaultSingletonBeanRegistry&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;clearByTypeCache&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;지금까지가 Singleton 빈이 호출되는 과정이다. 
+지금까지 설명한 빈 검색은 싱글톤이 아닐경우나 다른 설정들이 있을 경우 다른 방식으로 진행되지만 기본적인 싱글톤 빈의 경우의 검색의 경우에 해당한다.&lt;/p&gt;
+
+&lt;h3&gt;Spring MVC에서의 Component Scan&lt;/h3&gt;
+
+&lt;p&gt;위 분석에서는 AnnotationConfigApplicationContext 클래스가 스프링 컨테이너로 사용되었지만 우리가 실질적으로 사용하는 Spring MVC에서 사용되는 Context는 org.springframework.web.context.support.XmlWebApplicationContext 다.
+이는 spring-web-버전.jar에서 org.springframework.web.context 패키지에 ContextLoader.properties 파일을 열어보면 알 수 있다.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ContextLoader.properties&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Default&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;WebApplicationContext&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;implementation&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ContextLoader&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Used&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fallback&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;when&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;no&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;explicit&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;implementation&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;has&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;been&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;specified&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;param&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;#&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Not&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;meant&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;be&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;customized&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;by&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;application&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;developers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;springframework&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;web&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;WebApplicationContext&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;org&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;springframework&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;web&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;context&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;support&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;XmlWebApplicationContext&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;XmlWebAppplicationContext에서는 초기화 과정에서 상위 클래스인 AbstractRefreshableApplicationContext.refreshBeanFactory() 메서드를 통해  DefaultListableBeanFactory를 생성하여 사용한다. &lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;AbstractRefreshableApplicationContext.refreshBeanFactory()&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;protected&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;refreshBeanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeansException&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hasBeanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;destroyBeans&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;closeBeanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;DefaultListableBeanFactory&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanFactory&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;createBeanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// beanFactory 생성.&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;beanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;setSerializationId&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getId&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;customizeBeanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;loadBeanDefinitions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;beanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+        &lt;span class=&quot;kd&quot;&gt;synchronized&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;beanFactoryMonitor&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;beanFactory&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;beanFactory&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;catch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IOException&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;throw&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;ApplicationContextException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;I/O error parsing bean definition source for &amp;quot;&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getDisplayName&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+&lt;li&gt;이후의 과정은 생략된 부분이 많이 있지만 Component Scan은 앞서 설명한 과정을 통해 빈을 등록하게 된다. &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;부록 1. @Component&lt;/h3&gt;
+
+&lt;p&gt;@Component는 스프링이 어노테이션에 담긴 메타정보를 이용하기 시작했을 때 @Autowired와 함께 소개된 대표적인 어노테이션입니다. @Component는 클래스에 부여되는데 이는 빈 스캐너를 통해 자동으로 빈으로 등록됩니다. 정확히는 @Component 또는 @Component를 메타 어노테이션으로 갖고 있는 어노테이션(@Controller, @Repository, @Service를 말함)이 붙은 클래스가 빈 등록 대상이 됩니다.&lt;/p&gt;
+
+&lt;p&gt;@Component의 @Controller, @Repository, @Service&lt;/p&gt;
+
+&lt;p&gt;보통 스프링 MVC 코드를 작성할 때 @Controller, @Repository, @Service를 각 클래스의 성격에 맞추어 붙여주곤 했습니다. 
+가끔 @Component를 붙여도 별다른 차이 없이 동작하는걸 확인 할 수 있는데 이는 @Component 어노테이션이 앞서 언급한 3개의 어노테이션의 메타 어노테이션(어노테이션에 대한 어노테이션)으로 사용되었기 때문입니다. 
+스프링 컨테이너가 초기화 될 때 설정에따라(XML이나 어노테이션 기반 설정) 빈 등록과정에서 특정 클래스의 어노테이션을 읽어(리플렉션 API인 getDeclaredAnnoations(), getAnnotations()를 활용)들입니다. 이 때 해당 특정 어노테이션을 만나면 해당 어노테이션의 메타 어노테이션을 재귀적으로 읽어들이기 때문에 @Controller, @Repository, @Service를 만나면 그 메타 어노테이션인 @Component 어노테이션을 읽어들이게 되고 하나의 빈으로 등록하게 됩니다.&lt;/p&gt;
+
+&lt;p&gt;이 어노테이션들의 패키지명이 org.springframework.stereotype인데 왜 org.springframework.annotation이라는 패키지가 아닌 stereotype인가 의문이긴 한데 streotype를 사전에서 찾아보면 &amp;#39;정형화 하다, 형식화 하다&amp;#39; 라는 의미가 있어 그 의미에 맞추어 패키지명을 정하지 않았는가 짐작해봅니다.
+네 개의 어노테이션 말고도 @Component를 메타 어노테이션으로 가진 사용자 정의 어노테이션도 정의 가능합니다. 어노테이션의 용도가 AOP에서 포인트컷을 작성할 경우와 같이 다양한 용도로 활용할 수 있습니다.
+일반적으로 @Component와 나머지 세 개의 어노테이션이 차이점이 없음에도 불구하고 각 클래스의 성격에 맞추어 어노테이션을 붙이길 권장하는데 이는 각 클래스의 성격에 맞게 작성하는게 가독성이나 적합한 의미부여에 좋습니다. &lt;/p&gt;
+
+&lt;p&gt;@Controller의 코드를 확인하면 @Conponent 어노테이션을 어노테이션으로 가지고 있습니다.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Controller.java&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;nd&quot;&gt;@Target&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ElementType&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;TYPE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;})&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@Retention&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;RetentionPolicy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;RUNTIME&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@Documented&lt;/span&gt;
+&lt;span class=&quot;nd&quot;&gt;@Component&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nd&quot;&gt;@interface&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Controller&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;default&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+				<pubDate>Mon, 02 Feb 2015 00:00:00 +0900</pubDate>
+				<link>/javascript/2015/02/02/spring-mvc-annotaion.html</link>
+				<guid isPermaLink="true">/javascript/2015/02/02/spring-mvc-annotaion.html</guid>
+			</item>
+		
+			<item>
+				<title>logrotate</title>
+				<description>&lt;h3&gt;상황 : 아파치 로그 파일을 주기적으로(하루 단위로 rotation) 압축하여 일 별 관리하고 싶을 경우&lt;/h3&gt;
+
+&lt;p&gt;기존 아파치 설정  httpd.conf&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;CustomLog    &amp;quot;|/program/httpd-2.2.20/bin/rotatelogs -l /program/httpd-2.2.20/logs/%y%m%d.sample.activity_log 86400&amp;quot; combined env=!nolog
+
+ErrorLog     &amp;quot;|/program/httpd-2.2.20/bin/rotatelogs -l /program/httpd-2.2.20/logs/%y%m%d.sample.error_log 86400&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;하루 단위로 rotation 하고 있었지만 압축 저장하고 있지 않음.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3&gt;해결방법 : 리눅스 기본 logrotate 활용!&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;logrotate란?&lt;/em&gt; &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;로그 파일(시스템 로그)을 rotates, compresses, and mails 을 할 수 있다.
+설정 파일을 변경해도 관련 프로세스를 새로 시작할 필요 없이 cron 데몬이 주기적으로 실행 시켜준다.&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;$ vi /etc/cron.daily 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;위 cron을 확인해보면 logrotate 설정 부분을 확인할 수 있다.&lt;/p&gt;
+
+&lt;p&gt;logrotate 관련 파일&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;/usr/sbin/logrotate : 데몬의 위치 및 데몬프로그램&lt;/li&gt;
+&lt;li&gt;/etc/logrotate.conf : 설정 파일.&lt;/li&gt;
+&lt;li&gt;/etc/logrotate.d : logrotate를 적용할 로그 파일 보관 디렉토리.&lt;/li&gt;
+&lt;li&gt;/var/lib/logrotate.status : logrotate가 작업 내역 보관 파일.&lt;/li&gt;
+&lt;li&gt;/etc/cron.daily/logrotate : logrotate : cron 에 의해 일 단위로 실행한다.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;동작 순서를 살펴보면 
+1. cron.daily 에서 /usr/sbin/logrotate 호출 
+2. /usr/sbin/logrotate 에서 /etc/logrotate.conf 설정파일 참조 
+3. /etc/logrotate.conf 설정 파일에서 /etc/logrotate.d 참조 ( logrotate.conf 파일 안에 &amp;quot;include /etc/logrotate.d&amp;quot;)&lt;/p&gt;
+
+&lt;p&gt;logrotate가 정상 동작 하는지 최소한의 설정으로 확인해 보자&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;$ sudo vi /etc/logrotate.d/apache
+
+/program/apache/logs/access_log {
+  size +1k
+  missingok
+  notifempty
+  create 0600 root root
+  compress
+  dateext
+  postrotate
+    /usr/bin/killall -HUP httpd
+  endscript
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;각 옵션들은 잠시 뒤에 상세 설명하고 우선 당장 실행 시켜 보자.&lt;/p&gt;
+
+&lt;p&gt;루트 권한으로 아래 명령 실행.&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;$ /usr/sbin/logrotate -f /etc/logrotate.conf
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;-f 옵션은 강제 실행 옵션이다 (Tells logrotate to force the rotation, even if it doesn&amp;#39;t think this is necessary)&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;$ /usr/sbin/logrotate -d /etc/logrotate.conf
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;-d 옵션 : 디버그 모드 (Turns on debug mode and implies -v. In debug mode, no changes will be made to the logs or to the logrotate state file.)&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;주의사항 : f 옵션이나 d 옵션 하나만 넣고 실행해야 한다. (두 옵션을 동시에 넣고 실행시 정상 동작안되서 한동안 삽질....)&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;logrotate 옵션
+copytruncate : Truncate the original log file to zero size in place after creating a copy, instead of moving the old log file and optionally creating a new one 
+copytruncate옵션을 활용하면 postrotate를 통한 httpd 재시작 없이 무중단 로깅이 가능하다.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;/path/to/log {
+  daily
+  copytruncate
+  create 0700 root root
+  compress
+  notifempty
+  missingok
+  dateext
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;rotate 30(숫자)  : log파일 30개 이상 되면 삭제&lt;/li&gt;
+&lt;li&gt;maxage 30(숫자) : 30일 이산된 로그 파일 삭제&lt;/li&gt;
+&lt;li&gt;size : 지정한 용량이 되면 로그로테이트를 실행한다. 10k, 10M 이런식으로 지정한다.&lt;/li&gt;
+&lt;li&gt;create : [권한 유저 그룹] 으로 rotation된 로그파일 생성&lt;/li&gt;
+&lt;li&gt;notifempty : log 내용이 없으면 rotation 하지 않는다.&lt;/li&gt;
+&lt;li&gt;ifempty : 로그파일이 비어있는 경우에도 로테이트한다.&lt;/li&gt;
+&lt;li&gt;monthly : 월 단위로 로테이트 한다.&lt;/li&gt;
+&lt;li&gt;daily : 월 단위로 로테이트 한다.&lt;/li&gt;
+&lt;li&gt;weekly : 월 단위로 로테이트 한다.&lt;/li&gt;
+&lt;li&gt;compress : rotate 된 로그 gzip 압축&lt;/li&gt;
+&lt;li&gt;nocompress : 압축을 원치 않는다.&lt;/li&gt;
+&lt;li&gt;mail admin@mail : 로테이트 설정에 의해 보관주기가 끝난 파일을 메일로 발송한다.&lt;/li&gt;
+&lt;li&gt;mailfirst admin@mail : 로테이트시 신규파일 이전의 로그를 메일로 발송한다.&lt;/li&gt;
+&lt;li&gt;nomail : 메일로 통보받지 않음.&lt;/li&gt;
+&lt;li&gt;errors admin@mail : 로테이트 실행시 에러가 발생하면 이메일로 통보한다.&lt;/li&gt;
+&lt;li&gt;prerotate-endscript : 사이의 명령어를 로그파일 처리전에 실행한다.&lt;/li&gt;
+&lt;li&gt;postrotate-endscript : 사이의 명령어를 로그파일 처리후에 실행한다.&lt;/li&gt;
+&lt;li&gt;extension : 로테이트 후 생성되는 파일의 확정자를 지정한다.&lt;/li&gt;
+&lt;li&gt;copytruncate : 이옵션을 넣지 않으면 현재 사용중인 로그를 다른이름으로 move하고 새로운 파일을 생성한다.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;이 외의 옵션은 하단 참조에 link를 참조하거나 man logrotate를 확인하면 된다. &lt;/p&gt;
+
+&lt;p&gt;보통은 rotation 후 아래 postrotate를 통해 httpd 를 재시작 해준다. &lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;postrotate
+    /usr/bin/killall -HUP httpd
+endscript
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;이 때 두가지 대안이 있다. &lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;killall -HUP 프로세스이름  (예&amp;gt; /usr/bin/killall -HUP httpd)&lt;/li&gt;
+&lt;li&gt;kill -HUP 프로세스번호 (예&amp;gt; /usr/bin/kill -HUP &lt;code&gt;cat /daum/program/apache/logs/httpd.pid 2&amp;gt; /dev/null&lt;/code&gt; 2&amp;gt; /dev/null || true)&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3&gt;참조 링크&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;http://manpages.ubuntu.com/manpages/precise/man8/logrotate.8.html&quot;&gt;logrotate 정의&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.rackspace.com/knowledge_center/article/understanding-logrotate-*%20part-1&quot;&gt;Understanding logrotate - part 1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.thegeekstuff.com/2011/07/rotate-apache-logs/&quot;&gt;How to Rotate Apache Log Files in Linux&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.thegeekstuff.com/2010/07/logrotate-examples/&quot;&gt;logrotate example&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://unix.stackexchange.com/questions/47688/how-to-avoid-apache-reload-when-rotating-logs&quot;&gt;stackexchange&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+				<pubDate>Sun, 01 Feb 2015 00:00:00 +0900</pubDate>
+				<link>/linux/2015/02/01/logrotate.html</link>
+				<guid isPermaLink="true">/linux/2015/02/01/logrotate.html</guid>
+			</item>
+		
+			<item>
+				<title>javascript 날짜 계산 Date 사용법</title>
+				<description>&lt;p&gt;&lt;code&gt;퍼온 글이나 원 출처를 분실하였습니다. 문제시 삭제 하겠습니다.&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-javascript&quot; data-lang=&quot;javascript&quot;&gt;&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;loadDt&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//현재 날짜 및 시간   //현재시간 기준 계산&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;loadDt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;30&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;24&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//30일전&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;loadDt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;15&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;24&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//보름전&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;loadDt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;7&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;24&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//일주일전&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;loadDt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;24&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//하루전&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;loadDt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;24&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//하루후&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;loadDt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;7&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;24&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//일주일후&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;loadDt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;15&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;24&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//보름후&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;loadDt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;30&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;24&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//한달후&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;loadDt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//한시간후&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;loadDt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//1분후&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;alert&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;loadDt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;));&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;//1초후&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// 날짜를 입력 하면 오늘 날짜로부터 숫자만큼 전날의 날짜를 mm/dd/yyyy 형식으로 돌려 준다.&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;caldate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;day&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+ 
+ &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;caledmonth&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;caledday&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;caledYear&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+ &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;loadDt&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+ &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;v&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;Date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;loadDt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;day&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;60&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;24&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+ 
+ &lt;span class=&quot;nx&quot;&gt;caledYear&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getFullYear&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+ 
+ &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getMonth&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;9&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;caledmonth&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;0&amp;#39;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getMonth&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+ &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;caledmonth&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getMonth&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+ &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+ &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getDate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;9&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;caledday&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;0&amp;#39;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getDate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+ &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;nx&quot;&gt;caledday&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;getDate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+ &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+ &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;caledmonth&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;caledday&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;caledYear&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+</description>
+				<pubDate>Sun, 01 Feb 2015 00:00:00 +0900</pubDate>
+				<link>/javascript/2015/02/01/javascript-date.html</link>
+				<guid isPermaLink="true">/javascript/2015/02/01/javascript-date.html</guid>
+			</item>
+		
+	</channel>
+</rss>
