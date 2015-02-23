@@ -7,10 +7,205 @@
 		<atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>javascript trim() method</title>
+				<description>&lt;p&gt;문자열 앞 뒤 공백을 제거하기 위해 trim()을 적용해야 하는데 trim() 메서드는 ie9 이상 부터 적용 가능하다.
+즉, &lt;code&gt;ie8&lt;/code&gt; 이하에서 에러 발생한다. &lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;solution&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;regex &lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;str.replace(/\s+$/,&amp;quot;&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+				<pubDate>Sun, 22 Feb 2015 00:00:00 +0900</pubDate>
+				<link>/javascript/2015/02/22/under-ie9-trim.html</link>
+				<guid isPermaLink="true">/javascript/2015/02/22/under-ie9-trim.html</guid>
+			</item>
+		
+			<item>
+				<title>spring에서 json response 한글 깨짐</title>
+				<description>&lt;p&gt;상황 : RESTful api 구현을 위해 @RestController에서 json객체를 produces를 application/json으로 설정 시 한글 깨짐&lt;/p&gt;
+
+&lt;p&gt;the default charset of @ResponseBody is iso-8859-1, how to change to &lt;code&gt;utf8&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;nd&quot;&gt;@RequestMapping&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;/path&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;produces&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;text/plain;charset=UTF-8&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nd&quot;&gt;@ResponseBody&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;handlePath&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;o&quot;&gt;.....&lt;/span&gt;
+
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+&lt;p&gt;produces=&amp;quot;text/plain;charset=UTF-8&amp;quot;를 사용하여 응답 페이지에 대한 UTF-8 인코딩이 가능하여 한글 깨짐을 방지 할 수 있음.&lt;/p&gt;
+</description>
+				<pubDate>Sun, 22 Feb 2015 00:00:00 +0900</pubDate>
+				<link>/spring/2015/02/22/korean-json-response-.html</link>
+				<guid isPermaLink="true">/spring/2015/02/22/korean-json-response-.html</guid>
+			</item>
+		
+			<item>
+				<title>Korean Json Response</title>
+				<description>&lt;p&gt;2015-02-22-korean-json-response-.md&lt;/p&gt;
+</description>
+				<pubDate>Sun, 22 Feb 2015 00:00:00 +0900</pubDate>
+				<link>/2015/02/22/korean-json-response.html</link>
+				<guid isPermaLink="true">/2015/02/22/korean-json-response.html</guid>
+			</item>
+		
+			<item>
+				<title>javascript 이벤트 핸들러 등록</title>
+				<description>&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;var test = document.getElementById(&amp;quot;id&amp;quot;);
+
+test.onclick = functionName1;
+test.onclick = functionName2;
+
+// 기존에 이벤트 처리가 하나만 처리되는 방식이었지만 아래와 같이 하면 두개의 리스너를 달 수 있다.
+
+test.addEventListener(&amp;quot;click&amp;quot;, functionName1, false); 
+test.addEventListener(&amp;quot;click&amp;quot;, functionName2, false);
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;이벤트 리스너의 세번째 매개변수는 이벤트 처리단계가 캡처(true)단계인지 버블링 단계(false)인지 구분&lt;/p&gt;
+
+&lt;h3&gt;이벤트 e&lt;/h3&gt;
+
+&lt;p&gt;event.target.nodeName;
+event.target.id;
+event.type;&lt;/p&gt;
+
+&lt;p&gt;마우스 이벤트의 종류&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;click
+dbclick
+mousedown
+mouseup
+mouseover
+mousemove
+mouseout
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h3&gt;마우스 이벤트 발생 위치 구하기&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;clientX clientY : 웹브라우저에서 문서가 출력되는 좌표&lt;/li&gt;
+&lt;li&gt;screenX screenY : 전체 화면에서의 좌표&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;마우스는 문서상의 동일한 위치에 있지만 이벤트가 발생할 경우 이벤트가 문서의 어떤 좌표에서 발생했는지 알아내려면 스크롤된 값을 반영해 주어야 한다.&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;scrollLeft +=document.documentElement.scrollLeft
+scrollTop += document.documentElement.scrollTop
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;마우스 클릭 버튼 판별&lt;/p&gt;
+
+&lt;p&gt;0 : 일반 버튼
+1 : 추가 버튼 ( 휠 관련)
+2 : 콘텍스트 버튼 (오른쪽)&lt;/p&gt;
+</description>
+				<pubDate>Sun, 15 Feb 2015 00:00:00 +0900</pubDate>
+				<link>/javascript/2015/02/15/javascript-basic-event.html</link>
+				<guid isPermaLink="true">/javascript/2015/02/15/javascript-basic-event.html</guid>
+			</item>
+		
+			<item>
+				<title>linux file size 0으로 만들기</title>
+				<description>&lt;p&gt;톰캣/아파치 로그가 쌓이고 있는데 log rotation을 하지 않는 상태에서 파일 사이즈만이라도 줄이고 싶을 수 있다.
+(만약 파일을 지울경우 로그가 더이상 쌓이지 않기 때문에 지우지 않는 상태에서 파일 내용만 지워야 하는 경우)&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;cat /dev/null &amp;gt; dest
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+				<pubDate>Sun, 15 Feb 2015 00:00:00 +0900</pubDate>
+				<link>/linux/2015/02/15/filesize-to-zero.html</link>
+				<guid isPermaLink="true">/linux/2015/02/15/filesize-to-zero.html</guid>
+			</item>
+		
+			<item>
+				<title>fiddler2 피들러 설치방법</title>
+				<description>&lt;p&gt;오늘은 피들러에 대해 알아보고자 합니다. 
+&lt;div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;모바일 디바이스에서 PC 브라우저처럼 css를 확인하고 조작할 수 있는 방법이 있는지&amp;nbsp;분께서&amp;nbsp;물어보셔서 알려드렸는데&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;너무나 좋아하셔서 혹시 모르시는 분이 계실것 같아 공유합니다.&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;웹 브라우저의 경우 각 브라우저 별 개발자 도구가 잘 갖춰져 있어 서버로부터 넘어온&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;자바스크립트 및 css, html파일 등을 확인해 바로바로 수정/조작 해 볼 수 있지만&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;스마트폰에서 css도 조작하거나 깨진 마크업이 왜 그런지 확인해보고 싶지만 엄한 폰에다 대고 우클릭하고 요소검사를 해볼 수 없으니&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;정말 막막하죠..&amp;nbsp;그래도 해결책은 있는 법!&amp;nbsp;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;웹이든 모바일이든 네트워크를 통하는 모든 세션들을 검사해볼 수 있는 Fiddler아시나요?&amp;nbsp;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;Fiddler가 가진 기능은 정말 엄청나네요&amp;nbsp;(심지어 https 통신도 잡아낼 수 있습니다!!!)&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;b&gt;&lt;em&gt;Fiddler는 윈도우에서만 사용가능합니다.&amp;nbsp;&lt;/b&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;b&gt;&lt;/em&gt;맥이나 기타 OS에서는 프록시(윈도우를 통해 우회)를 통해서 가능하긴 합니다. (아래 프록시 연결에 설명드리겠습니다.)&lt;/b&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;어찌됬건 이제 모바일 디바이스로 전송되는 세션(html, css, javascript 파일들을 포함한 네트워크를 통하는&amp;nbsp;모든&amp;nbsp;데이터)을 Fiddler를 통해 잡아보겠습니다!&amp;nbsp;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;hr&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;1. fiddler 다운로드&amp;nbsp;&lt;/span&gt;&lt;a href=&quot;http://fiddler2.com/&quot; style=&quot;font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;http://fiddler2.com/&lt;/a&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;a href=&quot;http://fiddler2.com/docs/default-source/public-downloads/fiddler2setup.exe?sfvrsn=18&quot; style=&quot;box-sizing: border-box; color: rgb(0, 0, 238); font-family: Consolas, 'Lucida Console', monospace; font-size: 12px; white-space: pre-wrap;&quot; target=&quot;_blank&quot; title=&quot;http://fiddler2.com/docs/default-source/public-downloads/fiddler2setup.exe?sfvrsn=18&quot;&gt;http://fiddler2.com/docs/default-source/public-downloads/fiddler2setup.exe?sfvrsn=18&lt;/a&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;위 링크 누르면 바로 다운로드 될거에요.&lt;br /&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;img src=&quot;http://cfile3.uf.tistory.com/image/2435414C529460AC326AAB&quot; style=&quot;cursor: default;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align: center; clear: none; float: none;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;2. 다운로드한 파일 설치합시다.!&amp;nbsp;그냥 next 연타 하시면 되겠습니다.&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;3. &amp;nbsp;Fiddler 실행!&amp;nbsp;실행하면 아래와 같은 창이 뜹니다.&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;
+&lt;img src=&quot;http://cfile4.uf.tistory.com/image/265A984C529460AC1F90A3&quot;/&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align: center; clear: none; float: none;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/div&gt;&lt;div&gt;여기서 왼쪽 부분이 세션 목록으로 네트워크로 전송하거나 받은 모든 세션이고,&amp;nbsp;&lt;/div&gt;&lt;div&gt;오른쪽은 기능 탭으로 특정 세션을 선택하면 그 세션에 대한 상세 내역이 나옵니다.&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;피들러를 실행한 뒤 인터넷 창을 켜보면 순식간에 어마어마한 세션들이 전송됨을 확인할 수 있습니다.&lt;/div&gt;&lt;div&gt;(트래픽을 멈추고 싶을 때 F12 또는 File&amp;gt; Capture traffic으로 멈출 수 있습니다.)&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;4. 모바일 디바이스를 위한 프록시 설정&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;*프록시: 여기서 말하는 프록시는&amp;nbsp;간단히 말해 검문소로 생각하시면 됩니다. (비유가 적절하지 않을 순 있지만 이해를 위해;;)&amp;nbsp;&lt;/div&gt;&lt;div&gt;스페이스 닷원 건물에 나가거나 들어오려면 입구(검문소)를 지나야 하듯&amp;nbsp;&lt;/div&gt;&lt;div&gt;네트워크를 통하는 모든 녀석이 Fiddler를 통해 나가고 들어온다고 생각 할 수 있습니다&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;Fiddler Menu창에서 Tools &amp;gt; Fiddler Options 선택&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;
+&lt;img src=&quot;http://cfile6.uf.tistory.com/image/261F104C529460AD02BAE8&quot; alt=&quot;&quot;&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;세번째 Connections 탭 선택 후 'Allow remote computers to connect' 체크 활성화시켜주시고,&amp;nbsp;&lt;/div&gt;&lt;div&gt;fiddler listens on port: 부분에 8888 (기본)으로 해주시면 됩니다.&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;p style=&quot;text-align: center; clear: none; float: none;&quot;&gt;[##_1N|cfile7.uf@2633B84C529460AD35F438.png|width=&quot;560&quot; height=&quot;375&quot; filename=&quot;4.png&quot; filemime=&quot;image/jpeg&quot;|_##]&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;
+&lt;img src=&quot;http://cfile7.uf.tistory.com/image/2633B84C529460AD35F438&quot; alt=&quot;&quot;&gt;
+
+&lt;div&gt;여기까지 윈도우에서 설정하는 것이 끝입니다.&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;&lt;font color=&quot;#FF0000&quot;&gt;Fiddler를 한번 껏다가 다시 켜 줍니다.(중요)&lt;/font&gt;&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;그 다음은 모바일이나 맥(아이폰 또는 안드로이드)에서 설정해주는 일만 남았습니다.&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;hr&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;모바일 디바이스 프록시 설정&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;iPhone/iPad&lt;/b&gt;&lt;br /&gt;&lt;br /&gt;
+1. 설정&lt;br /&gt;
+2. 네트워크&lt;br /&gt;
+3. wifi&lt;br /&gt;
+4. 연결된 네트워크에서 우측 화살표 선택&lt;br /&gt;
+5. 밑으로 내리면 &quot;http 프록시&quot; 부분이 있는데 기본 '끔' 에서 &quot;수동&quot;으로 변경&lt;br /&gt;
+6. 서버 부분에 Fiddler를 설치한 PC ip 입력&lt;br /&gt;
+7. 포트 부분에 8888 입력&lt;br /&gt;&lt;br /&gt;&lt;b&gt;안드로이드&lt;/b&gt;&lt;br /&gt;&lt;br /&gt;
+1.환경설정&lt;br /&gt;
+2.Wi-Fi&lt;br /&gt;
+3.연결된 무선네트워크를 길게 누르고 있으면 뭔가 뜨는데 '네트워크 설정 변경'을 선택&lt;/div&gt;&lt;div&gt;
+4.최하단 고급옵션표시 체크&lt;br /&gt;
+5.'프록시 설정'을 '수동' 으로 변경&lt;/div&gt;&lt;div&gt;&lt;img src=&quot;file:///C:/Users/Daum/AppData/Local/Temp/enhtmlclip/Image(5).png&quot; style=&quot;cursor: default;&quot;&gt;&lt;br /&gt;
+6. '프록시 호스트 이름'에 Fiddler를 설치한 PC의 IP 입력,&lt;/div&gt;&lt;div&gt;
+7. '프록시 포트'에 8888 입력&lt;/div&gt;&lt;div&gt;
+8. 나머지는 건들것 없지만 사내 네트웍이므로 계정/비밀번호를 입력해줘야 합니다.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;맥&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;&lt;br /&gt;&lt;/b&gt;1. 시스템 환경설정&lt;br /&gt;
+2. 네트워크&lt;br /&gt;
+3. (연결된 네트워크에서) 고급&lt;br /&gt;
+4. '프록시탭' 선택&lt;br /&gt;
+5. 웹프록시(HTTP) 체크&lt;br /&gt;
+6. 프록시 서버의 주소와 포트번호를 입력&lt;br /&gt;
+7. 아이디와 계정을 입력&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;이렇게 설정을 하고 모바일에서 Daum앱으로 접속 하면 Fiddler에 m.daum.net에서 온 세션들이 막 보입니다!!&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;div&gt;
+&lt;img src=&quot;http://cfile21.uf.tistory.com/image/2617CD4C529460AE06D900&quot; alt=&quot;&quot;/&gt;
+
+&lt;p style=&quot;text-align: center; clear: none; float: none;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;어때요. 참 쉽죠?&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;먼저 m.daum.net에서 넘겨 받은 html을 선택하고 오른쪽 기능 탭에서 'Inspectors'를 선택하면&amp;nbsp;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;div style=&quot;text-align: -webkit-auto;&quot;&gt;
+&lt;img src=&quot;http://cfile28.uf.tistory.com/image/221DEA49529460AF24D24A&quot; alt=&quot;&quot;&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;우측 윗부분이 제가 요청한 내용이고 아래 부분이 다음 서버가 응답한 내용입니다.&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;
+&lt;img src=&quot;http://cfile6.uf.tistory.com/image/21132449529460B02A8ACA&quot; alt=&quot;&quot;&gt;
+
+&lt;div style=&quot;text-align: -webkit-auto;&quot;&gt;&lt;div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;보라색이 css 녹색이 javascript 파랑색이 html이고 회색이 image입니다.&amp;nbsp;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;이 외에도 특정 파일만 걸러내는 필터라든가 breakpoint 등이 있지만.. 너무 길면 지루하므로 생략하겠습니다 ㅋ&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;br /&gt;&lt;/div&gt;&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;위 내용은 예전에 tistory 블로그에 올렸지만 github 블로그로 글을 하나씩 이전하고 있습니다.&lt;/p&gt;
+</description>
+				<pubDate>Sat, 14 Feb 2015 00:00:00 +0900</pubDate>
+				<link>/network/2015/02/14/fiddler2-setting.html</link>
+				<guid isPermaLink="true">/network/2015/02/14/fiddler2-setting.html</guid>
+			</item>
+		
+			<item>
+				<title>truncate 와 delete 차이점.</title>
+				<description>&lt;p&gt;Truncate 와 Delete, Drop은 모두 데이터를 삭제하는 쿼리이지만 차이가 존재합니다.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Drop [Tablename] &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4&gt;테이블 스키마 + 데이터를 삭제 &lt;em&gt;(Rollback불가능)&lt;/em&gt;&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Delete From [Tablename] &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4&gt;데이터만 삭제. Commit하기전에는 Rollback이 가능함&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Truncate table[Tablename] &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;역시 데이터만 삭제하지만 delete와의 차이점은 테이블을 최초 생성한 초기상태로 만듬 
+( Rollback 불가능 )&lt;/p&gt;
+</description>
+				<pubDate>Sat, 14 Feb 2015 00:00:00 +0900</pubDate>
+				<link>/database/2015/02/14/delete-truncate-differece.html</link>
+				<guid isPermaLink="true">/database/2015/02/14/delete-truncate-differece.html</guid>
+			</item>
+		
+			<item>
 				<title>스프링 &lt;context:component-scan&gt; 분석</title>
 				<description>&lt;h3&gt;스프링 &lt;code&gt;&amp;lt;context:component-scan&amp;gt;&lt;/code&gt; 분석&lt;/h3&gt;
 
-&lt;p&gt;a&lt;/p&gt;
+&lt;p&gt;asd&lt;/p&gt;
 
 &lt;p&gt;처음으로 스프링 MVC로 프로젝트를 개발하다보니 모르는것도 많고 어떻게 해야하는지 정확히 잘 몰라 구글링과 스프링 설정에 대한 블로그들을 보면서 이것저것 복사 붙여넣기 식으로 수행했습니다.
 그 중에서 스프링 XML 설정 지옥에서 벗어나게 해준 어노테이션. 스프링이 제공하는 어노테이션 기반 설정은 많지만 가장 유용했던 단 한 줄로 설정할 수 있었습니다.&lt;/p&gt;
