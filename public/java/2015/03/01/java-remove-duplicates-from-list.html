@@ -2,9 +2,9 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>logrotate</title>
+	<title>java remove duplicates from list. (Java list에서 중복 요소 제거)</title>
 	
-	<meta name="description" content="로그 로테이트, 아파치 로그 파일을 주기적으로(하루 단위로 rotation) 압축하여 일 별 관리하고 싶을 경우">
+	<meta name="description" content="java remove duplicates from list (Java list에서 중복 요소 제거)">
 	
 	<meta name="author" content="thswave">
 
@@ -144,7 +144,7 @@
 	</div>
 	<div class="col-sm-10 col-sm-offset-2">
 		<div class="page-header">
-  <h1>logrotate </h1>
+  <h1>java remove duplicates from list. (Java list에서 중복 요소 제거) </h1>
 </div>
 	
 <article>
@@ -152,136 +152,56 @@
 	<div class="col-sm-10">
 	 <span class="post-date">
 	   
-	   February 
+	   March 
 	   1st,
 	     
 	   2015
 	 </span>
 	  <div class="article_body">
-	  <h3>상황 : 아파치 로그 파일을 주기적으로(하루 단위로 rotation) 압축하여 일 별 관리하고 싶을 경우</h3>
+	  <p><em>본 포스트의 원문은 <a href="http://www.baeldung.com/java-remove-duplicates-from-list?utm_source=email-newsletter&amp;utm_medium=email&amp;utm_campaign=auto_36_java">http://www.baeldung.com</a>에서 확인할 수 있으며 원 저작자의 번역 포스팅 허락을 받았음을 알려드립니다.</em></p>
 
-<p>기존 아파치 설정  httpd.conf</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">CustomLog    &quot;|/program/httpd-2.2.20/bin/rotatelogs -l /program/httpd-2.2.20/logs/%y%m%d.sample.activity_log 86400&quot; combined env=!nolog
+<p>이번 예제는 List에서 중복 요소를 제거하는 방법에 대해 살펴보겠습니다. - 처음에는 plain java를 활요하여, 그리고 Guava를 활용하여 마지막으로 Java 8 의 Lambda 기반 해결법을 살펴보겠습니다. </p>
 
-ErrorLog     &quot;|/program/httpd-2.2.20/bin/rotatelogs -l /program/httpd-2.2.20/logs/%y%m%d.sample.error_log 86400&quot;
-</code></pre></div>
-<ul>
-<li>하루 단위로 rotation 하고 있었지만 압축 저장하고 있지 않음.</li>
-</ul>
+<p>이 포스트는 Baeldung 사이트의 “<a href="http://www.baeldung.com/java-tutorial">Java – Back to Basic</a>” 시리즈입니다. </p>
 
-<h3>해결방법 : 리눅스 기본 logrotate 활용!</h3>
+<h1>1. plain java를 사용한 중복 요소 제거</h1>
 
-<ul>
-<li><em>logrotate란?</em> </li>
-</ul>
+<p>Java Collections 프레임워크 중 List에서 중복 요소를 제거하는것은 Set을 활용하면 됩니다.
+(Set 이 중복 요소를 저장하지 않기 때문에)</p>
 
-<p>로그 파일(시스템 로그)을 rotates, compresses, and mails 을 할 수 있다.
-설정 파일을 변경해도 관련 프로세스를 새로 시작할 필요 없이 cron 데몬이 주기적으로 실행 시켜준다.</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">$ vi /etc/cron.daily 
-</code></pre></div>
-<p>위 cron을 확인해보면 logrotate 설정 부분을 확인할 수 있다.</p>
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">givenListContainsDuplicates_whenRemovingDuplicatesWithPlainJava_thenCorrect</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithDuplicates</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithoutDuplicates</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;(</span><span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;&gt;(</span><span class="n">listWithDuplicates</span><span class="o">));</span>
+ 
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">listWithoutDuplicates</span><span class="o">,</span> <span class="n">hasSize</span><span class="o">(</span><span class="mi">4</span><span class="o">));</span>
+<span class="o">}</span></code></pre></div>
 
-<p>logrotate 관련 파일</p>
+<p>원래 리스트(listWithDuplicates)의 값은 중복값이 남아있습니다. </p>
 
-<ul>
-<li>/usr/sbin/logrotate : 데몬의 위치 및 데몬프로그램</li>
-<li>/etc/logrotate.conf : 설정 파일.</li>
-<li>/etc/logrotate.d : logrotate를 적용할 로그 파일 보관 디렉토리.</li>
-<li>/var/lib/logrotate.status : logrotate가 작업 내역 보관 파일.</li>
-<li>/etc/cron.daily/logrotate : logrotate : cron 에 의해 일 단위로 실행한다.</li>
-</ul>
+<h1>2. Guava를 활용한 중복 요소 제거</h1>
 
-<p>동작 순서를 살펴보면 
-1. cron.daily 에서 /usr/sbin/logrotate 호출 
-2. /usr/sbin/logrotate 에서 /etc/logrotate.conf 설정파일 참조 
-3. /etc/logrotate.conf 설정 파일에서 /etc/logrotate.d 참조 ( logrotate.conf 파일 안에 &quot;include /etc/logrotate.d&quot;)</p>
+<p>Guava를 통해 같은 방법으로 중복 요소 제거 가능합니다. </p>
 
-<p>logrotate가 정상 동작 하는지 최소한의 설정으로 확인해 보자</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">$ sudo vi /etc/logrotate.d/apache
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">givenListContainsDuplicates_whenRemovingDuplicatesWithGuava_thenCorrect</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithDuplicates</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithoutDuplicates</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="n">Sets</span><span class="o">.</span><span class="na">newHashSet</span><span class="o">(</span><span class="n">listWithDuplicates</span><span class="o">));</span>
+ 
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">listWithoutDuplicates</span><span class="o">,</span> <span class="n">hasSize</span><span class="o">(</span><span class="mi">4</span><span class="o">));</span>
+<span class="o">}</span></code></pre></div>
 
-/program/apache/logs/access_log {
-  size +1k
-  missingok
-  notifempty
-  create 0600 root root
-  compress
-  dateext
-  postrotate
-    /usr/bin/killall -HUP httpd
-  endscript
-}
-</code></pre></div>
-<p>각 옵션들은 잠시 뒤에 상세 설명하고 우선 당장 실행 시켜 보자.</p>
+<p>역시 원래의 리스트 값은 변화 없습니다. </p>
 
-<p>루트 권한으로 아래 명령 실행.</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">$ /usr/sbin/logrotate -f /etc/logrotate.conf
-</code></pre></div>
-<p>-f 옵션은 강제 실행 옵션이다 (Tells logrotate to force the rotation, even if it doesn&#39;t think this is necessary)</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">$ /usr/sbin/logrotate -d /etc/logrotate.conf
-</code></pre></div>
-<p>-d 옵션 : 디버그 모드 (Turns on debug mode and implies -v. In debug mode, no changes will be made to the logs or to the logrotate state file.)</p>
+<h1>3. Java 8 Lambdas 를 활용한 중복 요소 제거</h1>
 
-<ul>
-<li><p>주의사항 : f 옵션이나 d 옵션 하나만 넣고 실행해야 한다. (두 옵션을 동시에 넣고 실행시 정상 동작안되서 한동안 삽질....)</p></li>
-<li><p>logrotate 옵션
-copytruncate : Truncate the original log file to zero size in place after creating a copy, instead of moving the old log file and optionally creating a new one 
-copytruncate옵션을 활용하면 postrotate를 통한 httpd 재시작 없이 무중단 로깅이 가능하다.</p></li>
-</ul>
-<div class="highlight"><pre><code class="language-text" data-lang="text">/path/to/log {
-  daily
-  copytruncate
-  create 0700 root root
-  compress
-  notifempty
-  missingok
-  dateext
-}
-</code></pre></div>
-<ul>
-<li>rotate 30(숫자)  : log파일 30개 이상 되면 삭제</li>
-<li>maxage 30(숫자) : 30일 이산된 로그 파일 삭제</li>
-<li>size : 지정한 용량이 되면 로그로테이트를 실행한다. 10k, 10M 이런식으로 지정한다.</li>
-<li>create : [권한 유저 그룹] 으로 rotation된 로그파일 생성</li>
-<li>notifempty : log 내용이 없으면 rotation 하지 않는다.</li>
-<li>ifempty : 로그파일이 비어있는 경우에도 로테이트한다.</li>
-<li>monthly : 월 단위로 로테이트 한다.</li>
-<li>daily : 월 단위로 로테이트 한다.</li>
-<li>weekly : 월 단위로 로테이트 한다.</li>
-<li>compress : rotate 된 로그 gzip 압축</li>
-<li>nocompress : 압축을 원치 않는다.</li>
-<li>mail admin@mail : 로테이트 설정에 의해 보관주기가 끝난 파일을 메일로 발송한다.</li>
-<li>mailfirst admin@mail : 로테이트시 신규파일 이전의 로그를 메일로 발송한다.</li>
-<li>nomail : 메일로 통보받지 않음.</li>
-<li>errors admin@mail : 로테이트 실행시 에러가 발생하면 이메일로 통보한다.</li>
-<li>prerotate-endscript : 사이의 명령어를 로그파일 처리전에 실행한다.</li>
-<li>postrotate-endscript : 사이의 명령어를 로그파일 처리후에 실행한다.</li>
-<li>extension : 로테이트 후 생성되는 파일의 확정자를 지정한다.</li>
-<li>copytruncate : 이옵션을 넣지 않으면 현재 사용중인 로그를 다른이름으로 move하고 새로운 파일을 생성한다.</li>
-</ul>
+<p>이제 마지막으로 <code>Lambdas</code> 를 활용한 새로운 방법을 살펴보겠습니다.;  Stream API 중 <em>고유한(distinct) 요소들로 구성된 stream을 반환 해주는 <code>distinct()</code> 메서드를 활용</em>한 방법을 살펴 보겠습니다. </p>
 
-<p>이 외의 옵션은 하단 참조에 link를 참조하거나 man logrotate를 확인하면 된다. </p>
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">givenListContainsDuplicates_whenRemovingDuplicatesWithJava8_thenCorrect</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithDuplicates</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">3</span><span class="o">);</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithoutDuplicates</span> <span class="o">=</span> 
+      <span class="n">listWithDuplicates</span><span class="o">.</span><span class="na">parallelStream</span><span class="o">().</span><span class="na">distinct</span><span class="o">().</span><span class="na">collect</span><span class="o">(</span><span class="n">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">());</span>
+<span class="o">}</span></code></pre></div>
 
-<p>보통은 rotation 후 아래 postrotate를 통해 httpd 를 재시작 해준다. </p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">postrotate
-    /usr/bin/killall -HUP httpd
-endscript
-</code></pre></div>
-<p>이 때 두가지 대안이 있다. </p>
-
-<ol>
-<li>killall -HUP 프로세스이름  (예&gt; /usr/bin/killall -HUP httpd)</li>
-<li>kill -HUP 프로세스번호 (예&gt; /usr/bin/kill -HUP <code>cat /daum/program/apache/logs/httpd.pid 2&gt; /dev/null</code> 2&gt; /dev/null || true)</li>
-</ol>
-
-<h3>참조 링크</h3>
-
-<ul>
-<li><a href="http://manpages.ubuntu.com/manpages/precise/man8/logrotate.8.html">logrotate 정의</a></li>
-<li><a href="http://www.rackspace.com/knowledge_center/article/understanding-logrotate-*%20part-1">Understanding logrotate - part 1</a></li>
-<li><a href="http://www.thegeekstuff.com/2011/07/rotate-apache-logs/">How to Rotate Apache Log Files in Linux</a></li>
-<li><a href="http://www.thegeekstuff.com/2010/07/logrotate-examples/">logrotate example</a></li>
-<li><a href="http://unix.stackexchange.com/questions/47688/how-to-avoid-apache-reload-when-rotating-logs">stackexchange</a></li>
-</ul>
+<p>위 예제에서 살펴본 3가지 간단한 방법을 통해 list의 중복 요소들을 제거할 수 있습니다. </p>
 
 	  </div>
 
@@ -291,8 +211,8 @@ endscript
 		  
 		  
 			 
-				<li><a href="/categories.html#linux-ref">
-					linux <span>(2)</span>
+				<li><a href="/categories.html#java-ref">
+					java <span>(2)</span>
 					
 				</a></li>
 			
@@ -307,8 +227,15 @@ endscript
 		  
 			 
 				<li>
-					<a href="/tags.html#logrotate-ref">
-					logrotate <span>(1)</span>
+					<a href="/tags.html#java-ref">
+					java <span>(3)</span>
+					,
+					</a>
+				</li>
+			 
+				<li>
+					<a href="/tags.html#list-ref">
+					list <span>(1)</span>
 					
 					</a>
 				</li>
@@ -323,7 +250,7 @@ endscript
 		<div>
       <section class="share col-sm-6">
         <h4 class="section-title">Share Post</h4>
-        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=logrotate&via=thswave"
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=java remove duplicates from list. (Java list에서 중복 요소 제거)&via=thswave"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
           <i class="fa fa-twitter fa-lg"></i>
           Twitter
@@ -351,10 +278,10 @@ endscript
 
 		<ul class="pager">
 		  
-		  <li class="previous"><a href="/javascript/2015/02/01/javascript-date.html" title="javascript 날짜 계산 Date 사용법">&larr; Previous</a></li>
+		  <li class="previous"><a href="/java/2015/02/23/java-input-stream-to-string.html" title="Java InputStream to String">&larr; Previous</a></li>
 		  
 		  
-		  <li class="next"><a href="/spring/2015/02/02/spring-mvc-annotaion.html" title="스프링 &lt;context:component-scan&gt; 분석">Next &rarr;</a></li>
+			<li class="next disabled"><a>Next &rarr;</a>
 		  
 		</ul>
 

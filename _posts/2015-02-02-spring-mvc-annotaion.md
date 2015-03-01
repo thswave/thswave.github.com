@@ -1,8 +1,8 @@
 ---
 layout: post
 title: 스프링 &lt;context:component-scan&gt; 분석
-categories: [javascript]
-tags: [javascript, date]
+categories: [spring]
+tags: [java, spring]
 description: 스프링 &lt;context:component-scan&gt; 분석
 ---
 
