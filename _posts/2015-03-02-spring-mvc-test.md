@@ -182,6 +182,7 @@ Controller에서 호출한 메서드의 호출이 되었는지 확인하기 위�
 * mockito의 기본적인 사용방법 참조 사이트 
 
 [http://www.baeldung.com/mockito-behavior](http://www.baeldung.com/mockito-behavior)
+
 [http://www.baeldung.com/mockito-verify](http://www.baeldung.com/mockito-verify)
 
 ## 결론
@@ -211,6 +212,9 @@ Service layer 테스트는 다음 포스팅에 계속 하겠습니다.
 
 * 참조 사이트
 [http://www.petrikainulainen.net/spring-mvc-test-tutorial/](http://www.petrikainulainen.net/spring-mvc-test-tutorial/)
+
 [http://www.petrikainulainen.net/programming/spring-framework/integration-testing-of-spring-mvc-applications-configuration/](http://www.petrikainulainen.net/programming/spring-framework/integration-testing-of-spring-mvc-applications-configuration/)
+
 [http://www.petrikainulainen.net/programming/spring-framework/unit-testing-of-spring-mvc-controllers-configuration/](http://www.petrikainulainen.net/programming/spring-framework/unit-testing-of-spring-mvc-controllers-configuration/)
+
 [http://thysmichels.com/2014/01/07/junit-test-spring-mvc-web-services/](http://thysmichels.com/2014/01/07/junit-test-spring-mvc-web-services/)
