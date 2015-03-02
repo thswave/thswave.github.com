@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>How to Spring MVC Unit Test 스프링 MVC 단위 테스트</title>
+	
+	<meta name="description" content="Spring MVC Unit Test! 스프링 MVC 단위 테스트">
+	
+	<meta name="author" content="thswave">
+
+	<!-- Enable responsive viewport -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<!-- Le styles -->
+	<link href="/assets/resources/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/assets/resources/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+	<link href="/assets/resources/syntax/syntax.css" rel="stylesheet">
+	<link href="/assets/css/style.css" rel="stylesheet">
+
+	<!-- Le fav and touch icons -->
+	<!-- Update these with your own images
+	<link rel="shortcut icon" href="images/favicon.ico">
+	<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+	-->
+
+	<link rel="alternate" type="application/rss+xml" title="thswave" href="/feed.xml">
+</head>
+
+<body>
+	<nav class="navbar navbar-default visible-xs" role="navigation">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			
+			<a type="button" class="navbar-toggle nav-link" href="http://github.com/thswave">
+				<i class="fa fa-github"></i>
+			</a>
+			
+			
+			<a type="button" class="navbar-toggle nav-link" href="http://twitter.com/thswave">
+				<i class="fa fa-twitter"></i>
+			</a>
+			
+			
+			<a type="button" class="navbar-toggle nav-link" href="mailto:thswave@gmail.com">
+				<i class="fa fa-envelope"></i>
+			</a>
+			
+			<a class="navbar-brand" href="/">
+				<img src="http://www.gravatar.com/avatar/c1e626278fb674ec46bde944b163f3d9?s=35" class="img-circle" />
+				thswave
+			</a>
+		</div>
+
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="/">Home</a></li>
+				<li><a href="/categories.html">Categories</a></li>
+				<li><a href="/tags.html">Tags</a></li>
+			</ul>
+		</div><!-- /.navbar-collapse -->
+	</nav>
+
+	<!-- nav-menu-dropdown -->
+	<div class="btn-group hidden-xs" id="nav-menu">
+		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+			<i class="fa fa-bars"></i>
+		</button>
+		<ul class="dropdown-menu" role="menu">
+			<li><a href="/"><i class="fa fa-home"></i>Home</a></li>
+			<li><a href="/categories.html"><i class="fa fa-folder"></i>Categories</a></li>
+			<li><a href="/tags.html"><i class="fa fa-tags"></i>Tags</a></li>
+			<li class="divider"></li>
+			<li><a href="#"><i class="fa fa-arrow-up"></i>Top of Page</a></li>
+		</ul>
+	</div>
+	
+	<div class="col-sm-2 sidebar hidden-xs">
+		<! -- sidebar.html -->
+<header class="sidebar-header" role="banner">
+	<a href="/">
+		<img src="http://www.gravatar.com/avatar/c1e626278fb674ec46bde944b163f3d9?s=150" class="img-circle" />
+	</a>
+	<h3 class="title">
+        <a href="/">thswave</a>
+    </h3>
+</header>
+
+
+<div id="bio" class="text-center">
+	try hard, try hard!
+</div>
+
+
+<div id="contact-list" class="text-center">
+	<ul class="list-unstyled list-inline">
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="https://github.com/thswave">
+				<i class="fa fa-github-alt fa-lg"></i>
+			</a>
+		</li>
+		
+		
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="mailto:thswave@gmail.com">
+				<i class="fa fa-envelope fa-lg"></i>
+			</a>
+		</li>
+		
+	</ul>
+	<!-- <ul id="contact-list-secondary" class="list-unstyled list-inline">
+		
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="/feed.xml">
+				<i class="fa fa-rss fa-lg"></i>
+			</a>
+		</li>
+	</ul> -->
+</div>
+<div class="text-center">
+    <ul class="nav">
+     	<li><a href="/categories.html">Categories</a></li>
+     	<li><a href="/tags.html">Tags</a></li>
+    </ul>
+</div>
+<! -- sidebar.html end -->
+
+	</div>
+	<div class="col-sm-10 col-sm-offset-2">
+		<div class="page-header">
+  <h1>How to Spring MVC Unit Test 스프링 MVC 단위 테스트 </h1>
+</div>
+	
+<article>
+
+	<div class="col-sm-10">
+	 <span class="post-date">
+	   
+	   March 
+	   2nd,
+	     
+	   2015
+	 </span>
+	  <div class="article_body">
+	  <h1>스프링 MVC 단위 테스트!</h1>
+
+<p>계속해서 들려오는 TDD를 해보고 싶었던차에 강제적으로(?) 단위테스트를 만들면서 개발해야되는 상황이 되었습니다.</p>
+
+<p>지금까지 TDD 예제나 소개에서는 간단한 알고리즘 문제 풀이를 다루고 있었고 단순한 JUnit Test 케이스를 만들순 있었습니다.</p>
+
+<p>하지만 Spring MVC의 Controller, Service, Model  성격이 다른 각 계층에 대한 테스트 케이스를 만드려고 하니 막막해졌습니다.
+MVC를 구성하는 각 레이어 별 어떻게 테스트를 해야 할지 크게 세가지 정도가 감이 오지 않았습니다. </p>
+
+<ul>
+<li><em>1. Controller Method</em></li>
+</ul>
+
+<p>Controller에 request에 매핑되는 메서드는 일반 객체의 메서드를 호출하듯 마음대로 호출할 수 있는게 아니었기 때문 이를 어떻게 단위테스트에서 호출할 수 있는지 의문이었습니다. </p>
+
+<ul>
+<li><em>2. Controller의 테스트 방식</em></li>
+</ul>
+
+<p>Controller에서는 Service의 메서드를 호출하기만 하는데 이를 어떻게 단위 테스트 할 수 있는지 의문이었습니다. </p>
+
+<ul>
+<li><em>3. DAO의 테스트 방식</em></li>
+</ul>
+
+<p>단위테스트는 어느환경에서 실행하여도 성공을 보장해주어야 하는데 데이터베이스를 접근하는 DAO의 경우 데이터베이스 접근이 실패하거나 테스트 할때의 데이터베이스에 있는 테이블 데이터에 따라 성공 혹은 실패하기 때문에 이를 어떻게 처리해야 하는지 의문이었습니다.</p>
+
+<p>이제부터 Spring MVC의 단위테스트를 위한 과정을 하나씩 살펴보겠습니다. 
+<code>Controller</code>, <code>Service</code>, <code>DAO</code> 별로 테스트 하는 방식이 다르기 때문에 하나씩 살펴보겠습니다.</p>
+
+<h2>Controller 단위 테스트</h2>
+
+<p>Spring MVC, JUnit, Maven을 사용중이라는 가정하에 maven의 pom.xml에서 스프링 테스트, Mockito, JUnit을 추가해 줍니다. </p>
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>junit<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>junit<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>4.11<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.mockito<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>mockito-all<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>1.9.5<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.springframework<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>spring-test<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>3.2.3.RELEASE<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div>
+<p>그리고 특정 카테고리에 대한 Controller</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/category&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CategoryController</span> <span class="o">{</span>
+     <span class="nd">@Autowired</span>
+     <span class="kd">private</span> <span class="n">CategoryService</span> <span class="n">categoryService</span><span class="o">;</span>
+
+     <span class="nd">@RequiredLogin</span>
+     <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/list&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+     <span class="kd">public</span> <span class="n">ModelAndView</span> <span class="nf">allCategoryList</span><span class="o">()</span> <span class="o">{</span>
+          <span class="k">return</span> <span class="n">categoryService</span><span class="o">.</span><span class="na">method1</span><span class="o">();</span>
+     <span class="o">}</span>
+<span class="o">}</span></code></pre></div>
+
+<p>CategoryController에서는 @Autowired로 CategoryService를 사용합니다.</p>
+
+<p>본격적으로 Test 케이스를 작성해 봅시다. </p>
+
+<p><code>CategoryControllerTest.java</code></p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@RunWith</span><span class="o">(</span><span class="n">SpringJUnit4ClassRunner</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="nd">@ContextConfiguration</span><span class="o">(</span><span class="n">locations</span> <span class="o">=</span> <span class="o">{</span><span class="s">&quot;file:src/main/webapp/WEB-INF/spring/appServlet/test-servlet-context.xml&quot;</span><span class="o">,</span>
+     <span class="s">&quot;file:src/main/webapp/WEB-INF/mybatis/test-mybatis-context.xml&quot;</span><span class="o">})</span>
+<span class="nd">@WebAppConfiguration</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CategoryControllerTest</span> <span class="o">{</span>
+     <span class="nd">@Mock</span>
+     <span class="n">CategoryService</span> <span class="n">categoryService</span><span class="o">;</span>
+     <span class="nd">@InjectMocks</span>
+     <span class="kd">private</span> <span class="n">CategoryController</span> <span class="n">categoryController</span><span class="o">;</span>
+
+     <span class="nd">@Autowired</span>
+     <span class="kd">private</span> <span class="n">WebApplicationContext</span> <span class="n">wac</span><span class="o">;</span>
+
+     <span class="kd">private</span> <span class="n">MockMvc</span> <span class="n">mockMvc</span><span class="o">;</span>
+
+     <span class="nd">@Before</span>
+     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUp</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">ExceptiMon</span> <span class="o">{</span>
+          <span class="n">MockitoAnnotations</span><span class="o">.</span><span class="na">initMocks</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+          <span class="n">mockMvc</span> <span class="o">=</span> <span class="n">MockMvcBuilders</span><span class="o">.</span><span class="na">standaloneSetup</span><span class="o">(</span><span class="n">categoryController</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+     <span class="o">}</span>
+
+     <span class="nd">@Test</span>
+     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">testCategoryController</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+          <span class="n">when</span><span class="o">(</span><span class="n">categoryService</span><span class="o">.</span><span class="na">method1</span><span class="o">()).</span><span class="na">thenReturn</span><span class="o">(</span><span class="mi">10</span><span class="o">);</span>
+          <span class="n">mockMvc</span><span class="o">.</span><span class="na">perform</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="s">&quot;/category/list&quot;</span><span class="o">)).</span><span class="na">andExpect</span><span class="o">(</span><span class="n">status</span><span class="o">().</span><span class="na">isOk</span><span class="o">());</span>
+
+          <span class="n">verify</span><span class="o">(</span><span class="n">categoryService</span><span class="o">).</span><span class="na">method1</span><span class="o">();</span>
+          <span class="n">verifyNoMoreInteractions</span><span class="o">(</span><span class="n">categoryService</span><span class="o">);</span>
+     <span class="o">}</span>
+<span class="o">}</span></code></pre></div>
+
+<p>테스트 클래스 상단에 아래와 같이 작성해 줍니다. </p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@RunWith</span><span class="o">(</span><span class="n">SpringJUnit4ClassRunner</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="nd">@ContextConfiguration</span><span class="o">(</span><span class="n">locations</span> <span class="o">=</span> <span class="o">{</span><span class="s">&quot;file:src/main/webapp/WEB-INF/spring/appServlet/test-servlet-context.xml&quot;</span><span class="o">,</span>
+     <span class="s">&quot;file:src/main/webapp/WEB-INF/mybatis/test-mybatis-context.xml&quot;</span><span class="o">})</span>
+<span class="nd">@WebAppConfiguration</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ClassName</span> <span class="o">{</span>
+    <span class="c1">// 생략</span>
+<span class="o">}</span></code></pre></div>
+
+<p>테스트를 위한 유일한 방법이 아니고 여러가지 다른 방법이 있지만 저는 xml설정 파일을 읽어 테스트하도록 하였습니다.</p>
+
+<p><code>SpringJUnit4ClassRunner.class</code> 클래스는 spring-test 에서 제공하는 단위테스트를 위한 클래스 러너입니다. </p>
+
+<p>아래 <code>@ContextConfiguration</code> 어노테이션은 스프링 빈 설정, 데이터베이스 설정 등이 있는 <code>servlet-context.xml</code>과 같은 xml 설정을 읽어 스프링 테스트 시작 전에 빈을 초기화 하여 <code>@Autowired</code> 를 통해 빈 팩토리에서 미리 생성한 빈들을 읽어 들일 수 있고 그 밖의 spring 프레임워크 설정들을 읽어 들일 수 있습니다.</p>
+
+<p>위와 같이 설정하고 실행할 경우 스프링을 실행할 때와 마찬가지로 설정 파일을 읽어들이여 Request Mapping 등의 작업을 하는걸 확인할 수 있습니다.</p>
+
+<p>Controller에서 @Autowired로 된걸 단위테스트에서 동일하게 주입시키기 위해 Mockito의 @InjectMocks, @Mock을 설정합니다. </p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Mock</span>
+     <span class="n">CategoryService</span> <span class="n">categoryService</span><span class="o">;</span>
+     <span class="nd">@InjectMocks</span>
+     <span class="kd">private</span> <span class="n">CategoryController</span> <span class="n">categoryController</span><span class="o">;</span></code></pre></div>
+
+<p><em>여기서 헷갈리는 부분이 있다면 <code>@Mock</code>은 Mockito 단위 테스트 프레임워크라는 것이고 이것은 spring-test와는 무관하다 볼 수 있습니다.</em></p>
+
+<p>Controller를 테스트 할 것이므로 해당 컨트롤러에 @Autowired 한 CategoryService 빈을 주입해 줍니다.</p>
+
+<p>그리고 반드시 <code>@Before</code>에서 아래와 같이 호출해줍니다.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Before</span>
+     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUp</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+          <span class="n">MockitoAnnotations</span><span class="o">.</span><span class="na">initMocks</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+          <span class="n">mockMvc</span> <span class="o">=</span> <span class="n">MockMvcBuilders</span><span class="o">.</span><span class="na">standaloneSetup</span><span class="o">(</span><span class="n">categoryController</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+     <span class="o">}</span></code></pre></div>
+
+<p>여기서 MockitoAnnotations.initMocks(this); 이부분이 @Autowired를 해주는 것이라 생각하시면 됩니다. 그리고 Controller 단위테스트의 핵심이라 볼수있는 MockMVC를 설정하게 됩니다.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">mockMvc</span> <span class="o">=</span> <span class="n">MockMvcBuilders</span><span class="o">.</span><span class="na">standaloneSetup</span><span class="o">(</span><span class="n">categoryController</span><span class="o">).</span><span class="na">build</span><span class="o">();</span></code></pre></div>
+
+<p>standaloneSetup()말고 webAppContextSetUp 방식도 있으니 참고바랍니다.</p>
+
+<ul>
+<li>MockMvc : Controller에 request를 수행해줍니다.</li>
+<li>Mockito: 동작이나 값을 대신해주는 목 객체 생성하고 verify를 통해 정상적으로 호출되었는지 검증.</li>
+</ul>
+
+<p>이제 <em>Mockito의 when().thenReturn()</em> 등을 활용해 컨트롤러에 로직을 테스트 해주면 됩니다. </p>
+
+<p>여기서 중요한건 <code>Controller의 수행 흐름</code>을 테스트 한다는 것이지 <code>CategoryService의 동작</code>을 테스트 하는게 아닙니다.
+(지금은 매우 간단한 로직이지만 controller의 Controlling 해주는 부분이 늘어나면 이를 더 테스트 해야 합니다.)</p>
+
+<p><code>mockMvc.perform()</code>으로 실제 request를 테스트 해볼 수 있습니다.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">mockMvc</span><span class="o">.</span><span class="na">perform</span><span class="o">(</span><span class="n">get</span><span class="o">(</span><span class="s">&quot;/category/list&quot;</span><span class="o">)).</span><span class="na">andExpect</span><span class="o">(</span><span class="n">status</span><span class="o">().</span><span class="na">isOk</span><span class="o">());</span></code></pre></div>
+
+<p>정상적으로 200 status코드를 받았는지 단순히 테스트하는 정도지만 여기서 다양한 테스트를 해볼 수 있습니다.(예를 들어, json 을 받았다면 해당 데이터가 몇 개의 요소들로 있는지 어떤 데이터로 구성되어 있는지, 또는 예외가 발생한 다면 어떤 예외가 발생할 수 있는지 등 아주 세세하게 테스트 해볼 수 있습니다.)</p>
+
+<p>Controller에서 호출한 메서드의 호출이 되었는지 확인하기 위해서는 mockito의 verify를 사용해야 합니다.</p>
+
+<ul>
+<li>mockito의 기본적인 사용방법 참조 사이트 </li>
+</ul>
+
+<p><a href="http://www.baeldung.com/mockito-behavior">http://www.baeldung.com/mockito-behavior</a>
+<a href="http://www.baeldung.com/mockito-verify">http://www.baeldung.com/mockito-verify</a></p>
+
+<h2>결론</h2>
+
+<p>컨트롤러를 테스트 할 수 있는 방법은 여러가지 일 수 있습니다. MockHttpServlet 을 활용하여 테스트 한다거나 혹은, controller를 일반 함수라고 가정하고 각 파라미터들을 주입하고 이를 테스트 해볼 수 있습니다. 단 제 생각은 Controller에는 말 그대로 Request에 대한 Controlling을 하는 부분이 들어가 있어야 하고 Service 레이어에 로직이 들어가 있어야 할것입니다. 그렇다면 로직을 테스트하는 것인지 혹은 어디로 요청을 보내는지 를 테스트 하는지 구분 지어 테스트해야 할 것입니다. spring-test 를 활용하여 컨트롤러를 테스트한 이유는 spring의 AOP라던가 Interceptor 등 스프링이 제공해주는 기능을 포함하여 테트스 할 때 필요할 것입니다. 위 간단한 예제에서는 비록 복잡한 설정이 없었기 때문에 다른 방식으로도 충분히 테스트 할 수 있었지만 스프링 설정을 읽어들여 좀 더 정확한 테스트를 하고자 한다면 spring-test에서 제공하는 MockMvc를 활용하면 더욱 효율적일 것 같습니다.</p>
+
+<p>Service layer 테스트는 다음 포스팅에 계속 하겠습니다. </p>
+
+<p><em>포스트를 정리 한 후 예제 full source code를 다시 올리겠습니다.</em></p>
+
+<h4>ps. request에 attribute를 넣어주는 방법.</h4>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">MockHttpServletRequestBuilder</span> <span class="n">request</span> <span class="o">=</span> <span class="n">get</span><span class="o">(</span><span class="s">&quot;category/list&quot;</span><span class="o">);</span>
+    <span class="n">request</span><span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="k">new</span> <span class="nf">RequestPostProcessor</span><span class="o">()</span> <span class="o">{</span>
+
+         <span class="nd">@Override</span>
+         <span class="kd">public</span> <span class="n">MockHttpServletRequest</span> <span class="nf">postProcessRequest</span><span class="o">(</span><span class="n">MockHttpServletRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+              <span class="n">request</span><span class="o">.</span><span class="na">setAttribute</span><span class="o">(</span><span class="s">&quot;a&quot;</span><span class="o">,</span> <span class="s">&quot;a&quot;</span><span class="o">);</span>
+              <span class="k">return</span> <span class="n">request</span><span class="o">;</span>
+         <span class="o">}</span>
+    <span class="o">});</span>
+    <span class="k">return</span> <span class="n">request</span><span class="o">;</span></code></pre></div>
+
+<p>우선 구글링을 통해 단위테스트 작성에 도움되는 사이트들을 소개해 드립니다.</p>
+
+<ul>
+<li>참조 사이트
+<a href="http://www.petrikainulainen.net/spring-mvc-test-tutorial/">http://www.petrikainulainen.net/spring-mvc-test-tutorial/</a>
+<a href="http://www.petrikainulainen.net/programming/spring-framework/integration-testing-of-spring-mvc-applications-configuration/">http://www.petrikainulainen.net/programming/spring-framework/integration-testing-of-spring-mvc-applications-configuration/</a>
+<a href="http://www.petrikainulainen.net/programming/spring-framework/unit-testing-of-spring-mvc-controllers-configuration/">http://www.petrikainulainen.net/programming/spring-framework/unit-testing-of-spring-mvc-controllers-configuration/</a>
+<a href="http://thysmichels.com/2014/01/07/junit-test-spring-mvc-web-services/">http://thysmichels.com/2014/01/07/junit-test-spring-mvc-web-services/</a></li>
+</ul>
+
+	  </div>
+
+		
+		<ul class="tag_box list-unstyled list-inline">
+		  <li><i class="fa fa-folder-open"></i></li>
+		  
+		  
+			 
+				<li><a href="/categories.html#java-ref">
+					java <span>(4)</span>
+					
+				</a></li>
+			
+		  
+		</ul>
+		  
+
+		
+		<ul class="list-inline">
+		  <li><i class="fa fa-tags"></i></li>
+		  
+		  
+			 
+				<li>
+					<a href="/tags.html#java-ref">
+					java <span>(5)</span>
+					,
+					</a>
+				</li>
+			 
+				<li>
+					<a href="/tags.html#unit test-ref">
+					unit test <span>(1)</span>
+					
+					</a>
+				</li>
+			
+		  
+		  
+		</ul>
+		  
+
+		<hr>
+
+		<div>
+      <section class="share col-sm-6">
+        <h4 class="section-title">Share Post</h4>
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=How to Spring MVC Unit Test 스프링 MVC 단위 테스트&via=thswave"
+           onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+          <i class="fa fa-twitter fa-lg"></i>
+          Twitter
+        </a>
+        <a class="btn btn-default btn-sm facebook" href="https://www.facebook.com/sharer/sharer.php"
+           onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+          <i class="fa fa-facebook fa-lg"></i>
+          Facebook
+        </a>
+        <a class="btn btn-default btn-sm gplus"
+           onclick="window.open('https://plus.google.com/share?url='+window.location.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <i class="fa fa-google-plus fa-lg"></i>
+          Google+
+        </a>
+      </section>
+
+      <section class="col-sm-6 author">
+        <img src="http://www.gravatar.com/avatar/c1e626278fb674ec46bde944b163f3d9" class="img-rounded author-image" />
+        <h4 class="section-title author-name">thswave</h4>
+        <p class="author-bio">try hard, try hard!</p>
+      </section>
+    </div>
+
+    <div class="clearfix"></div>
+
+		<ul class="pager">
+		  
+		  <li class="previous"><a href="/java/2015/03/01/java-remove-nulls-from-list.html" title="Java remove nulls from list (Java list에서 null 요소 제거)">&larr; Previous</a></li>
+		  
+		  
+			<li class="next disabled"><a>Next &rarr;</a>
+		  
+		</ul>
+
+		<hr>
+	</div>
+	<div class="col-sm-2 sidebar-2">
+	
+	</div>
+	 
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'thswavegithubio'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</article>
+<div class="clearfix"></div>
+
+
+
+		<div id="disqus_thread"></div>
+	    <script type="text/javascript">
+	        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+	        var disqus_shortname = 'thswavegithubio'; // required: replace example with your forum shortname
+
+	        /* * * DON'T EDIT BELOW THIS LINE * * */
+	        (function() {
+	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	        })();
+	    </script>
+	    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+		<footer>
+			<hr/>
+			<p>
+				&copy; 2015 thswave with Jekyll. Theme: dbyll by dbtek.
+			</p>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="/assets/resources/jquery/jquery.min.js"></script>
+	<script type="text/javascript" src="/assets/resources/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/assets/js/app.js"></script>
+	<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-58937114-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>
+
