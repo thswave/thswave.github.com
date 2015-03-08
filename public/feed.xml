@@ -7,6 +7,85 @@
 		<atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>Java Volatile 의미</title>
+				<description>&lt;p&gt;&lt;em&gt;원 글 &lt;a href=&quot;http://tutorials.jenkov.com/java-concurrency/volatile.html&quot;&gt;Java&amp;#39;s Volatile Keyword&lt;/a&gt; 을 참고하여 번역하였습니다.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Java volatile 키워드는 자바 변수를 &amp;quot;메인 메모리에 저장 할&amp;quot; 표식으로 사용합니다. 좀 더 정확하게 말하자면 모든 &lt;code&gt;volatile 변수를 읽어 들일 때 CPU 캐시가 아니라 컴퓨터의 메인 메모리로 부터 읽어들입니다&lt;/code&gt;. 그리고 volatile 변수를 쓸 때에도(write) CPU 캐시가 아닌 메인 메모리에 기록합니다. &lt;/p&gt;
+
+&lt;p&gt;java 5 이래로 volatile 키워드는 volatile 변수들을 메인 메모리로 부터 읽고 쓰는걸 것 보다 더 큰 의미를 가지는데 이는 곧 다시 설명 하겠습니다. &lt;/p&gt;
+
+&lt;h1&gt;Java volatile은 변수의 가시성(Visibility)을 보장한다.&lt;/h1&gt;
+
+&lt;p&gt;Java volatile 키워드는 여러개의 쓰래드들 에서 사용되는 변수의 변화(값의 변화) 에 대한 가시성의 보장합니다. 이 말이 좀 추상 적으로 느껴질 수 있는데 자세하게 설명하자면 &lt;/p&gt;
+
+&lt;p&gt;non-volatile 변수들로 운영되는 멀티 쓰래드 어플리케이션에서 각 쓰래드들은 성능적이 이유로 메인 메모리로 부터 변수를 읽어 CPU 캐시에 복사하고 작업하게 됩니다. 만약 여러분의 컴퓨터에 하나 이상의 CPU로 구성되어 있고 각 쓰래드들이 서로 다른 CPU에서 실행 될수 있습니다. 이 말은 각 쓰래드들이 서로 다른 CPU들의 CPU 캐시에 값을 복사할 수 있다는 것으로 아래의 다이어그램이 이를 설명해주고 있습니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/media/0308.jpg&quot; alt=&quot;0308.jpg&quot;&gt;&lt;/p&gt;
+
+&lt;p&gt;non-volatile 변수들은 어느 시점에 Java Virtual Machine(JVM)이 메인 메모리로 부터 데이터를 읽어 CPU 캐시로 읽어 들이거나 혹은 CPU 캐시들에서 메인 메모리로 데이터를 쓰는지(write) 보장해 줄 수 없습니다.  이럴 경우 어떤 문제가 발생 할 수 있는지 예를 들어 보겠습니다. &lt;/p&gt;
+
+&lt;p&gt;두 개 혹은 그 이상의 쓰래드가 접근하고 사용하는 공용 오브젝트에 counter 라는 변수가 아래와 같이 선언된 상황을 가정합니다 : &lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;public class SharedObject {
+
+    public int counter = 0;
+
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;1번 쓰래드가 공유 오브젝트의 counter 값인 0 을 CPU 캐시로 읽어 갑니다. 그리고 1 로 증가 시킨 후 메인 메모리에는 아직 쓰지 않았습니다. 2번 쓰래드가 같은 공유 오브젝트의 counter 값을 메인 메로리로 부터 읽어 가는데 이 때 아직 값은 0 입니다. 그리고 이를 CPU 캐시에 복사하고 2번 쓰래드 역시 이 값을 1로 증가 시키고 역시 메인 메모리로 쓰지 않았습니다. 이 경우 1번과 2번 쓰래드의 동기화(sync)가 깨진 상태입니다. 실제 공유 오브젝트의 counter값은 실질적으로 2 여야 하는데 각 쓰래드에서 CPU 캐시들에 1 로 기록한 상태입니다. 메인 메모리에는 아직 0 인 상태입니다. 쓰래들이 공유 counter 변수를 메인 메모리로 다시 쓸 경우 결국 이 값은 잘못 된 값입니다. &lt;/p&gt;
+
+&lt;p&gt;공유 counter 변수에 volatile을 선언함으로써 JVM은 해당 변수에 대한 모든 읽기 연산을 항상 메인 메모리에서 부터 읽어가도록 보장해 줍니다.  그리고 변수에 대한 모든 write 역시 항상 메인 메모리에 기록되도록 해 줍니다. 
+volatile 선언은 다음과 같이 할 수 있습니다. &lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;public class SharedObject {
+
+    public volatile int counter = 0;
+
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;멀티 쓰래드에서 접근하는 변수의 가장 최근에 기록된 값을 보기(see)때문에 변수에 간단하게 volatile을 선언 해주는 것이 충분한 경우도 있습니다. 어떤 경우에 volatile 선언해야 하는지 좀 더 뒤에 살펴보겠습니다. &lt;/p&gt;
+
+&lt;p&gt;이번에도 두 개의 쓰래드에서 같은 변수를 읽고 쓰는 상황을 가정하겠습니다. 변수에 간단하게 volatile 을 선언하는 것으로 충분하지 않은 상황으로 1번 쓰래드에서 counter 변수 값 0을 CPU 1의 CPU 레지스터로 읽고, 이와 동시에(또는 바로 이어서) 2번 쓰래드에서 counter 변수 1을 CPU 2의 CPU 레지스터에 읽었습니다. 두 쓰래드들이 메인 메모리로 부터 바로 변수의 값을 읽었습니다. 이제 두 변수들에 값을 증가시켜 메인 메모리로 다시 쓰기 연산이 실행됩니다. 두 레지스터에서 counter의 값을 1로 증가시켰기 때문에 메인 메모리로 기록할 때 1로 기록합니다. 실제로는 두번의 증감으로 값이 2 가 되어야 합니다.&lt;/p&gt;
+
+&lt;p&gt;멀티 쓰래드의 문제점은 다른 쓰래드에서 메인 메모리로 아직 기록하지 않은 값을 보지 못했기 때문입니다. 이를 &amp;quot;가시성&amp;quot; 문제라고 불립니다. 한 쓰래드에서의 업데이트는 다른 쓰래드에서는 볼수 없습니다.&lt;/p&gt;
+
+&lt;h1&gt;The Java volatile Guarantee&lt;/h1&gt;
+
+&lt;p&gt;Java 5의 volatile 키워드는 단순히 변수를 메인 메모리로 부터 읽고 쓰는것을 이상울 보장(guarantees) 해 주는데 실제로 volatile 키워드가 보장해주는 것은 :&lt;/p&gt;
+
+&lt;p&gt;만약 쓰래드 A가 volatile 변수에 쓰기 작업을 하고 쓰래드 B가 바로 직후에 같은 volatile 변수를 읽을 경우, volatile 변수를 쓰기 직전에 모든 변수를 쓰래드 A에서 볼 수(visible) 있습니다. 쓰래드 B 역시 볼 수 있습니다.&lt;/p&gt;
+
+&lt;p&gt;volatile 변수들의 읽고 쓰기 연산은 JVM에 의해 재배치(reorder) 되지 않습니다.(JVM은 프로그램이 reordering에 의해 동작이 바뀌지 않는 한 성능상의 이유로 JVM이 instructions을 reorder 할 수 있습니다.) volatile 이전, 이후의 명령(Instructions)들은 재배치 될 수 있습니다. 하지만 volatile 읽기 혹은 쓰기는 이 연산들과 섞이지 않습니다. volatile 변수에 대한 읽기 혹은 쓰기 연산 뒤에 실행되는 연산들은 volatile 읽기/쓰기 작업 이후에 실행됩니다. &lt;/p&gt;
+
+&lt;p&gt;아래 예제를 보면 :&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;Thread A:
+    sharedObject.nonVolatile = 123;
+    sharedObject.counter     = sharedObject.counter + 1;
+
+Thread B:
+    int counter     = sharedObject.counter;
+    int nonVolatile = sharedObject.nonVolatile;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;쓰래드 A가 volatile인 sharedObject.counter에 쓰기 연산 전에 sharedObject.nonVolatile non-volatile 변수에 기록합니다. 그러면 sharedObject.nonVolatile과 sharedObject.counter 두 변수는 메인 메모리에 기록 됩니다. &lt;/p&gt;
+
+&lt;p&gt;왜냐하면 쓰래드 B가 volatile sharedObject.counter를 읽으면서 시작했기 때문에 두 sharedObject.counter와 sharedObject.nonVolatile 변수는 메인 메모리로 부터 읽었기 때문입니다.&lt;/p&gt;
+
+&lt;p&gt;non-volatile 변수의 읽기와 쓰기는 volatile 변수의 읽기/쓰기 전과 후에 위치하면 재배치(reordered) 되지 않습니다.  &lt;/p&gt;
+
+&lt;h1&gt;언제 volatile이 적합한가?&lt;/h1&gt;
+
+&lt;p&gt;앞서 언급하였든 두 쓰래드가 공유 변수에 대한 읽기와 쓰기 연산이 있을 경우 volatile 키워드로는 충분하지 않습니다. 이 경우 &lt;code&gt;synchronization&lt;/code&gt; 를 통해 변수의 읽기 쓰기 연산의 원자성(atomic)을 보장해 줘야합니다. &lt;/p&gt;
+
+&lt;p&gt;하지만 한 쓰래드에서 volatile 변수의 값을 읽고 쓰고, 다른 쓰래드에서는 오직 변수 값을 읽기만 할 경우, 그러면 읽는 쓰래드에서는 volatile 변수의 가장 최근에 쓰여진 값을 보는 것을 보장할 수 있습니다. volatile 없이는 이를 보장해 줄 수 없습니다.&lt;/p&gt;
+
+&lt;h1&gt;volatile 의 성능 고려사항&lt;/h1&gt;
+
+&lt;p&gt;volatile 변수에 대한 읽기와 쓰기는 변수를 메인 메모리로 부터 읽거나 쓰게 됩니다. 메인 메모리에 읽고 쓰는것은 CPU 캐시보다 더 비싸다고 할 수 있습니다. 또한 volatile 변수는 성능을 개선 기법인 명령(instruction)들의 재배치를 방지하기 때문에 변수의 가시성을 강제할 필요가 있는 경우에만 volatile 변수를 사용하는 것이 좋습니다. &lt;/p&gt;
+</description>
+				<pubDate>Sun, 08 Mar 2015 00:00:00 +0900</pubDate>
+				<link>/java/2015/03/08/java-volatile.html</link>
+				<guid isPermaLink="true">/java/2015/03/08/java-volatile.html</guid>
+			</item>
+		
+			<item>
 				<title>How to Spring MVC Unit Test 스프링 MVC 단위 테스트</title>
 				<description>&lt;h1&gt;스프링 MVC 단위 테스트!&lt;/h1&gt;
 
@@ -176,8 +255,9 @@ MVC를 구성하는 각 레이어 별 어떻게 테스트를 해야 할지 크�
 &lt;li&gt;mockito의 기본적인 사용방법 참조 사이트 &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;&lt;a href=&quot;http://www.baeldung.com/mockito-behavior&quot;&gt;http://www.baeldung.com/mockito-behavior&lt;/a&gt;
-&lt;a href=&quot;http://www.baeldung.com/mockito-verify&quot;&gt;http://www.baeldung.com/mockito-verify&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://www.baeldung.com/mockito-behavior&quot;&gt;http://www.baeldung.com/mockito-behavior&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.baeldung.com/mockito-verify&quot;&gt;http://www.baeldung.com/mockito-verify&lt;/a&gt;&lt;/p&gt;
 
 &lt;h2&gt;결론&lt;/h2&gt;
 
@@ -204,11 +284,14 @@ MVC를 구성하는 각 레이어 별 어떻게 테스트를 해야 할지 크�
 
 &lt;ul&gt;
 &lt;li&gt;참조 사이트
-&lt;a href=&quot;http://www.petrikainulainen.net/spring-mvc-test-tutorial/&quot;&gt;http://www.petrikainulainen.net/spring-mvc-test-tutorial/&lt;/a&gt;
-&lt;a href=&quot;http://www.petrikainulainen.net/programming/spring-framework/integration-testing-of-spring-mvc-applications-configuration/&quot;&gt;http://www.petrikainulainen.net/programming/spring-framework/integration-testing-of-spring-mvc-applications-configuration/&lt;/a&gt;
-&lt;a href=&quot;http://www.petrikainulainen.net/programming/spring-framework/unit-testing-of-spring-mvc-controllers-configuration/&quot;&gt;http://www.petrikainulainen.net/programming/spring-framework/unit-testing-of-spring-mvc-controllers-configuration/&lt;/a&gt;
-&lt;a href=&quot;http://thysmichels.com/2014/01/07/junit-test-spring-mvc-web-services/&quot;&gt;http://thysmichels.com/2014/01/07/junit-test-spring-mvc-web-services/&lt;/a&gt;&lt;/li&gt;
+&lt;a href=&quot;http://www.petrikainulainen.net/spring-mvc-test-tutorial/&quot;&gt;http://www.petrikainulainen.net/spring-mvc-test-tutorial/&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.petrikainulainen.net/programming/spring-framework/integration-testing-of-spring-mvc-applications-configuration/&quot;&gt;http://www.petrikainulainen.net/programming/spring-framework/integration-testing-of-spring-mvc-applications-configuration/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.petrikainulainen.net/programming/spring-framework/unit-testing-of-spring-mvc-controllers-configuration/&quot;&gt;http://www.petrikainulainen.net/programming/spring-framework/unit-testing-of-spring-mvc-controllers-configuration/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://thysmichels.com/2014/01/07/junit-test-spring-mvc-web-services/&quot;&gt;http://thysmichels.com/2014/01/07/junit-test-spring-mvc-web-services/&lt;/a&gt;&lt;/p&gt;
 </description>
 				<pubDate>Mon, 02 Mar 2015 00:00:00 +0900</pubDate>
 				<link>/java/2015/03/02/spring-mvc-test.html</link>
@@ -608,7 +691,7 @@ scrollTop += document.documentElement.scrollTop
 			<item>
 				<title>fiddler2 피들러 설치방법</title>
 				<description>&lt;p&gt;오늘은 피들러에 대해 알아보고자 합니다. 
-&lt;div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;모바일 디바이스에서 PC 브라우저처럼 css를 확인하고 조작할 수 있는 방법이 있는지&amp;nbsp;분께서&amp;nbsp;물어보셔서 알려드렸는데&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;너무나 좋아하셔서 혹시 모르시는 분이 계실것 같아 공유합니다.&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;웹 브라우저의 경우 각 브라우저 별 개발자 도구가 잘 갖춰져 있어 서버로부터 넘어온&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;자바스크립트 및 css, html파일 등을 확인해 바로바로 수정/조작 해 볼 수 있지만&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;스마트폰에서 css도 조작하거나 깨진 마크업이 왜 그런지 확인해보고 싶지만 엄한 폰에다 대고 우클릭하고 요소검사를 해볼 수 없으니&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;정말 막막하죠..&amp;nbsp;그래도 해결책은 있는 법!&amp;nbsp;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;웹이든 모바일이든 네트워크를 통하는 모든 세션들을 검사해볼 수 있는 Fiddler아시나요?&amp;nbsp;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;Fiddler가 가진 기능은 정말 엄청나네요&amp;nbsp;(심지어 https 통신도 잡아낼 수 있습니다!!!)&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;b&gt;&lt;em&gt;Fiddler는 윈도우에서만 사용가능합니다.&amp;nbsp;&lt;/b&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;b&gt;&lt;/em&gt;맥이나 기타 OS에서는 프록시(윈도우를 통해 우회)를 통해서 가능하긴 합니다. (아래 프록시 연결에 설명드리겠습니다.)&lt;/b&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;어찌됬건 이제 모바일 디바이스로 전송되는 세션(html, css, javascript 파일들을 포함한 네트워크를 통하는&amp;nbsp;모든&amp;nbsp;데이터)을 Fiddler를 통해 잡아보겠습니다!&amp;nbsp;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;hr&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;1. fiddler 다운로드&amp;nbsp;&lt;/span&gt;&lt;a href=&quot;http://fiddler2.com/&quot; style=&quot;font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;http://fiddler2.com/&lt;/a&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;a href=&quot;http://fiddler2.com/docs/default-source/public-downloads/fiddler2setup.exe?sfvrsn=18&quot; style=&quot;box-sizing: border-box; color: rgb(0, 0, 238); font-family: Consolas, &#39;Lucida Console&#39;, monospace; font-size: 12px; white-space: pre-wrap;&quot; target=&quot;_blank&quot; title=&quot;http://fiddler2.com/docs/default-source/public-downloads/fiddler2setup.exe?sfvrsn=18&quot;&gt;http://fiddler2.com/docs/default-source/public-downloads/fiddler2setup.exe?sfvrsn=18&lt;/a&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;위 링크 누르면 바로 다운로드 될거에요.&lt;br /&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;img src=&quot;http://cfile3.uf.tistory.com/image/2435414C529460AC326AAB&quot; style=&quot;cursor: default;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;/p&gt;
+&lt;div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;모바일 디바이스에서 PC 브라우저처럼 css를 확인하고 조작할 수 있는 방법이 있는지&amp;nbsp;분께서&amp;nbsp;물어보셔서 알려드렸는데&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;너무나 좋아하셔서 혹시 모르시는 분이 계실것 같아 공유합니다.&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;웹 브라우저의 경우 각 브라우저 별 개발자 도구가 잘 갖춰져 있어 서버로부터 넘어온&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;자바스크립트 및 css, html파일 등을 확인해 바로바로 수정/조작 해 볼 수 있지만&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;스마트폰에서 css도 조작하거나 깨진 마크업이 왜 그런지 확인해보고 싶지만 엄한 폰에다 대고 우클릭하고 요소검사를 해볼 수 없으니&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;정말 막막하죠..&amp;nbsp;그래도 해결책은 있는 법!&amp;nbsp;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;웹이든 모바일이든 네트워크를 통하는 모든 세션들을 검사해볼 수 있는 Fiddler아시나요?&amp;nbsp;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;Fiddler가 가진 기능은 정말 엄청나네요&amp;nbsp;(심지어 https 통신도 잡아낼 수 있습니다!!!)&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;b&gt;&lt;em&gt;Fiddler는 윈도우에서만 사용가능합니다.&amp;nbsp;&lt;/b&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;b&gt;&lt;/em&gt;맥이나 기타 OS에서는 프록시(윈도우를 통해 우회)를 통해서 가능하긴 합니다. (아래 프록시 연결에 설명드리겠습니다.)&lt;/b&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;어찌됬건 이제 모바일 디바이스로 전송되는 세션(html, css, javascript 파일들을 포함한 네트워크를 통하는&amp;nbsp;모든&amp;nbsp;데이터)을 Fiddler를 통해 잡아보겠습니다!&amp;nbsp;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;hr&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;span style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;1. fiddler 다운로드&amp;nbsp;&lt;/span&gt;&lt;a href=&quot;http://fiddler2.com/&quot; style=&quot;font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;http://fiddler2.com/&lt;/a&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;a href=&quot;http://fiddler2.com/docs/default-source/public-downloads/fiddler2setup.exe?sfvrsn=18&quot; style=&quot;box-sizing: border-box; color: rgb(0, 0, 238); font-family: Consolas, 'Lucida Console', monospace; font-size: 12px; white-space: pre-wrap;&quot; target=&quot;_blank&quot; title=&quot;http://fiddler2.com/docs/default-source/public-downloads/fiddler2setup.exe?sfvrsn=18&quot;&gt;http://fiddler2.com/docs/default-source/public-downloads/fiddler2setup.exe?sfvrsn=18&lt;/a&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;위 링크 누르면 바로 다운로드 될거에요.&lt;br /&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;img src=&quot;http://cfile3.uf.tistory.com/image/2435414C529460AC326AAB&quot; style=&quot;cursor: default;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 
@@ -619,7 +702,7 @@ scrollTop += document.documentElement.scrollTop
 
 &lt;p style=&quot;text-align: center; clear: none; float: none;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/div&gt;&lt;div&gt;여기서 왼쪽 부분이 세션 목록으로 네트워크로 전송하거나 받은 모든 세션이고,&amp;nbsp;&lt;/div&gt;&lt;div&gt;오른쪽은 기능 탭으로 특정 세션을 선택하면 그 세션에 대한 상세 내역이 나옵니다.&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;피들러를 실행한 뒤 인터넷 창을 켜보면 순식간에 어마어마한 세션들이 전송됨을 확인할 수 있습니다.&lt;/div&gt;&lt;div&gt;(트래픽을 멈추고 싶을 때 F12 또는 File&amp;gt; Capture traffic으로 멈출 수 있습니다.)&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;4. 모바일 디바이스를 위한 프록시 설정&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;*프록시: 여기서 말하는 프록시는&amp;nbsp;간단히 말해 검문소로 생각하시면 됩니다. (비유가 적절하지 않을 순 있지만 이해를 위해;;)&amp;nbsp;&lt;/div&gt;&lt;div&gt;스페이스 닷원 건물에 나가거나 들어오려면 입구(검문소)를 지나야 하듯&amp;nbsp;&lt;/div&gt;&lt;div&gt;네트워크를 통하는 모든 녀석이 Fiddler를 통해 나가고 들어온다고 생각 할 수 있습니다&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;Fiddler Menu창에서 Tools &amp;gt; Fiddler Options 선택&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;
 &lt;img src=&quot;http://cfile6.uf.tistory.com/image/261F104C529460AD02BAE8&quot; alt=&quot;&quot;&gt;
-&lt;p&gt;&lt;br /&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;세번째 Connections 탭 선택 후 &#39;Allow remote computers to connect&#39; 체크 활성화시켜주시고,&amp;nbsp;&lt;/div&gt;&lt;div&gt;fiddler listens on port: 부분에 8888 (기본)으로 해주시면 됩니다.&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;p style=&quot;text-align: center; clear: none; float: none;&quot;&gt;[##_1N|cfile7.uf@2633B84C529460AD35F438.png|width=&quot;560&quot; height=&quot;375&quot; filename=&quot;4.png&quot; filemime=&quot;image/jpeg&quot;|_##]&lt;/p&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;세번째 Connections 탭 선택 후 'Allow remote computers to connect' 체크 활성화시켜주시고,&amp;nbsp;&lt;/div&gt;&lt;div&gt;fiddler listens on port: 부분에 8888 (기본)으로 해주시면 됩니다.&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;div&gt;&lt;p style=&quot;text-align: center; clear: none; float: none;&quot;&gt;[##_1N|cfile7.uf@2633B84C529460AD35F438.png|width=&quot;560&quot; height=&quot;375&quot; filename=&quot;4.png&quot; filemime=&quot;image/jpeg&quot;|_##]&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;
 &lt;img src=&quot;http://cfile7.uf.tistory.com/image/2633B84C529460AD35F438&quot; alt=&quot;&quot;&gt;
@@ -629,20 +712,20 @@ scrollTop += document.documentElement.scrollTop
 2. 네트워크&lt;br /&gt;
 3. wifi&lt;br /&gt;
 4. 연결된 네트워크에서 우측 화살표 선택&lt;br /&gt;
-5. 밑으로 내리면 &quot;http 프록시&quot; 부분이 있는데 기본 &#39;끔&#39; 에서 &quot;수동&quot;으로 변경&lt;br /&gt;
+5. 밑으로 내리면 &quot;http 프록시&quot; 부분이 있는데 기본 '끔' 에서 &quot;수동&quot;으로 변경&lt;br /&gt;
 6. 서버 부분에 Fiddler를 설치한 PC ip 입력&lt;br /&gt;
 7. 포트 부분에 8888 입력&lt;br /&gt;&lt;br /&gt;&lt;b&gt;안드로이드&lt;/b&gt;&lt;br /&gt;&lt;br /&gt;
 1.환경설정&lt;br /&gt;
 2.Wi-Fi&lt;br /&gt;
-3.연결된 무선네트워크를 길게 누르고 있으면 뭔가 뜨는데 &#39;네트워크 설정 변경&#39;을 선택&lt;/div&gt;&lt;div&gt;
+3.연결된 무선네트워크를 길게 누르고 있으면 뭔가 뜨는데 '네트워크 설정 변경'을 선택&lt;/div&gt;&lt;div&gt;
 4.최하단 고급옵션표시 체크&lt;br /&gt;
-5.&#39;프록시 설정&#39;을 &#39;수동&#39; 으로 변경&lt;/div&gt;&lt;div&gt;&lt;img src=&quot;file:///C:/Users/Daum/AppData/Local/Temp/enhtmlclip/Image(5).png&quot; style=&quot;cursor: default;&quot;&gt;&lt;br /&gt;
-6. &#39;프록시 호스트 이름&#39;에 Fiddler를 설치한 PC의 IP 입력,&lt;/div&gt;&lt;div&gt;
-7. &#39;프록시 포트&#39;에 8888 입력&lt;/div&gt;&lt;div&gt;
+5.'프록시 설정'을 '수동' 으로 변경&lt;/div&gt;&lt;div&gt;&lt;img src=&quot;file:///C:/Users/Daum/AppData/Local/Temp/enhtmlclip/Image(5).png&quot; style=&quot;cursor: default;&quot;&gt;&lt;br /&gt;
+6. '프록시 호스트 이름'에 Fiddler를 설치한 PC의 IP 입력,&lt;/div&gt;&lt;div&gt;
+7. '프록시 포트'에 8888 입력&lt;/div&gt;&lt;div&gt;
 8. 나머지는 건들것 없지만 사내 네트웍이므로 계정/비밀번호를 입력해줘야 합니다.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;맥&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;&lt;br /&gt;&lt;/b&gt;1. 시스템 환경설정&lt;br /&gt;
 2. 네트워크&lt;br /&gt;
 3. (연결된 네트워크에서) 고급&lt;br /&gt;
-4. &#39;프록시탭&#39; 선택&lt;br /&gt;
+4. '프록시탭' 선택&lt;br /&gt;
 5. 웹프록시(HTTP) 체크&lt;br /&gt;
 6. 프록시 서버의 주소와 포트번호를 입력&lt;br /&gt;
 7. 아이디와 계정을 입력&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;/div&gt;
@@ -650,7 +733,7 @@ scrollTop += document.documentElement.scrollTop
 &lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;이렇게 설정을 하고 모바일에서 Daum앱으로 접속 하면 Fiddler에 m.daum.net에서 온 세션들이 막 보입니다!!&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;div&gt;
 &lt;img src=&quot;http://cfile21.uf.tistory.com/image/2617CD4C529460AE06D900&quot; alt=&quot;&quot;/&gt;
 
-&lt;p style=&quot;text-align: center; clear: none; float: none;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;어때요. 참 쉽죠?&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;먼저 m.daum.net에서 넘겨 받은 html을 선택하고 오른쪽 기능 탭에서 &#39;Inspectors&#39;를 선택하면&amp;nbsp;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;div style=&quot;text-align: -webkit-auto;&quot;&gt;
+&lt;p style=&quot;text-align: center; clear: none; float: none;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;어때요. 참 쉽죠?&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;먼저 m.daum.net에서 넘겨 받은 html을 선택하고 오른쪽 기능 탭에서 'Inspectors'를 선택하면&amp;nbsp;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;div style=&quot;text-align: -webkit-auto;&quot;&gt;
 &lt;img src=&quot;http://cfile28.uf.tistory.com/image/221DEA49529460AF24D24A&quot; alt=&quot;&quot;&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;우측 윗부분이 제가 요청한 내용이고 아래 부분이 다음 서버가 응답한 내용입니다.&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/div&gt;&lt;div style=&quot;color: rgb(0, 0, 0); font-family: Tahoma; line-height: normal; orphans: 2; text-align: -webkit-auto; widows: 2; font-size:12pt;&quot;&gt;
@@ -663,34 +746,6 @@ scrollTop += document.documentElement.scrollTop
 				<pubDate>Sat, 14 Feb 2015 00:00:00 +0900</pubDate>
 				<link>/network/2015/02/14/fiddler2-setting.html</link>
 				<guid isPermaLink="true">/network/2015/02/14/fiddler2-setting.html</guid>
-			</item>
-		
-			<item>
-				<title>truncate 와 delete 차이점.</title>
-				<description>&lt;p&gt;Truncate 와 Delete, Drop은 모두 데이터를 삭제하는 쿼리이지만 차이가 존재합니다.&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Drop [Tablename] &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4&gt;테이블 스키마 + 데이터를 삭제 &lt;em&gt;(Rollback불가능)&lt;/em&gt;&lt;/h4&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Delete From [Tablename] &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4&gt;데이터만 삭제. Commit하기전에는 Rollback이 가능함&lt;/h4&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Truncate table[Tablename] &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;역시 데이터만 삭제하지만 delete와의 차이점은 테이블을 최초 생성한 초기상태로 만듬 
-( Rollback 불가능 )&lt;/p&gt;
-</description>
-				<pubDate>Sat, 14 Feb 2015 00:00:00 +0900</pubDate>
-				<link>/database/2015/02/14/delete-truncate-differece.html</link>
-				<guid isPermaLink="true">/database/2015/02/14/delete-truncate-differece.html</guid>
 			</item>
 		
 	</channel>
