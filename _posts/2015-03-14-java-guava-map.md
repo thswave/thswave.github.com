@@ -67,8 +67,7 @@ public void whenUsingSortedMap_thenKeysAreSorted() {
 
 # 4. BiMap
 
-Next – let’s discuss how to use BiMap. We can use BiMap to map keys back to values as it makes sure the values are unique.
-다음으로 어떻게 BiMap을 사용하는지 살펴보겠습니다. BiMap은 map 키를  value들이 유니크한 값을 가져야 합니다.
+다음으로 어떻게 BiMap을 사용하는지 살펴보겠습니다. BiMap은 map 의 value로 key 값을 찾을 수 있습니다.(value들이 유니크한 값을 가져야 합니다)
 
 다음 예제는 - BiMap 을 만들고 inverse() 사용 예제를 살펴보겠습니다.
 
@@ -89,10 +88,10 @@ public void whenCreateBiMap_thenCreated() {
 
 # 5. Multimap
 
-Now – let’s take a look at Multimap.
+이제 Multimap을 살펴보겠습니다. 
 
-We can use Multimap to associate each key with multiple values as in the following example:
 
+다음 예제에서 Multimap으로 각 key에 여러개의 value를 저장하는 것을 확인할 수 있습니다. 
 
 {% highlight java%}
 @Test
