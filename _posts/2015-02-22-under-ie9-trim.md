@@ -14,5 +14,10 @@ description: javascript trim() method
 * regex 
 
 ```
+// ltrim
 str.replace(/\s+$/,"");
+// rtrim
+str.replace(/^\s+/,"");
+// trim
+str.replace(/^\s+|\s+$/g,"");
 ```
