@@ -14,13 +14,18 @@ description: Java Guava – Maps
 
 Guava를 통해 new 연산자 없이 HashMap 을 만드는 아주 간단한 방법을 살펴보도록 합시다. 
 
+
+{% highlight java%}
 Map<String, String> aNewMap = Maps.newHashMap();
+{% endhighlight %}
 
 
 # 2. ImmutableMap
 
 다음으로 Guava를 통해 ImmutableMap 을 만드는 것을 살펴보겠습니다:
 
+
+{% highlight java%}
 @Test
 public void whenCreatingImmutableMap_thenCorrect() {
     Map<String, Integer> salary = ImmutableMap.<String, Integer> builder()
@@ -33,6 +38,7 @@ public void whenCreatingImmutableMap_thenCorrect() {
     assertEquals(1000, salary.get("John").intValue());
     assertEquals(2000, salary.get("Tom").intValue());
 }
+{% endhighlight %}
 
 
 # 3. SortedMap
@@ -42,6 +48,7 @@ public void whenCreatingImmutableMap_thenCorrect() {
 다음 예제는 - Guava builder 를 통해 sorted map을 만들겠습니다:
 
 
+{% highlight java%}
 @Test
 public void whenUsingSortedMap_thenKeysAreSorted() {
     ImmutableSortedMap<String, Integer> salary = new ImmutableSortedMap
@@ -55,6 +62,7 @@ public void whenUsingSortedMap_thenKeysAreSorted() {
     assertEquals("Adam", salary.firstKey());
     assertEquals(2000, salary.lastEntry().getValue().intValue());
 }
+{% endhighlight %}
 
 
 # 4. BiMap
@@ -64,6 +72,8 @@ Next – let’s discuss how to use BiMap. We can use BiMap to map keys back to 
 
 다음 예제는 - BiMap 을 만들고 inverse() 사용 예제를 살펴보겠습니다.
 
+
+{% highlight java%}
 @Test
 public void whenCreateBiMap_thenCreated() {
     BiMap<String, Integer> words = HashBiMap.create();
@@ -74,6 +84,7 @@ public void whenCreateBiMap_thenCreated() {
     assertEquals(2, words.get("Second").intValue());
     assertEquals("Third", words.inverse().get(3));
 }
+{% endhighlight %}
 
 
 # 5. Multimap
@@ -82,6 +93,8 @@ Now – let’s take a look at Multimap.
 
 We can use Multimap to associate each key with multiple values as in the following example:
 
+
+{% highlight java%}
 @Test
 public void whenCreateMultimap_thenCreated() {
     Multimap<String, String> multimap = ArrayListMultimap.create();
@@ -93,6 +106,7 @@ public void whenCreateMultimap_thenCreated() {
     assertThat(multimap.get("fruit"), containsInAnyOrder("apple", "banana"));
     assertThat(multimap.get("pet"), containsInAnyOrder("cat", "dog"));
 }
+{% endhighlight %}
 
 
 # 5. Table
@@ -102,6 +116,7 @@ Let’s now take a look at the Guava Table; we use Table if we need more than on
 In the following example – we’re going to use a table to store the distances between cities:
 
 
+{% highlight java%}
 @Test
 public void whenCreatingTable_thenCorrect() {
     Table<String,String,Integer> distance = HashBasedTable.create();
@@ -114,8 +129,13 @@ public void whenCreatingTable_thenCorrect() {
       containsInAnyOrder("Paris", "New York", "Los Angeles"));
     assertThat(distance.rowKeySet(), containsInAnyOrder("London", "New York"));
 }
+{% endhighlight %}
+
+
 We can also use Tables.transpose() to flip the row and column keys as in the following example:
 
+
+{% highlight java%}
 @Test
 public void whenTransposingTable_thenCorrect() {
     Table<String,String,Integer> distance = HashBasedTable.create();
@@ -129,12 +149,16 @@ public void whenTransposingTable_thenCorrect() {
       containsInAnyOrder("Paris", "New York", "Los Angeles"));
     assertThat(transposed.columnKeySet(), containsInAnyOrder("London", "New York"));
 }
+{% endhighlight %}
+
 
 
 # 6. ClassToInstanceMap
 
 Next – Let’s take a look at ClassToInstanceMap. We can use ClassToInstanceMap if we want the object’s class to be the key as in the following example:
 
+
+{% highlight java%}
 @Test
 public void whenCreatingClassToInstanceMap_thenCorrect() {
     ClassToInstanceMap<Number> numbers = MutableClassToInstanceMap.create();
@@ -144,6 +168,8 @@ public void whenCreatingClassToInstanceMap_thenCorrect() {
     assertEquals(1, numbers.get(Integer.class));
     assertEquals(1.5, numbers.get(Double.class));
 }
+{% endhighlight %}
+
 
 
 # 7. Group List using Multimap
@@ -151,6 +177,7 @@ public void whenCreatingClassToInstanceMap_thenCorrect() {
 Next – let’s see how to group a List using Multimap. In the following example – we group a List of names by their length using Multimaps.index():
 
 
+{% highlight java%}
 @Test
 public void whenGroupingListsUsingMultimap_thenGrouped() {
     List<String> names = Lists.newArrayList("John", "Adam", "Tom");
@@ -164,6 +191,8 @@ public void whenGroupingListsUsingMultimap_thenGrouped() {
     assertThat(groups.get(3), containsInAnyOrder("Tom"));
     assertThat(groups.get(4), containsInAnyOrder("John", "Adam"));
 }
+{% endhighlight %}
+
 
 
 # 8. Conclusion
