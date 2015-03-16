@@ -91,7 +91,7 @@ public void whenCreateBiMap_thenCreated() {
 이제 Multimap을 살펴보겠습니다. 
 
 
-다음 예제에서 Multimap으로 각 key에 여러개의 value를 저장하는 것을 확인할 수 있습니다. 
+다음 예제에서 Multimap으로 `각 key에 여러개의 value를 저장`할 수 있음을 확인할 수 있습니다. 
 
 {% highlight java%}
 @Test
@@ -110,10 +110,8 @@ public void whenCreateMultimap_thenCreated() {
 
 # 5. Table
 
-Let’s now take a look at the Guava Table; we use Table if we need more than one key to index a value.
-
-In the following example – we’re going to use a table to store the distances between cities:
-
+이제는 Guava Table을 살펴볼 차례입니다; value에 하나 이상의 key가 필요할 때 Table을 사용합니다. 
+아래 예제는 두 도시간의 거리를 Table을 사용하여 저장하였습니다. 
 
 {% highlight java%}
 @Test
@@ -131,8 +129,7 @@ public void whenCreatingTable_thenCorrect() {
 {% endhighlight %}
 
 
-We can also use Tables.transpose() to flip the row and column keys as in the following example:
-
+그리고 아래 예제와 같이 Tables.transpose() 를 통해 row와 column 키를 뒤집을 수 있습니다. 
 
 {% highlight java%}
 @Test
@@ -154,7 +151,7 @@ public void whenTransposingTable_thenCorrect() {
 
 # 6. ClassToInstanceMap
 
-Next – Let’s take a look at ClassToInstanceMap. We can use ClassToInstanceMap if we want the object’s class to be the key as in the following example:
+다음으로 ClassToInstanseMap을 살펴보겠습니다. object의 클래스를 key로 사용하고자 할 경우 ClassToInstanceMap을 사용할 수 있습니다. 
 
 
 {% highlight java%}
@@ -173,7 +170,7 @@ public void whenCreatingClassToInstanceMap_thenCorrect() {
 
 # 7. Group List using Multimap
 
-Next – let’s see how to group a List using Multimap. In the following example – we group a List of names by their length using Multimaps.index():
+다음은 Multimap을 통해 List를 그룹화 하는것을 보겠습니다. 다음 예제에서 Multimaps.index() 를 사용해 리스트에 있는 이름(names)의 길이로 그룹화 시킬 수 있습니다. 
 
 
 {% highlight java%}
@@ -196,6 +193,18 @@ public void whenGroupingListsUsingMultimap_thenGrouped() {
 
 # 8. Conclusion
 
-In this quick tutorial we discussed the most common and useful usecases of working with Maps using the Guava library.
+위 예제들을 통해 Guava 라이브러리를 통해 Map을 유용하게 사용할 수 있는 여러가지 예제를 살펴봤습니다. 
+위 예제 코드들은 [Guava github 프로젝트](https://github.com/eugenp/tutorials/tree/master/guava#readme)에서 찾아볼 수 있습니다. - 이클립스 기반 프로젝트로 쉽게 import하여 사용할 수 있습니다. 
 
-The implementation of all these examples and code snippets can be found in my Guava github project – this is an Eclipse based project, so it should be easy to import and run as it is.
+
+
+
+
+
+
+
+
+
+
+
+
