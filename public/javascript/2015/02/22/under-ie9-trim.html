@@ -165,7 +165,12 @@
 <li><p>solution</p></li>
 <li><p>regex </p></li>
 </ul>
-<div class="highlight"><pre><code class="language-text" data-lang="text">str.replace(/\s+$/,&quot;&quot;);
+<div class="highlight"><pre><code class="language-text" data-lang="text">// ltrim
+str.replace(/\s+$/,&quot;&quot;);
+// rtrim
+str.replace(/^\s+/,&quot;&quot;);
+// trim
+str.replace(/^\s+|\s+$/g,&quot;&quot;);
 </code></pre></div>
 	  </div>
 
