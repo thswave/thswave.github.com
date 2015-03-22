@@ -31,6 +31,8 @@ public void whenSerializingDateWithJackson_thenSerializedToTimestamp()
     ObjectMapper mapper = new ObjectMapper();
     mapper.writeValueAsString(event);
 }
+{% endhighlight %}
+
 
 여기서 중요한 점은 Jackson은 Date를 기본적으로 timestamp 형태(milliseconds 숫자는 1970년 1월 1일 UTC)으로 serialize 합니다.
 
@@ -50,7 +52,7 @@ public void whenSerializingDateWithJackson_thenSerializedToTimestamp()
 
 timestamp를 사용하지 않도록 할 경우 아래와 같이 자동으로 ISO-8601 형태로 출력합니다.
 
-
+{% highlight java%}
 @Test
 public void whenSerializingDateToISO8601_thenSerializedToText()
   throws JsonProcessingException, ParseException {
@@ -67,9 +69,9 @@ public void whenSerializingDateToISO8601_thenSerializedToText()
     String result = mapper.writeValueAsString(event);
     assertThat(result, containsString("1970-01-01T02:30:00.000+0000"));
 }
+{% endhighlight %}
 
 
-Note how the representation of the date is now much more readable – though maybe not as clean as it could be.
 이제 위와 같은 형태의 date 출력이 훨씬 더 가독성이 좋습니다. - 그럼에도 아직까진 깔끔하다고 생각되지 않을 수 있습니다.
 
 
@@ -80,7 +82,7 @@ Note how the representation of the date is now much more readable – though may
 
 이제 date를 우리가 원하는 형태로 설정하고 표현하는 방법에 대해 살펴보겠습니다.  
 
-
+{% highlight java%}
 @Test
 public void whenSettingObjectMapperDateFormat_thenCorrect()
   throws JsonProcessingException, ParseException {
@@ -96,17 +98,17 @@ public void whenSettingObjectMapperDateFormat_thenCorrect()
     String result = mapper.writeValueAsString(event);
     assertThat(result, containsString(toParse));
 }
+{% endhighlight %}
 
-
-Note that, even though we’re now more flexible in terms of the date format – we’re still using a global configuration at the level of the entire ObjectMapper.
-
+이제 date 포멧을 좀 더 유연한 방법으로 표현했지만  전체 ObjectMapper를 통해 전역 설정으로 사용했습니다.
 
 
 # 5. Use @JsonFormat to format Date
 
-Next, let’s take a look at the @JsonFormat annotation to control the date format on individual classes instead of globally, for the entire application:
 이제 @JsonFormat 어노테이션으로 어플리케이션 전역적으로 설정하는것이 아닌 각 개별적으로 date 형태를 지정하는 방법에 대해 살펴보겠습니다. 
 
+
+{% highlight java%}
 public class Event {
     public String name;
  
@@ -114,9 +116,12 @@ public class Event {
       (shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
     public Date eventDate;
 }
+{% endhighlight %}
 
 이제 테스트 해 보겠습니다:
 
+
+{% highlight java%}
 @Test
 public void whenUsingJsonFormatAnnotationToFormatDate_thenCorrect()
   throws JsonProcessingException, ParseException {
@@ -131,6 +136,7 @@ public void whenUsingJsonFormatAnnotationToFormatDate_thenCorrect()
     String result = mapper.writeValueAsString(event);
     assertThat(result, containsString(toParse));
 }
+{% endhighlight %}
 
 
 # 6. Custom Date Serializer
@@ -138,6 +144,7 @@ public void whenUsingJsonFormatAnnotationToFormatDate_thenCorrect()
 다음으로 Date를 위한 custom serializer 를 통해 모든 출력을 변경해 보겠습니다. 
 
 
+{% highlight java%}
 public class CustomDateSerializer extends JsonSerializer<Date> {
     private static SimpleDateFormat formatter = 
       new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
@@ -148,21 +155,28 @@ public class CustomDateSerializer extends JsonSerializer<Date> {
         gen.writeString(formatter.format(value));
     }
 }
+{% endhighlight %}
 
 
 다음은 "eventDate" 필드를 serializer 를 사용하도록 설정하였습니다 :
 
+
+{% highlight java%}
 public class Event {
     public String name;
  
     @JsonSerialize(using = CustomDateSerializer.class)
     public Date eventDate;
 }
+{% endhighlight %}
+
 
 
 마지막으로 테스트 해보겠습니다:
 
 
+
+{% highlight java%}
 @Test
 public void whenUsingCustomDateSerializer_thenCorrect()
   throws JsonProcessingException, ParseException {
@@ -176,6 +190,8 @@ public void whenUsingCustomDateSerializer_thenCorrect()
     String result = mapper.writeValueAsString(event);
     assertThat(result, containsString(toParse));
 }
+{% endhighlight %}
+
 
 
 # 7. Serialize Joda-Time with Jackson
@@ -199,6 +215,8 @@ Joda-Time 출력을 지원하기 위해 jackson-datatype-joda 모듈을 사용�
 이제 간단하게 JodaModule을 등록하면 됩니다.
 
 
+
+{% highlight java%}
 @Test
 public void whenSerializingJodaTime_thenCorrect() 
   throws JsonProcessingException {
@@ -212,12 +230,15 @@ public void whenSerializingJodaTime_thenCorrect()
     String result = mapper.writeValueAsString(date);
     assertThat(result, containsString("2014-12-20T02:30:00.000Z"));
 }
+{% endhighlight %}
 
 
 # 8. Serialize Joda DateTime with Custom Serializer
 
 만약 추가된 Joda-Time과 Jackson 의존성을 원하지 않을 수 있습니다. - 그러면 custom serializer(이전 예제에서 살펴본 것과 비슷한) 를 통해 DateTime 인스턴스를 깔끔하게 serialize할 수 있습니다:
 
+
+{% highlight java%}
 public class CustomDateTimeSerializer extends JsonSerializer<DateTime> {
  
     private static DateTimeFormatter formatter = 
@@ -230,18 +251,26 @@ public class CustomDateTimeSerializer extends JsonSerializer<DateTime> {
         gen.writeString(formatter.print(value));
     }
 }
+{% endhighlight %}
+
 
 다음은 "eventDate" 속성을 serializer를 사용하겠습니다. 
 
+
+{% highlight java%}
 public class Event {
     public String name;
  
     @JsonSerialize(using = CustomDateTimeSerializer.class)
     public DateTime eventDate;
 }
+{% endhighlight %}
+
 
 마지막으로 다함께 테스트 해보겠습니다. 
 
+
+{% highlight java%}
 @Test
 public void whenSerializingJodaTimeWithJackson_thenCorrect() 
   throws JsonProcessingException {
@@ -252,6 +281,8 @@ public void whenSerializingJodaTimeWithJackson_thenCorrect()
     String result = mapper.writeValueAsString(event);
     assertThat(result, containsString("2014-12-20 02:30"));
 }
+{% endhighlight %}
+
 
 
 # 9. Serialize Java 8 Date with Jackson
@@ -268,6 +299,8 @@ public void whenSerializingJodaTimeWithJackson_thenCorrect()
 
 이제 JSR310Module 을 등록하면 jackson이 나머지를 처리하게 됩니다. 
 
+
+{% highlight java%}
 @Test
 public void whenSerializingJava8Date_thenCorrect()
   throws JsonProcessingException {
@@ -280,6 +313,7 @@ public void whenSerializingJava8Date_thenCorrect()
     String result = mapper.writeValueAsString(date);
     assertThat(result, containsString("2014-12-20T02:30"));
 }
+{% endhighlight %}
 
 
 # 10. Serialize Java 8 Date with Jackson
@@ -287,6 +321,7 @@ public void whenSerializingJava8Date_thenCorrect()
 만약 의존성이 추가되는 것을 원치 않는다면 항상 custom serializer를 통해 Java 8 DateTime을 JSON으로 출력할 수 있습니다. 
 
 
+{% highlight java%}
 public class CustomLocalDateTimeSerializer 
   extends JsonSerializer<LocalDateTime> {
  
@@ -299,18 +334,21 @@ public class CustomLocalDateTimeSerializer
         gen.writeString(formatter.format(value));
     }
 }
-
+{% endhighlight %}
 
 이제 "eventDate" 필드에 serializer를 사용하겠습니다. :
 
+
+{% highlight java%}
 public class Event {
     public String name;
  
     @JsonSerialize(using = CustomLocalDateTimeSerializer.class)
     public LocalDateTime eventDate;
 }
+{% endhighlight %}
 
-
+{% highlight java%}
 @Test
 public void whenSerializingJava8DateWithCustomSerializer_thenCorrect()
   throws JsonProcessingException {
@@ -321,13 +359,14 @@ public void whenSerializingJava8DateWithCustomSerializer_thenCorrect()
     String result = mapper.writeValueAsString(event);
     assertThat(result, containsString("2014-12-20 02:30"));
 }
-
+{% endhighlight %}
 
 # 11. Deserialize Date
 
 다음으로는 Jackson을 통해 어떻게 Date를 deserialize 하는지 살펴보겠습니다. 다음 예제는 "Event" 인스턴스에 포함된 date를 deserialize합니다. 
 
 
+{% highlight java%}
 @Test
 public void whenDeserializingDateWithJackson_thenCorrect()
   throws JsonProcessingException, IOException {
@@ -340,12 +379,14 @@ public void whenDeserializingDateWithJackson_thenCorrect()
     Event event = mapper.reader(Event.class).readValue(json);
     assertEquals("20-12-2014 02:30:00", df.format(event.eventDate));
 }
+{% endhighlight %}
 
-
-12. Custom Date deserializer
+# 12. Custom Date deserializer
 
 이제 어떻게 custom Date deserializer를 사용하는지 살펴보겠습니다. "eventDate" 속성을 위해 custom deserializer를 만들겠습니다. :
 
+
+{% highlight java%}
 public class CustomDateDeserializer extends JsonDeserializer<Date> {
  
     private static SimpleDateFormat formatter = 
@@ -362,19 +403,25 @@ public class CustomDateDeserializer extends JsonDeserializer<Date> {
         }
     }
 }
+{% endhighlight %}
+
 
 다음으로 "eventDate"에  deserializer를 사용합니다. 
 
+
+{% highlight java%}
 public class Event {
     public String name;
  
     @JsonDeserialize(using = CustomDateDeserializer.class)
     public Date eventDate;
 }
-
+{% endhighlight %}
 
 마지막으로 테스트 해 보겠습니다 :
 
+
+{% highlight java%}
 @Test
 public void whenDeserializingDateUsingCustomDeserializer_thenCorrect()
   throws JsonProcessingException, IOException {
@@ -386,7 +433,7 @@ public void whenDeserializingDateUsingCustomDeserializer_thenCorrect()
     Event event = mapper.reader(Event.class).readValue(json);
     assertEquals("20-12-2014 02:30:00", df.format(event.eventDate));
 }
-
+{% endhighlight %}
 
 # 13. Conclusion
 
