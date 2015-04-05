@@ -111,12 +111,22 @@ ngrok에서 생성된 주소를 토대로 IE remote app에서 접속하여 테�
 
 &lt;h3&gt;결론&lt;/h3&gt;
 
-&lt;p&gt;&lt;br&gt;
-단점: &lt;code&gt;웹서핑이나 결재는 불가능 합니다. (acticeX 및 기타 플러그인 설치 불가능)&lt;/code&gt;&lt;br&gt;
-아직까지 불안정합니다.(장시간 멈춤 현상)
-로컬 테스트를 위해선 &lt;a href=&quot;&quot;&gt;ngrok&lt;/a&gt;과 같은 별도의 프록시가 필요합니다. &lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
 
-&lt;p&gt;http://remote.mordern.ie 에 접속하여 Miscrosoft 계정으로 로그인합니다. &lt;/p&gt;
+&lt;h4&gt;장점&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;별도의 VM 설치 없이 가볍게 IE 최신버전에서 테스트해볼 수 있습니다.&lt;/li&gt;
+&lt;li&gt;아직 개발이 진행중이므로 추후 IE 최신버전과 더불어 다양한 IE 버전을 테스트 해 볼 수 있을 것 같습니다.&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4&gt;단점&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;웹서핑이나 결재는 불가능 합니다. acticeX 및 기타 플러그인 설치 불가능&lt;/em&gt; (결재를 위해 VM으로 IE 접속하고 있다보니 개인적으로 이부분이 가장 아쉽네요.)&lt;/li&gt;
+&lt;li&gt;아직까지 불안정합니다.(장시간 멈춤 현상)&lt;/li&gt;
+&lt;li&gt;로컬 테스트를 위해선 &lt;a href=&quot;https://ngrok.com/&quot;&gt;ngrok&lt;/a&gt;과 같은 별도의 HTTP가 필요합니다. &lt;/li&gt;
+&lt;/ul&gt;
 </description>
 				<pubDate>Sun, 05 Apr 2015 00:00:00 +0900</pubDate>
 				<link>/mac/2015/04/05/ie-test-mac-osx.html</link>
