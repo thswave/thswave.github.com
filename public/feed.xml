@@ -7,6 +7,123 @@
 		<atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>맥 OSX에서 IE 테스트</title>
+				<description>&lt;p&gt;&lt;code&gt;본 포스트는 (아직까지) IE 11(최신 버전)에서 테스트 하는 방법을 소개해 드리고자 합니다. 테스트 이외의 용도(ex&amp;gt; 쇼핑, 결재)는 부적합 한 방식임을 미리 알려드립니다.&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3&gt;맥에서 IE 테스트하기&lt;/h3&gt;
+
+&lt;p&gt;맥에서 웹 서비스를 개발하면서 IE(Internet Explorer)를 테스트하는 건 정말 고역입니다. 개발자라면 한번쯤 IE를 없어졌으면 좋겠다는 생각을 한 번 쯤....을 넘어 매번 매순간 느끼실 겁니다.&lt;/p&gt;
+
+&lt;p&gt;만약 IE에서의 테스트를 해야한다면 몇가지 대안이 있습니다. &lt;/p&gt;
+
+&lt;h4&gt;1. &lt;a href=&quot;http://www.browserstack.com/&quot;&gt;VirtualBox&lt;/a&gt;, &lt;a href=&quot;http://www.vmware.com/&quot;&gt;VMWare&lt;/a&gt;, &lt;a href=&quot;http://www.microsoft.com/en-us/server-cloud/solutions/virtualization.aspx&quot;&gt;Hyper-V&lt;/a&gt; 와 같은 VM(Virtual Machine)에 IE 버전 별로 각각 설치후 테스트&lt;/h4&gt;
+
+&lt;p&gt;&lt;br&gt;
+장점: 윈도우와 똑같은 환경. 가장 일반적인 방법
+단점: 가상머신을 띄우는데 많은 메모리 소모. 여러대의 VM을 띄울경우 느려질 수 있음.
+기존 &lt;a href=&quot;https://www.modern.ie/virtualization-tools&quot;&gt;mordern.ie&lt;/a&gt; 에서 vm에 각 ie 버전 별로 설치된 이미지를 제공했으나 사용 기간이 정해져 있어 만기되면 다시 설치해야되는 불편함
+&lt;br&gt;
+&lt;br&gt;&lt;/p&gt;
+
+&lt;h4&gt;2. &lt;a href=&quot;http://www.browserstack.com/&quot;&gt;browserstack&lt;/a&gt;과 같은 브라우저 테스트 클라우드 서비스 이용&lt;/h4&gt;
+
+&lt;p&gt;&lt;br&gt;
+장점: IE뿐 아니라 OS별 브라우저 별 다양한 지원&lt;br&gt;
+단점: 영어 + &lt;code&gt;유료 (무료이용은 30분 시간제한)&lt;/code&gt;, 로컬 테스트의 번거로움
+&lt;br&gt;
+&lt;br&gt;&lt;/p&gt;
+
+&lt;h4&gt;3. 윈도우가 설치된 노트북 대여 후 테스트&lt;/h4&gt;
+
+&lt;p&gt;&lt;br&gt;
+장점: 설치가 필요없으므로 노트북을 대여 후 원격 접속&lt;br&gt;
+단점: 노트북을 추가로 구할 수 있는 환경(회사 차원 지원)적 제약사항
+&lt;br&gt;
+&lt;br&gt;&lt;/p&gt;
+
+&lt;h4&gt;4. &lt;em&gt;&lt;a href=&quot;http://remote.mordern.ie&quot;&gt;mordern.ie&lt;/a&gt; + &lt;a href=&quot;https://ngrok.com/&quot;&gt;ngrok&lt;/a&gt;&lt;/em&gt; 조합으로 &lt;code&gt;IE 11&lt;/code&gt; 테스트&lt;/h4&gt;
+
+&lt;p&gt;&lt;br&gt;
+지금부터 소개시켜 드릴 방법은 모든 IE 버전이 테스트 되는것도 아니고 만능은 아님을 미리 알려드립니다.&lt;br&gt;
+테스트 환경은 IE 11입니다.&lt;br&gt;
+현재는 최신 버전만 지원하지만 추후 다양한 버전을 테스트 환경으로 사용될 수 있을 것 같습니다.  &lt;/p&gt;
+
+&lt;h5&gt;1) &lt;a href=&quot;http://remote.mordern.ie&quot;&gt;mordern.ie&lt;/a&gt; 접속 및 sign in&lt;/h5&gt;
+
+&lt;p&gt;&lt;br&gt;
+&lt;img src=&quot;/assets/media/0405_1.png&quot; alt=&quot;0405_1.png&quot;&gt;&lt;br&gt;
+&lt;br&gt;
+아이디가 없다면 새로 가입해서 만드셔야 합니다.&lt;br&gt;
+가입 했다면 인증 메일이 몇 분후에 도착해서 활성화 시켜줍니다.&lt;br&gt;
+&lt;br&gt;
+&lt;img src=&quot;/assets/media/0405_2.png&quot; alt=&quot;0405_2.png&quot;&gt;&lt;br&gt;
+&lt;br&gt;
+로그인 하시면 remote desktop을 할 호스트 OS에 따른 설치 프로그램이 있습니다. 본 포스트는 mac을 기준으로 테스트 하지만 iphone/android 등 다양한 환경에서도 접속이 가능합니다.&lt;br&gt;
+&lt;br&gt;
+&lt;img src=&quot;/assets/media/0405_3.png&quot; alt=&quot;0405_3.png&quot;&gt;&lt;br&gt;
+&lt;br&gt;
+&lt;code&gt;Microsoft Remote Desktop for Mac&lt;/code&gt; 을 선택하면 &lt;a href=&quot;https://itunes.apple.com/us/app/microsoft-remote-desktop/id715768417&quot;&gt;Microsoft Remote Desktop&lt;/a&gt; 을 App Store에서 다운받아 설치합니다.&lt;br&gt;
+&lt;br&gt;
+&lt;img src=&quot;/assets/media/0405_4.png&quot; alt=&quot;0405_4.png&quot;&gt;
+&lt;br&gt;
+&lt;br&gt;
+앱 설치 후 실행 시키면 &lt;code&gt;Azure RemoteApp&lt;/code&gt; 을 선택하고 다시 한번 Microsoft 계정으로 로그인 합니다.&lt;br&gt;
+&lt;br&gt;
+&lt;img src=&quot;/assets/media/0405_5.png&quot; alt=&quot;0405_5.png&quot;&gt;&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+그 후 Internet Exploer 체크 박스를 체크 해주고 닫아주면 목록에 &lt;code&gt;IE Technical Preview&lt;/code&gt; 앱이 생성 됩니다.&lt;br&gt;
+&lt;br&gt;
+&lt;img src=&quot;/assets/media/0405_6.png&quot; alt=&quot;0405_6.png&quot;&gt;
+&lt;img src=&quot;/assets/media/0405_7.png&quot; alt=&quot;0405_7.png&quot;&gt;&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+접속하면 Internet Explorer 창이 보이고 &lt;code&gt;F12&lt;/code&gt; 키를 누르면 &lt;em&gt;개발자 도구&lt;/em&gt;를 열어볼 수 있습니다.&lt;br&gt;
+&lt;br&gt;
+&lt;img src=&quot;/assets/media/0405_8.png&quot; alt=&quot;0405_8.png&quot;&gt;
+&lt;img src=&quot;/assets/media/0405_9.png&quot; alt=&quot;0405_9.png&quot;&gt;
+&lt;br&gt;
+&lt;br&gt;
+IE에서 이제 테스트할 서비스 주소로 접속하면 됩니다. 하지만 remote 앱은 클라우드 환경에서 접속하기 때문에 local 테스트가 불가능 합니다. 그럼 local 앱을 외부에서도 접속할 수 있도록 프록시를 설정하거나 HTTP 터널을 설정해 주면 되는데 &lt;a href=&quot;https://ngrok.com/&quot;&gt;ngrok&lt;/a&gt;이 HTTP Tunnel을 대신해 주는 서비스 입니다.
+&lt;br&gt;&lt;/p&gt;
+
+&lt;h5&gt;2) &lt;a href=&quot;https://ngrok.com/&quot;&gt;ngrok&lt;/a&gt; 을 통한 local 서비스 HTTP 터널링&lt;/h5&gt;
+
+&lt;p&gt;&lt;br&gt;
+ngrok 사이트에가서 다운로드/설치 후&lt;br&gt;
+&lt;br&gt;&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;ngrok 80  # 80 대신 서비스가 떠있는 port 번호를 입력해도 됩니다.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+
+&lt;p&gt;실행하면 ngrok에서 http://4ec80ab0.ngrok.com 와 같은 주소를 넘겨줍니다. 이는 local이외 외부에서도 접속 가능합니다.&lt;br&gt;
+&lt;br&gt;
+&lt;img src=&quot;/assets/media/0405_10.png&quot; alt=&quot;0405_10.png&quot;&gt;
+&lt;br&gt;
+&lt;br&gt;
+ngrok에서 생성된 주소를 토대로 IE remote app에서 접속하여 테스트 하면 됩니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;br&gt;
+&lt;img src=&quot;/assets/media/0405_11.png&quot; alt=&quot;0405_11.png&quot;&gt;
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;&lt;/p&gt;
+
+&lt;h3&gt;결론&lt;/h3&gt;
+
+&lt;p&gt;&lt;br&gt;
+단점: &lt;code&gt;웹서핑이나 결재는 불가능 합니다. (acticeX 및 기타 플러그인 설치 불가능)&lt;/code&gt;&lt;br&gt;
+아직까지 불안정합니다.(장시간 멈춤 현상)
+로컬 테스트를 위해선 &lt;a href=&quot;&quot;&gt;ngrok&lt;/a&gt;과 같은 별도의 프록시가 필요합니다. &lt;/p&gt;
+
+&lt;p&gt;http://remote.mordern.ie 에 접속하여 Miscrosoft 계정으로 로그인합니다. &lt;/p&gt;
+</description>
+				<pubDate>Sun, 05 Apr 2015 00:00:00 +0900</pubDate>
+				<link>/mac/2015/04/05/ie-test-mac-osx.html</link>
+				<guid isPermaLink="true">/mac/2015/04/05/ie-test-mac-osx.html</guid>
+			</item>
+		
+			<item>
 				<title>Metrics for your Spring REST API</title>
 				<description>&lt;p&gt;&lt;em&gt;본 포스트의 원문은 &lt;a href=&quot;http://www.baeldung.com/spring-rest-api-metrics&quot;&gt;http://www.baeldung.com&lt;/a&gt;에서 확인할 수 있으며 원 저작자의 번역 포스팅 허락을 받았음을 알려드립니다.&lt;/em&gt;&lt;/p&gt;
 
@@ -1524,26 +1641,6 @@ str.replace(/^\s+|\s+$/g,&amp;quot;&amp;quot;);
 				<pubDate>Sun, 22 Feb 2015 00:00:00 +0900</pubDate>
 				<link>/javascript/2015/02/22/under-ie9-trim.html</link>
 				<guid isPermaLink="true">/javascript/2015/02/22/under-ie9-trim.html</guid>
-			</item>
-		
-			<item>
-				<title>spring에서 json response 한글 깨짐</title>
-				<description>&lt;p&gt;상황 : RESTful api 구현을 위해 @RestController에서 json객체를 produces를 application/json으로 설정 시 한글 깨짐&lt;/p&gt;
-
-&lt;p&gt;the default charset of @ResponseBody is iso-8859-1, how to change to &lt;code&gt;utf8&lt;/code&gt;.&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;nd&quot;&gt;@RequestMapping&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;quot;/path&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;produces&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;text/plain;charset=UTF-8&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nd&quot;&gt;@ResponseBody&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;handlePath&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-
-    &lt;span class=&quot;o&quot;&gt;.....&lt;/span&gt;
-
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;produces=&amp;quot;text/plain;charset=UTF-8&amp;quot;를 사용하여 응답 페이지에 대한 UTF-8 인코딩이 가능하여 한글 깨짐을 방지 할 수 있음.&lt;/p&gt;
-</description>
-				<pubDate>Sun, 22 Feb 2015 00:00:00 +0900</pubDate>
-				<link>/spring/2015/02/22/korean-json-response-.html</link>
-				<guid isPermaLink="true">/spring/2015/02/22/korean-json-response-.html</guid>
 			</item>
 		
 	</channel>
