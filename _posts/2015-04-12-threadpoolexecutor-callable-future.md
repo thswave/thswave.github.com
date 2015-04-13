@@ -1,8 +1,8 @@
 ---
 layout: post
 title: ThreadPoolExecutor + Callable + Future Example
-categories: [mac]
-tags: [test, mac, osx]
+categories: [java]
+tags: [java]
 description: ThreadPoolExecutor + Callable + Future Example
 ---
 
