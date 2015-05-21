@@ -21,6 +21,11 @@ description: Strategy Pattern using Lambda Expressions in Java 8
 ![0517_1.png](/assets/media/0517_1.png)  
 
 
+JDK 에도 전략 패턴을 찾아볼 수 있다. Collection.sort(List, Comparator) 메서드에서 Comparator 가 전략에 해당하고 Collection.sort() 가 Context에 해당한다.  
+또 다른 예는 java.util.Arrays#sort(T[], Comparator < ? super T> c) 메서드가 Collection.sort() 메서드와 List라는 점만 제와하고 유사하다.
+
+
+
 {% highlight java %}
 interface Strategy{
   public void strategy();
@@ -92,8 +97,34 @@ public class StrategyPattern {
 
 Java 8에서 동작(메서드)를 정의하고 이를 매개변수로 넘길 수 있는 lambda 가 소개 되어 경우에 따라 인터페이스 생성을 생략할 수 도 있다. 람다식으로 특정 행위를 매개변수로 넘기기만 하면 Context에서 이를 활용할 수 있기 때문이다. 
 
+### How Scala killed the Strategy Pattern
+
+스칼라에서 전략패턴은 사실상 아주 간결하게 표현할 수 있다. 아래 예제에서는 알고리즘(여기서는 간단한 사칙연산)을 매개변수로 넘겨준다. 
+
+{% highlight scala %}
+object DeathToStrategy extends App {
+ 
+  def add(a: Int, b: Int) = a + b
+  def subtract(a: Int, b: Int) = a - b
+  def multiply(a: Int, b: Int) = a * b
+   
+  def execute(callback:(Int, Int) => Int, x: Int, y: Int) = callback(x, y)
+ 
+  println("Add:      " + execute(add, 3, 4))
+  println("Subtract: " + execute(subtract, 3, 4))
+  println("Multiply: " + execute(multiply, 3, 4))
+ 
+}
+{% endhighlight %} 
 
 
 
+<br>
+### DI는 전략 패턴?
+<br>
+의존성을 외부(클라이언트)에서 주입하는 측면에서 볼 때 전략 패턴과 DI(Dependency Injection)은 닮았다고 볼 수 있다. 전략 패턴은 의존성 객체의 lifetime에 걸쳐 상호 교환되도록 의도 되었고, DI의 경우 한 의존 instance를 주입하곤 한다. 
 
+
+##### 참조
+(http://en.wikipedia.org/wiki/Dependency_injection)[http://en.wikipedia.org/wiki/Dependency_injection]
 
