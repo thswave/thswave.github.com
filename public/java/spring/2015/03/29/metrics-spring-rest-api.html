@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Metrics for your Spring REST API</title>
+	
+	<meta name="description" content="Metrics for your Spring REST API">
+	
+	<meta name="author" content="thswave">
+
+	<!-- Enable responsive viewport -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+	<!--[if lt IE 9]>
+	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+
+	<!-- Le styles -->
+	<link href="/assets/resources/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/assets/resources/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+	<link href="/assets/resources/syntax/syntax.css" rel="stylesheet">
+	<link href="/assets/css/style.css" rel="stylesheet">
+
+	<!-- Le fav and touch icons -->
+	<!-- Update these with your own images
+	<link rel="shortcut icon" href="images/favicon.ico">
+	<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+	-->
+
+	<link rel="alternate" type="application/rss+xml" title="thswave" href="/feed.xml">
+</head>
+
+<body>
+	<nav class="navbar navbar-default visible-xs" role="navigation">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			
+			<a type="button" class="navbar-toggle nav-link" href="http://github.com/thswave">
+				<i class="fa fa-github"></i>
+			</a>
+			
+			
+			<a type="button" class="navbar-toggle nav-link" href="http://twitter.com/thswave">
+				<i class="fa fa-twitter"></i>
+			</a>
+			
+			
+			<a type="button" class="navbar-toggle nav-link" href="mailto:thswave@gmail.com">
+				<i class="fa fa-envelope"></i>
+			</a>
+			
+			<a class="navbar-brand" href="/">
+				<img src="http://www.gravatar.com/avatar/c1e626278fb674ec46bde944b163f3d9?s=35" class="img-circle" />
+				thswave
+			</a>
+		</div>
+
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="/">Home</a></li>
+				<li><a href="/categories.html">Categories</a></li>
+				<li><a href="/tags.html">Tags</a></li>
+			</ul>
+		</div><!-- /.navbar-collapse -->
+	</nav>
+
+	<!-- nav-menu-dropdown -->
+	<div class="btn-group hidden-xs" id="nav-menu">
+		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+			<i class="fa fa-bars"></i>
+		</button>
+		<ul class="dropdown-menu" role="menu">
+			<li><a href="/"><i class="fa fa-home"></i>Home</a></li>
+			<li><a href="/categories.html"><i class="fa fa-folder"></i>Categories</a></li>
+			<li><a href="/tags.html"><i class="fa fa-tags"></i>Tags</a></li>
+			<li class="divider"></li>
+			<li><a href="#"><i class="fa fa-arrow-up"></i>Top of Page</a></li>
+		</ul>
+	</div>
+	
+	<div class="col-sm-2 sidebar hidden-xs">
+		<! -- sidebar.html -->
+<header class="sidebar-header" role="banner">
+	<a href="/">
+		<img src="http://www.gravatar.com/avatar/c1e626278fb674ec46bde944b163f3d9?s=150" class="img-circle" />
+	</a>
+	<h3 class="title">
+        <a href="/">thswave</a>
+    </h3>
+</header>
+
+
+<div id="bio" class="text-center">
+	try hard, try hard!
+</div>
+
+
+<div id="contact-list" class="text-center">
+	<ul class="list-unstyled list-inline">
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="https://github.com/thswave">
+				<i class="fa fa-github-alt fa-lg"></i>
+			</a>
+		</li>
+		
+		
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="mailto:thswave@gmail.com">
+				<i class="fa fa-envelope fa-lg"></i>
+			</a>
+		</li>
+		
+	</ul>
+	<!-- <ul id="contact-list-secondary" class="list-unstyled list-inline">
+		
+		
+		<li>
+			<a class="btn btn-default btn-sm" href="/feed.xml">
+				<i class="fa fa-rss fa-lg"></i>
+			</a>
+		</li>
+	</ul> -->
+</div>
+<div class="text-center">
+    <ul class="nav">
+     	<li><a href="/categories.html">Categories</a></li>
+     	<li><a href="/tags.html">Tags</a></li>
+    </ul>
+</div>
+<! -- sidebar.html end -->
+
+	</div>
+	<div class="col-sm-10 col-sm-offset-2">
+		<div class="page-header">
+  <h1>Metrics for your Spring REST API </h1>
+</div>
+	
+<article>
+
+	<div class="col-sm-10">
+	 <span class="post-date">
+	   
+	   March 
+	   29th,
+	   
+	   2015
+	 </span>
+	  <div class="article_body">
+	  <p><em>본 포스트의 원문은 <a href="http://www.baeldung.com/spring-rest-api-metrics">http://www.baeldung.com</a>에서 확인할 수 있으며 원 저작자의 번역 포스팅 허락을 받았음을 알려드립니다.</em></p>
+
+<h1>1. Overview</h1>
+
+<p>이번 예제에서는 Spring Rest API에 기본적인 Metrics(측정) 설정을 살펴보겠습니다.</p>
+
+<p>metric 기능을 처음에는 간단한 Servlet Filter들을 활용해 보고, 다음으로 Spring Boot Actuator를 사용하겠습니다.</p>
+
+<h1>2. The web.xml</h1>
+
+<p>앱의 web.xml에 MetricFilter를 등록하면 됩니다. </p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">&lt;filter&gt;
+    &lt;filter-name&gt;metricFilter&lt;/filter-name&gt;
+    &lt;filter-class&gt;org.baeldung.web.metric.MetricFilter&lt;/filter-class&gt;
+&lt;/filter&gt;
+&lt;filter-mapping&gt;
+    &lt;filter-name&gt;metricFilter&lt;/filter-name&gt;
+    &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;
+</code></pre></div>
+<p>&quot;/*&quot; 패턴 으로 들어오는 모든 request에 대해 필터를 매핑되도록 설정 하였습니다. </p>
+
+<h1>3. The Servlet Filter</h1>
+
+<p>이제 custom 필터를 만들 차례입니다. </p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MetricFilter</span> <span class="kd">implements</span> <span class="n">Filter</span> <span class="o">{</span>
+ 
+    <span class="kd">private</span> <span class="n">MetricService</span> <span class="n">metricService</span><span class="o">;</span>
+ 
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(</span><span class="n">FilterConfig</span> <span class="n">config</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ServletException</span> <span class="o">{</span>
+        <span class="n">metricService</span> <span class="o">=</span> <span class="o">(</span><span class="n">MetricService</span><span class="o">)</span> <span class="n">WebApplicationContextUtils</span>
+         <span class="o">.</span><span class="na">getRequiredWebApplicationContext</span><span class="o">(</span><span class="n">config</span><span class="o">.</span><span class="na">getServletContext</span><span class="o">())</span>
+         <span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="s">&quot;metricService&quot;</span><span class="o">);</span>
+    <span class="o">}</span>
+ 
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doFilter</span><span class="o">(</span><span class="n">ServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">ServletResponse</span> <span class="n">response</span><span class="o">,</span> <span class="n">FilterChain</span> <span class="n">chain</span><span class="o">)</span> 
+      <span class="kd">throws</span> <span class="n">java</span><span class="o">.</span><span class="na">io</span><span class="o">.</span><span class="na">IOException</span><span class="o">,</span> <span class="n">ServletException</span> <span class="o">{</span>
+        <span class="n">HttpServletRequest</span> <span class="n">httpRequest</span> <span class="o">=</span> <span class="o">((</span><span class="n">HttpServletRequest</span><span class="o">)</span> <span class="n">request</span><span class="o">);</span>
+        <span class="n">String</span> <span class="n">req</span> <span class="o">=</span> <span class="n">httpRequest</span><span class="o">.</span><span class="na">getMethod</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">httpRequest</span><span class="o">.</span><span class="na">getRequestURI</span><span class="o">();</span>
+ 
+        <span class="n">chain</span><span class="o">.</span><span class="na">doFilter</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+ 
+        <span class="kt">int</span> <span class="n">status</span> <span class="o">=</span> <span class="o">((</span><span class="n">HttpServletResponse</span><span class="o">)</span> <span class="n">response</span><span class="o">).</span><span class="na">getStatus</span><span class="o">();</span>
+        <span class="n">metricService</span><span class="o">.</span><span class="na">increaseCount</span><span class="o">(</span><span class="n">req</span><span class="o">,</span> <span class="n">status</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></div>
+
+<p>필터는 일반적인 빈이 아니기 때문에 metricService에 inject 할 수 없지만 대신 ServletContext를 통해 직접 검색할 수 있습니다. </p>
+
+<p>그리고 doFilter API를 호출하여 filter chain을 실행합니다. </p>
+
+<h1>4. Metric – Status Code Counts</h1>
+
+<p>다음으로 간단한 MetricService를 살펴보겠습니다. </p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Service</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MetricService</span> <span class="o">{</span>
+ 
+    <span class="kd">private</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;</span> <span class="n">statusMetric</span><span class="o">;</span>
+ 
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">increaseCount</span><span class="o">(</span><span class="n">String</span> <span class="n">request</span><span class="o">,</span> <span class="kt">int</span> <span class="n">status</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Integer</span> <span class="n">statusCount</span> <span class="o">=</span> <span class="n">statusMetric</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">status</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">statusCount</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">statusMetric</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">status</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="n">statusMetric</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">status</span><span class="o">,</span> <span class="n">statusCount</span> <span class="o">+</span> <span class="mi">1</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+ 
+    <span class="kd">public</span> <span class="n">Map</span> <span class="nf">getStatusMetric</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">statusMetric</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></div>
+
+<p>memory Map을 사용하여 각 Http status code를 카운팅하여 저장합니다. </p>
+
+<p>이제 기본적인 metric을 출력하기 위해 Controller 메소드에 매핑하도록 하겠습니다. </p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/status-metric&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+<span class="nd">@ResponseBody</span>
+<span class="kd">public</span> <span class="n">Map</span> <span class="nf">getStatusMetric</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">metricService</span><span class="o">.</span><span class="na">getStatusMetric</span><span class="o">();</span>
+<span class="o">}</span></code></pre></div>
+
+<p>그러면 아래와 같은 간단한 응답을 확인할 수 있습니다. </p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">{  
+    &quot;404&quot;:1,
+    &quot;200&quot;:6,
+    &quot;409&quot;:1
+}
+</code></pre></div>
+<h1>5. Metric – Status Codes by Request</h1>
+
+<p>Next – let’s record metrics for Counts by Request:
+다음은 Request 카운트 metric을 기록하도록 하겠습니다. </p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Service</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MetricService</span> <span class="o">{</span>
+ 
+    <span class="kd">private</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="n">metricMap</span><span class="o">;</span>
+ 
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">increaseCount</span><span class="o">(</span><span class="n">String</span> <span class="n">request</span><span class="o">,</span> <span class="kt">int</span> <span class="n">status</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;</span> <span class="n">statusMap</span> <span class="o">=</span> <span class="n">metricMap</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">statusMap</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">statusMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;();</span>
+        <span class="o">}</span>
+ 
+        <span class="n">Integer</span> <span class="n">count</span> <span class="o">=</span> <span class="n">statusMap</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">status</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">count</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="n">count</span><span class="o">++;</span>
+        <span class="o">}</span>
+        <span class="n">statusMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">status</span><span class="o">,</span> <span class="n">count</span><span class="o">);</span>
+        <span class="n">metricMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">statusMap</span><span class="o">);</span>
+    <span class="o">}</span>
+ 
+    <span class="kd">public</span> <span class="n">Map</span> <span class="nf">getFullMetric</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">metricMap</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></div>
+
+<p>API호출을 통해 metric을 출력하면 됩니다 :</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/metric&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+<span class="nd">@ResponseBody</span>
+<span class="kd">public</span> <span class="n">Map</span> <span class="nf">getMetric</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">metricService</span><span class="o">.</span><span class="na">getFullMetric</span><span class="o">();</span>
+<span class="o">}</span></code></pre></div>
+
+<p>metric들을 아래와 같은 형태의 확인할 수 있습니다:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">{
+    &quot;GET /users&quot;:
+    {
+        &quot;200&quot;:6,
+        &quot;409&quot;:1
+    },
+    &quot;GET /users/1&quot;:
+    {
+        &quot;404&quot;:1
+    }
+}
+</code></pre></div>
+<p>According to the above example the API had the following activity:
+위 예제를 통</p>
+
+<p>&quot;GET /users&quot;로  &quot;7&quot; 번 request가 있었고
+&quot;6&quot; 번은 &quot;200&quot; status code 응답으로 나갔고 한 번의 &quot;409&quot; 응답이 있었습니다. </p>
+
+<h1>6. Metric – Time Series Data</h1>
+
+<p>application의 전반적인 카운트 수치들은 유용하지만 만약 오랜 기간동안 돌아가는 시스템에서는 <em>이런 metrics들(이전 예제에서 측정한 metrics)이 실질적으로 어떤 의미를 가지는지 알기 어렵습니다</em></p>
+
+<p>쉽게 이해하고 해석할 수 있는 데이터를 위해 시간 context가 필요합니다. </p>
+
+<p>간단한 time-based metric을 만들어 보겠습니다. <em>분당</em> status code 카운트 수를 기록하도록 하겠습니다 :</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Service</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MetricService</span><span class="o">{</span>
+ 
+    <span class="kd">private</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="n">timeMap</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="n">SimpleDateFormat</span> <span class="n">dateFormat</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">SimpleDateFormat</span><span class="o">(</span><span class="s">&quot;yyyy-MM-dd HH:mm&quot;</span><span class="o">);</span>
+ 
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">increaseCount</span><span class="o">(</span><span class="n">String</span> <span class="n">request</span><span class="o">,</span> <span class="kt">int</span> <span class="n">status</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">time</span> <span class="o">=</span> <span class="n">dateFormat</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="k">new</span> <span class="nf">Date</span><span class="o">());</span>
+        <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;</span> <span class="n">statusMap</span> <span class="o">=</span> <span class="n">timeMap</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">time</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">statusMap</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">statusMap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;();</span>
+        <span class="o">}</span>
+ 
+        <span class="n">Integer</span> <span class="n">count</span> <span class="o">=</span> <span class="n">statusMap</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">status</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">count</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="n">count</span><span class="o">++;</span>
+        <span class="o">}</span>
+        <span class="n">statusMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">status</span><span class="o">,</span> <span class="n">count</span><span class="o">);</span>
+        <span class="n">timeMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">time</span><span class="o">,</span> <span class="n">statusMap</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></div>
+
+<p>그리고 getGraphData() 는 아래와 같습니다:</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="n">Object</span><span class="o">[][]</span> <span class="nf">getGraphData</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kt">int</span> <span class="n">colCount</span> <span class="o">=</span> <span class="n">statusMetric</span><span class="o">.</span><span class="na">keySet</span><span class="o">().</span><span class="na">size</span><span class="o">()</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="n">Set</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">allStatus</span> <span class="o">=</span> <span class="n">statusMetric</span><span class="o">.</span><span class="na">keySet</span><span class="o">();</span>
+    <span class="kt">int</span> <span class="n">rowCount</span> <span class="o">=</span> <span class="n">timeMap</span><span class="o">.</span><span class="na">keySet</span><span class="o">().</span><span class="na">size</span><span class="o">()</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="n">Object</span><span class="o">[][]</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Object</span><span class="o">[</span><span class="n">rowCount</span><span class="o">][</span><span class="n">colCount</span><span class="o">];</span>
+    <span class="n">result</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="s">&quot;Time&quot;</span><span class="o">;</span>
+ 
+    <span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">status</span> <span class="o">:</span> <span class="n">allStatus</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">result</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="n">j</span><span class="o">]</span> <span class="o">=</span> <span class="n">status</span><span class="o">;</span>
+        <span class="n">j</span><span class="o">++;</span>
+    <span class="o">}</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="n">Map</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;</span> <span class="n">tempMap</span><span class="o">;</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">Entry</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="n">entry</span> <span class="o">:</span> <span class="n">timeMap</span><span class="o">.</span><span class="na">entrySet</span><span class="o">())</span> <span class="o">{</span>
+        <span class="n">result</span><span class="o">[</span><span class="n">i</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="na">getKey</span><span class="o">();</span>
+        <span class="n">tempMap</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="na">getValue</span><span class="o">();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">colCount</span><span class="o">;</span> <span class="n">j</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="n">result</span><span class="o">[</span><span class="n">i</span><span class="o">][</span><span class="n">j</span><span class="o">]</span> <span class="o">=</span> <span class="n">tempMap</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">result</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="n">j</span><span class="o">]);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">result</span><span class="o">[</span><span class="n">i</span><span class="o">][</span><span class="n">j</span><span class="o">]</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">result</span><span class="o">[</span><span class="n">i</span><span class="o">][</span><span class="n">j</span><span class="o">]</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="n">i</span><span class="o">++;</span>
+    <span class="o">}</span>
+ 
+    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+<span class="o">}</span></code></pre></div>
+
+<p>API에 매핑해 보도록 하겠습니다.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/metric-graph-data&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+<span class="nd">@ResponseBody</span>
+<span class="kd">public</span> <span class="n">Object</span><span class="o">[][]</span> <span class="nf">getMetricData</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">metricService</span><span class="o">.</span><span class="na">getGraphData</span><span class="o">();</span>
+<span class="o">}</span></code></pre></div>
+
+<p>마지막으로 Google Charts를 통해 렌더링 합니다. </p>
+
+<div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;html&gt;</span>
+<span class="nt">&lt;head&gt;</span>
+<span class="nt">&lt;title&gt;</span>Metric Graph<span class="nt">&lt;/title&gt;</span>
+<span class="nt">&lt;script </span><span class="na">src=</span><span class="s">&quot;http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span> <span class="na">src=</span><span class="s">&quot;https://www.google.com/jsapi&quot;</span><span class="nt">&gt;&lt;/script&gt;</span>
+<span class="nt">&lt;script </span><span class="na">type=</span><span class="s">&quot;text/javascript&quot;</span><span class="nt">&gt;</span>
+<span class="nx">google</span><span class="p">.</span><span class="nx">load</span><span class="p">(</span><span class="s2">&quot;visualization&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="p">{</span><span class="nx">packages</span> <span class="o">:</span> <span class="p">[</span> <span class="s2">&quot;corechart&quot;</span> <span class="p">]});</span>
+ 
+<span class="kd">function</span> <span class="nx">drawChart</span><span class="p">()</span> <span class="p">{</span>
+<span class="nx">$</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s2">&quot;/metric-graph-data&quot;</span><span class="p">,</span><span class="kd">function</span><span class="p">(</span><span class="nx">mydata</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="nx">google</span><span class="p">.</span><span class="nx">visualization</span><span class="p">.</span><span class="nx">arrayToDataTable</span><span class="p">(</span><span class="nx">mydata</span><span class="p">);</span>
+    <span class="kd">var</span> <span class="nx">options</span> <span class="o">=</span> <span class="p">{</span><span class="nx">title</span> <span class="o">:</span> <span class="s1">&#39;Website Metric&#39;</span><span class="p">,</span>
+                   <span class="nx">hAxis</span> <span class="o">:</span> <span class="p">{</span><span class="nx">title</span> <span class="o">:</span> <span class="s1">&#39;Time&#39;</span><span class="p">,</span><span class="nx">titleTextStyle</span> <span class="o">:</span> <span class="p">{</span><span class="nx">color</span> <span class="o">:</span> <span class="s1">&#39;#333&#39;</span><span class="p">}},</span>
+                   <span class="nx">vAxis</span> <span class="o">:</span> <span class="p">{</span><span class="nx">minValue</span> <span class="o">:</span> <span class="mi">0</span><span class="p">}};</span>
+ 
+    <span class="kd">var</span> <span class="nx">chart</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">google</span><span class="p">.</span><span class="nx">visualization</span><span class="p">.</span><span class="nx">AreaChart</span><span class="p">(</span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="s1">&#39;chart_div&#39;</span><span class="p">));</span>
+    <span class="nx">chart</span><span class="p">.</span><span class="nx">draw</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">options</span><span class="p">);</span>
+ 
+<span class="p">});</span>
+ 
+<span class="p">}</span>
+<span class="nt">&lt;/script&gt;</span>
+<span class="nt">&lt;/head&gt;</span>
+<span class="nt">&lt;body</span> <span class="na">onload=</span><span class="s">&quot;drawChart()&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">&quot;chart_div&quot;</span> <span class="na">style=</span><span class="s">&quot;width: 900px; height: 500px;&quot;</span><span class="nt">&gt;&lt;/div&gt;</span>
+<span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span></code></pre></div>
+
+<h1>7. Using Spring Boot Actuator</h1>
+
+<p>다음 섹션들은 기존 metrics들을 표현하기 위해 Spring Boot의 Actuator 기능을 사용하겠습니다.</p>
+
+<p>우선 pom.xml에 actuator dependency를 추가합니다:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre></div>
+<h1>8. The MetricFilter</h1>
+
+<p>다음은 MetricFilter를 실제 Spring bean으로 전환하겠습니다. </p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Component</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MetricFilter</span> <span class="kd">implements</span> <span class="n">Filter</span> <span class="o">{</span>
+ 
+    <span class="nd">@Autowired</span>
+    <span class="kd">private</span> <span class="n">MetricService</span> <span class="n">metricService</span><span class="o">;</span>
+ 
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doFilter</span><span class="o">(</span><span class="n">ServletRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">ServletResponse</span> <span class="n">response</span><span class="o">,</span> <span class="n">FilterChain</span> <span class="n">chain</span><span class="o">)</span> 
+      <span class="kd">throws</span> <span class="n">java</span><span class="o">.</span><span class="na">io</span><span class="o">.</span><span class="na">IOException</span><span class="o">,</span> <span class="n">ServletException</span> <span class="o">{</span>
+        <span class="n">chain</span><span class="o">.</span><span class="na">doFilter</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
+ 
+        <span class="kt">int</span> <span class="n">status</span> <span class="o">=</span> <span class="o">((</span><span class="n">HttpServletResponse</span><span class="o">)</span> <span class="n">response</span><span class="o">).</span><span class="na">getStatus</span><span class="o">();</span>
+        <span class="n">metricService</span><span class="o">.</span><span class="na">increaseCount</span><span class="o">(</span><span class="n">status</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></div>
+
+<p>이전과 같이 dependicies를 직접 작성하는 것을 단순화 시켰습니다. </p>
+
+<h1>9. Using CounterService</h1>
+
+<p>이제 각 Status Code 횟수를 카운팅하기 위해 CounterService를 사용하겠습니다.</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Service</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MetricService</span> <span class="o">{</span>
+ 
+    <span class="nd">@Autowired</span>
+    <span class="kd">private</span> <span class="n">CounterService</span> <span class="n">counter</span><span class="o">;</span>
+ 
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">statusList</span><span class="o">;</span>
+ 
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">increaseCount</span><span class="o">(</span><span class="kt">int</span> <span class="n">status</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">counter</span><span class="o">.</span><span class="na">increment</span><span class="o">(</span><span class="s">&quot;status.&quot;</span> <span class="o">+</span> <span class="n">status</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">statusList</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">&quot;counter.status.&quot;</span> <span class="o">+</span> <span class="n">status</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">statusList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&quot;counter.status.&quot;</span> <span class="o">+</span> <span class="n">status</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></div>
+
+<h1>10. Export Metrics using MetricRepository</h1>
+
+<p>이제 MetricRepository를 사용하여 metrics들을 export 하겠습니다:</p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@Service</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MetricService</span> <span class="o">{</span>
+ 
+    <span class="nd">@Autowired</span>
+    <span class="kd">private</span> <span class="n">MetricRepository</span> <span class="n">repo</span><span class="o">;</span>
+ 
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;&gt;</span> <span class="n">statusMetric</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">statusList</span><span class="o">;</span>
+     
+    <span class="nd">@Scheduled</span><span class="o">(</span><span class="n">fixedDelay</span> <span class="o">=</span> <span class="mi">60000</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">exportMetrics</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">Metric</span><span class="o">&lt;?&gt;</span> <span class="n">metric</span><span class="o">;</span>
+        <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">statusCount</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">status</span> <span class="o">:</span> <span class="n">statusList</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">metric</span> <span class="o">=</span> <span class="n">repo</span><span class="o">.</span><span class="na">findOne</span><span class="o">(</span><span class="n">status</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">metric</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">statusCount</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">metric</span><span class="o">.</span><span class="na">getValue</span><span class="o">().</span><span class="na">intValue</span><span class="o">());</span>
+                <span class="n">repo</span><span class="o">.</span><span class="na">reset</span><span class="o">(</span><span class="n">status</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="n">statusCount</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="n">statusMetric</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">statusCount</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></div>
+
+<p>분당 status code들을 카운트하여 저장 합니다. </p>
+
+<h1>11. Draw Graph using Metrics</h1>
+
+<p>마지막으로 2차원 배열로 metric들을 출력합니다. - 이를 통해 그래프를 그릴 수 있습니다. </p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="n">Object</span><span class="o">[][]</span> <span class="nf">getGraphData</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">Date</span> <span class="n">current</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Date</span><span class="o">();</span>
+    <span class="kt">int</span> <span class="n">colCount</span> <span class="o">=</span> <span class="n">statusList</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">rowCount</span> <span class="o">=</span> <span class="n">statusMetric</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">+</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="n">Object</span><span class="o">[][]</span> <span class="n">result</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Object</span><span class="o">[</span><span class="n">rowCount</span><span class="o">][</span><span class="n">colCount</span><span class="o">];</span>
+    <span class="n">result</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="s">&quot;Time&quot;</span><span class="o">;</span>
+ 
+    <span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">status</span> <span class="o">:</span> <span class="n">statusList</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">result</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="n">j</span><span class="o">]</span> <span class="o">=</span> <span class="n">status</span><span class="o">;</span>
+        <span class="n">j</span><span class="o">++;</span>
+    <span class="o">}</span>
+ 
+    <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">temp</span><span class="o">;</span>
+    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">rowCount</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">statusMetric</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="o">);</span>
+        <span class="n">result</span><span class="o">[</span><span class="n">i</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="n">dateFormat</span><span class="o">.</span><span class="na">format</span>
+          <span class="o">(</span><span class="k">new</span> <span class="nf">Date</span><span class="o">(</span><span class="n">current</span><span class="o">.</span><span class="na">getTime</span><span class="o">()</span> <span class="o">-</span> <span class="o">(</span><span class="mi">60000</span> <span class="o">*</span> <span class="o">(</span><span class="n">rowCount</span> <span class="o">-</span> <span class="n">i</span><span class="o">))));</span>
+        <span class="k">for</span> <span class="o">(</span><span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span> <span class="n">j</span> <span class="o">&lt;=</span> <span class="n">temp</span><span class="o">.</span><span class="na">size</span><span class="o">();</span> <span class="n">j</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="n">result</span><span class="o">[</span><span class="n">i</span><span class="o">][</span><span class="n">j</span><span class="o">]</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">while</span> <span class="o">(</span><span class="n">j</span> <span class="o">&lt;</span> <span class="n">colCount</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">result</span><span class="o">[</span><span class="n">i</span><span class="o">][</span><span class="n">j</span><span class="o">]</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+            <span class="n">j</span><span class="o">++;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+ 
+    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+<span class="o">}</span></code></pre></div>
+
+<p>Controller 메소드 getMetricData()는 다음과 같습니다: </p>
+
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/metric-graph-data&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+<span class="nd">@ResponseBody</span>
+<span class="kd">public</span> <span class="n">Object</span><span class="o">[][]</span> <span class="nf">getMetricData</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">metricService</span><span class="o">.</span><span class="na">getGraphData</span><span class="o">();</span>
+<span class="o">}</span></code></pre></div>
+
+<p>샘플 응답은 다음과 같습니다. </p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">[
+    [&quot;Time&quot;,&quot;counter.status.302&quot;,&quot;counter.status.200&quot;,&quot;counter.status.304&quot;],
+    [&quot;2015-03-26 19:59&quot;,3,12,7],
+    [&quot;2015-03-26 20:00&quot;,0,4,1]
+]
+</code></pre></div>
+<h1>12. Conclusion</h1>
+
+<p>이번 포스트에서 Spring web application에 대한 기본적인 metrics를 측정할 수 있는 간단한 방법을 살펴봤습니다. </p>
+
+<p>HTTP metric들을 측정할 수 있는 더 많은 좋은 방법들이 있지만 위 예제는 복잡한 툴 없이 간단하고 쉽게 사용할 있는 방법들입니다. </p>
+
+<p>위 포스트 예제는 (github project)[https://github.com/eugenp/tutorials/tree/master/spring-security-rest-full] 에서 확인할 수 있습니다. Eclipse 기반 프로젝트로 쉽게 import하고 실행할 수 있습니다. </p>
+
+	  </div>
+
+		
+		<ul class="tag_box list-unstyled list-inline">
+		  <li><i class="fa fa-folder-open"></i></li>
+		  
+		  
+			 
+				<li><a href="/categories.html#java-ref">
+					java <span>(8)</span>
+					,
+				</a></li>
+			 
+				<li><a href="/categories.html#spring-ref">
+					spring <span>(3)</span>
+					
+				</a></li>
+			
+		  
+		</ul>
+		  
+
+		
+		<ul class="list-inline">
+		  <li><i class="fa fa-tags"></i></li>
+		  
+		  
+			 
+				<li>
+					<a href="/tags.html#java-ref">
+					java <span>(9)</span>
+					,
+					</a>
+				</li>
+			 
+				<li>
+					<a href="/tags.html#spring-ref">
+					spring <span>(3)</span>
+					,
+					</a>
+				</li>
+			 
+				<li>
+					<a href="/tags.html#REST-ref">
+					REST <span>(1)</span>
+					
+					</a>
+				</li>
+			
+		  
+		  
+		</ul>
+		  
+
+		<hr>
+
+		<div>
+      <section class="share col-sm-6">
+        <h4 class="section-title">Share Post</h4>
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=Metrics for your Spring REST API&via=thswave"
+           onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+          <i class="fa fa-twitter fa-lg"></i>
+          Twitter
+        </a>
+        <a class="btn btn-default btn-sm facebook" href="https://www.facebook.com/sharer/sharer.php"
+           onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+          <i class="fa fa-facebook fa-lg"></i>
+          Facebook
+        </a>
+        <a class="btn btn-default btn-sm gplus"
+           onclick="window.open('https://plus.google.com/share?url='+window.location.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <i class="fa fa-google-plus fa-lg"></i>
+          Google+
+        </a>
+      </section>
+
+      <section class="col-sm-6 author">
+        <img src="http://www.gravatar.com/avatar/c1e626278fb674ec46bde944b163f3d9" class="img-rounded author-image" />
+        <h4 class="section-title author-name">thswave</h4>
+        <p class="author-bio">try hard, try hard!</p>
+      </section>
+    </div>
+
+    <div class="clearfix"></div>
+
+		<ul class="pager">
+		  
+		  <li class="previous"><a href="/java/2015/03/22/jackson-json-date.html" title="Java Jackson Date">&larr; Previous</a></li>
+		  
+		  
+		  <li class="next"><a href="/mac/2015/04/05/ie-test-mac-osx.html" title="맥 OSX에서 IE 테스트">Next &rarr;</a></li>
+		  
+		</ul>
+
+		<hr>
+	</div>
+	<div class="col-sm-2 sidebar-2">
+	
+	</div>
+	 
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'thswavegithubio'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</article>
+<div class="clearfix"></div>
+
+
+
+		<div id="disqus_thread"></div>
+	    <script type="text/javascript">
+	        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+	        var disqus_shortname = 'thswavegithubio'; // required: replace example with your forum shortname
+
+	        /* * * DON'T EDIT BELOW THIS LINE * * */
+	        (function() {
+	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	        })();
+	    </script>
+	    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+		<footer>
+			<hr/>
+			<p>
+				&copy; 2015 thswave with Jekyll. Theme: dbyll by dbtek.
+			</p>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="/assets/resources/jquery/jquery.min.js"></script>
+	<script type="text/javascript" src="/assets/resources/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/assets/js/app.js"></script>
+	<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-58937114-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
+</html>
+
