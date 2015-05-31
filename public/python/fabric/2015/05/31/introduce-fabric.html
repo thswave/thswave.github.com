@@ -2,9 +2,9 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>java remove duplicates from list. (Java list에서 중복 요소 제거)</title>
+	<title>fabric을 활용한 배포</title>
 	
-	<meta name="description" content="java remove duplicates from list (Java list에서 중복 요소 제거)">
+	<meta name="description" content="fabric을 활용한 배포">
 	
 	<meta name="author" content="thswave">
 
@@ -144,7 +144,7 @@
 	</div>
 	<div class="col-sm-10 col-sm-offset-2">
 		<div class="page-header">
-  <h1>java remove duplicates from list. (Java list에서 중복 요소 제거) </h1>
+  <h1>fabric을 활용한 배포 </h1>
 </div>
 	
 <article>
@@ -152,56 +152,112 @@
 	<div class="col-sm-10">
 	 <span class="post-date">
 	   
-	   March 
-	   1st,
+	   May 
+	   31st,
 	     
 	   2015
 	 </span>
 	  <div class="article_body">
-	  <p><em>본 포스트의 원문은 <a href="http://www.baeldung.com/java-remove-duplicates-from-list?utm_source=email-newsletter&amp;utm_medium=email&amp;utm_campaign=auto_36_java">http://www.baeldung.com</a>에서 확인할 수 있으며 원 저작자의 번역 포스팅 허락을 받았음을 알려드립니다.</em></p>
+	  <h3>fabric ?</h3>
 
-<p>이번 예제는 List에서 중복 요소를 제거하는 방법에 대해 살펴보겠습니다. - 처음에는 plain java를 활요하여, 그리고 Guava를 활용하여 마지막으로 Java 8 의 Lambda 기반 해결법을 살펴보겠습니다. </p>
+<ul>
+<li><a href="http://www.fabfile.org/">http://www.fabfile.org/</a> </li>
+<li><em>Fabric is a Python (2.5-2.7) library and command-line tool for streamlining the <code>use of SSH for application deployment or systems administration tasks</code></em></li>
+<li>빌드 서버에서 간단한 명령으로 배포 및 스크립트 실행과 같은 task 들을 실행 시켜주는 tool</li>
+<li>언제 유용할까? 빌드 서버에서 jenkins로 빌드한 후 빌드 결과물을 원격 서버로 배포(deploy)하고 원격 서버에서 서버의 재시작이나 기본적인 작업(task)를 수행하기 할 때 사용할 수 있다. 물론 빌드 서버에서 원격 서버로 ssh + scp 를 하는 스크립트를 만들어 할 수 있지만 python의 기능과 더불어 사용할 수 있기 때문에 좀 더 쉽게 배포 및 task 처리를 할 수 있습니다.
+<br></li>
+<li>command-line tool 이므로 jenkins 빌드 후 <code>execute shell</code>을 통해 fabric을 실행 시켜주면 됩니다.</li>
+</ul>
 
-<p>이 포스트는 Baeldung 사이트의 “<a href="http://www.baeldung.com/java-tutorial">Java – Back to Basic</a>” 시리즈입니다. </p>
+<h6>설치</h6>
 
-<h1>1. plain java를 사용한 중복 요소 제거</h1>
+<ul>
+<li>설치가이드 : <a href="http://www.fabfile.org/installing.html">http://www.fabfile.org/installing.html</a></li>
+</ul>
 
-<p>Java Collections 프레임워크 중 List에서 중복 요소를 제거하는것은 Set을 활용하면 됩니다.
-(Set 이 중복 요소를 저장하지 않기 때문에)</p>
+<p><br></p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">pip install fabric
+# 또는 
+sudo apt-get install fabric
+</code></pre></div>
+<p><br>
+* Fabric requires Python version 2.5 - 2.7
+<br></p>
 
-<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">givenListContainsDuplicates_whenRemovingDuplicatesWithPlainJava_thenCorrect</span><span class="o">()</span> <span class="o">{</span>
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithDuplicates</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithoutDuplicates</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;(</span><span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;&gt;(</span><span class="n">listWithDuplicates</span><span class="o">));</span>
- 
-    <span class="n">assertThat</span><span class="o">(</span><span class="n">listWithoutDuplicates</span><span class="o">,</span> <span class="n">hasSize</span><span class="o">(</span><span class="mi">4</span><span class="o">));</span>
-<span class="o">}</span></code></pre></div>
+<ul>
+<li>간단한 튜토리얼 : <a href="http://docs.fabfile.org/en/latest/tutorial.html">http://docs.fabfile.org/en/latest/tutorial.html</a> </li>
+<li>간단하게 설명드리면 <code>fabfile.py</code> 파일을 프로젝트 working directory에 만들어 둡니다.</li>
+</ul>
 
-<p>원래 리스트(listWithDuplicates)의 값은 중복값이 남아있습니다. </p>
+<p><br></p>
 
-<h1>2. Guava를 활용한 중복 요소 제거</h1>
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- conding: utf-8 -*-</span>
 
-<p>Guava를 통해 같은 방법으로 중복 요소 제거 가능합니다. </p>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">with_statement</span>
+<span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">fabric.contrib.console</span> <span class="kn">import</span> <span class="n">confirm</span>
+<span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="kn">import</span> <span class="nn">time</span>
 
-<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">givenListContainsDuplicates_whenRemovingDuplicatesWithGuava_thenCorrect</span><span class="o">()</span> <span class="o">{</span>
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithDuplicates</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithoutDuplicates</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="n">Sets</span><span class="o">.</span><span class="na">newHashSet</span><span class="o">(</span><span class="n">listWithDuplicates</span><span class="o">));</span>
- 
-    <span class="n">assertThat</span><span class="o">(</span><span class="n">listWithoutDuplicates</span><span class="o">,</span> <span class="n">hasSize</span><span class="o">(</span><span class="mi">4</span><span class="o">));</span>
-<span class="o">}</span></code></pre></div>
+<span class="n">env</span><span class="o">.</span><span class="n">use_ssh_config</span> <span class="o">=</span> <span class="bp">True</span>
 
-<p>역시 원래의 리스트 값은 변화 없습니다. </p>
+<span class="n">env</span><span class="o">.</span><span class="n">roledefs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;dev&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;hosts&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;id@host&#39;</span><span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">}</span>
 
-<h1>3. Java 8 Lambdas 를 활용한 중복 요소 제거</h1>
 
-<p>이제 마지막으로 <code>Lambdas</code> 를 활용한 새로운 방법을 살펴보겠습니다.;  Stream API 중 <em>고유한(distinct) 요소들로 구성된 stream을 반환 해주는 <code>distinct()</code> 메서드를 활용</em>한 방법을 살펴 보겠습니다. </p>
+<span class="k">def</span> <span class="nf">hello</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Hello world!&quot;</span><span class="p">)</span></code></pre></div>
 
-<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">givenListContainsDuplicates_whenRemovingDuplicatesWithJava8_thenCorrect</span><span class="o">()</span> <span class="o">{</span>
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithDuplicates</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">3</span><span class="o">);</span>
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithoutDuplicates</span> <span class="o">=</span> 
-      <span class="n">listWithDuplicates</span><span class="o">.</span><span class="na">parallelStream</span><span class="o">().</span><span class="na">distinct</span><span class="o">().</span><span class="na">collect</span><span class="o">(</span><span class="n">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">());</span>
-<span class="o">}</span></code></pre></div>
+<ul>
+<li><em>실행: fab + method 명</em></li>
+</ul>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ fab hello
+Hello world!
 
-<p>위 예제에서 살펴본 3가지 간단한 방법을 통해 list의 중복 요소들을 제거할 수 있습니다. </p>
+Done.
+</code></pre></div>
+<ul>
+<li><em>argument 받기</em></li>
+</ul>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># 생략..</span>
+
+<span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;world&quot;</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Hello </span><span class="si">%s</span><span class="s">!&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span></code></pre></div>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ fab hello:name=Changwon
+Hello Changwon!
+
+Done.
+</code></pre></div>
+<ul>
+<li>프로젝트에 활용한 몇 가지 활용 사례를 예제와 함께 설명하겠습니다.
+<br>
+<br></li>
+</ul>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">stop_tomcat</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">cd</span><span class="p">(</span><span class="s">&#39;/path/to/tomcat&#39;</span><span class="p">):</span>
+        <span class="n">run</span><span class="p">(</span><span class="s">&#39;./shutdown.sh&#39;</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">upload_war</span><span class="p">():</span>
+    <span class="n">put</span><span class="p">(</span><span class="s">&#39;./target/WAR_FILE_NAME&#39;</span><span class="p">,</span> <span class="s">&#39;path/to/upload&#39;</span><span class="p">);</span>
+
+<span class="k">def</span> <span class="nf">execute_cmd</span><span class="p">():</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&#39;ln -s a b&#39;</span><span class="p">)</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&#39;mkdir -p /path/new/dir/test&#39;</span><span class="p">)</span></code></pre></div>
+
+<ul>
+<li>puth(a,b) : 빌드 서버의 a 파일을 원격 서버의 b 로 복사합니다. 디렉토리/파일 모두 가능합니다. </li>
+<li>run() : 메서드의 인자로 원격 서버에서 수행할 명령어를 넣어주면 됩니다.</li>
+<li><p>복잡하지 않고 간단하게 원하는 작업만 수행할 수 있는 점이 편리한 것 같습니다.</p></li>
+<li><p>ruby의 빌드/배포 툴인 <a href="http://capistranorb.com/">capistrano</a>를 활용할 수 있었지만 기존에 python으로 세팅되어 있어 굳이 capistrano를 설치하지 않고 python을 활용하게 되었습니다.</p></li>
+</ul>
 
 	  </div>
 
@@ -211,8 +267,13 @@
 		  
 		  
 			 
-				<li><a href="/categories.html#java-ref">
-					java <span>(11)</span>
+				<li><a href="/categories.html#python-ref">
+					python <span>(1)</span>
+					,
+				</a></li>
+			 
+				<li><a href="/categories.html#fabric-ref">
+					fabric <span>(1)</span>
 					
 				</a></li>
 			
@@ -227,15 +288,15 @@
 		  
 			 
 				<li>
-					<a href="/tags.html#java-ref">
-					java <span>(12)</span>
+					<a href="/tags.html#python-ref">
+					python <span>(1)</span>
 					,
 					</a>
 				</li>
 			 
 				<li>
-					<a href="/tags.html#list-ref">
-					list <span>(3)</span>
+					<a href="/tags.html#fabric-ref">
+					fabric <span>(1)</span>
 					
 					</a>
 				</li>
@@ -250,7 +311,7 @@
 		<div>
       <section class="share col-sm-6">
         <h4 class="section-title">Share Post</h4>
-        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=java remove duplicates from list. (Java list에서 중복 요소 제거)&via=thswave"
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=fabric을 활용한 배포&via=thswave"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
           <i class="fa fa-twitter fa-lg"></i>
           Twitter
@@ -278,10 +339,10 @@
 
 		<ul class="pager">
 		  
-		  <li class="previous"><a href="/java/2015/02/23/java-input-stream-to-string.html" title="Java InputStream to String">&larr; Previous</a></li>
+		  <li class="previous"><a href="/ruby/sinatra/2015/05/26/introduce-sinatra.html" title="sinatra를 활용한 간단한 서버 구축">&larr; Previous</a></li>
 		  
 		  
-		  <li class="next"><a href="/java/2015/03/01/java-remove-nulls-from-list.html" title="Java remove nulls from list (Java list에서 null 요소 제거)">Next &rarr;</a></li>
+			<li class="next disabled"><a>Next &rarr;</a>
 		  
 		</ul>
 

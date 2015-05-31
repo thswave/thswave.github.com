@@ -21,11 +21,13 @@ description: fabric을 활용한 배포
 * 설치가이드 : [http://www.fabfile.org/installing.html](http://www.fabfile.org/installing.html)
 
 <br>
+
 ```
 pip install fabric
-# or
+# 또는 
 sudo apt-get install fabric
 ```
+
 <br>
 * Fabric requires Python version 2.5 - 2.7
 <br>
