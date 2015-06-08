@@ -63,18 +63,21 @@ relay_domains = $mydestination
 * CentOs 버전에 따라 sendmail이 설치 되어 있다면 이를 `chkconfig` 로 확인 후 `postfix`로 수정 해 주면 됩니다. 
 
 <br>
+
 ```
 # chkconfig postfix on
 # chkconfig --list postfix
 postfix         0:off   1:off   2:on    3:on    4:on    5:on    6:off
 ```
+
 <br><br>
+
 * 이제 postfix 메일서버를 가동해 보고 25번 포트에서 리스닝 하는지 확인하자!!
 <br><br>
+
 ```
 # /etc/init.d/postfix start
 Starting postfix:                                          [  OK  ]
-
 
 # netstat -nap|grep :25
 tcp        0      0 127.0.0.1:25                0.0.0.0:*                   LISTEN

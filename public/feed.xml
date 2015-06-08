@@ -60,29 +60,23 @@ relay_domains = $mydestination
 &lt;br&gt;
 * CentOs 버전에 따라 sendmail이 설치 되어 있다면 이를 &lt;code&gt;chkconfig&lt;/code&gt; 로 확인 후 &lt;code&gt;postfix&lt;/code&gt;로 수정 해 주면 됩니다. &lt;/p&gt;
 
-&lt;p&gt;&lt;br&gt;
-```&lt;/p&gt;
+&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;# chkconfig postfix on
+# chkconfig --list postfix
+postfix         0:off   1:off   2:on    3:on    4:on    5:on    6:off
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
 
-&lt;h1&gt;chkconfig postfix on&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;이제 postfix 메일서버를 가동해 보고 25번 포트에서 리스닝 하는지 확인하자!!
+&lt;br&gt;&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;# /etc/init.d/postfix start
+Starting postfix:                                          [  OK  ]
 
-&lt;h1&gt;chkconfig --list postfix&lt;/h1&gt;
-
-&lt;p&gt;postfix         0:off   1:off   2:on    3:on    4:on    5:on    6:off
-&lt;code&gt;
-&amp;lt;br&amp;gt;&amp;lt;br&amp;gt;
-* 이제 postfix 메일서버를 가동해 보고 25번 포트에서 리스닝 하는지 확인하자!!
-&amp;lt;br&amp;gt;&amp;lt;br&amp;gt;
-&lt;/code&gt;&lt;/p&gt;
-
-&lt;h1&gt;/etc/init.d/postfix start&lt;/h1&gt;
-
-&lt;p&gt;Starting postfix:                                          [  OK  ]&lt;/p&gt;
-
-&lt;h1&gt;netstat -nap|grep :25&lt;/h1&gt;
-
-&lt;p&gt;tcp        0      0 127.0.0.1:25                0.0.0.0:*                   LISTEN
-```&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;# telnet localhost 25
+# netstat -nap|grep :25
+tcp        0      0 127.0.0.1:25                0.0.0.0:*                   LISTEN
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;# telnet localhost 25
 Trying 127.0.0.1...
 Connected to localhost.localdomain (127.0.0.1).
 Escape character is &amp;#39;^]&amp;#39;.
