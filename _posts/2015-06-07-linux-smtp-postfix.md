@@ -72,7 +72,7 @@ postfix         0:off   1:off   2:on    3:on    4:on    5:on    6:off
 
 <br><br>
 
-* 이제 postfix 메일서버를 가동해 보고 25번 포트에서 리스닝 하는지 확인하자!!
+* postfix를 실행시 킨 후 25번 포트가 정상적으로 떠있는지 확인합니다. 
 <br><br>
 
 ```
@@ -106,5 +106,5 @@ QUIT
 
 참조:
 
+* [http://www.rackspace.com/knowledge_center/article/basic-settings-in-the-postfix-maincf-file](http://www.rackspace.com/knowledge_center/article/basic-settings-in-the-postfix-maincf-file)
 * [http://postfix.state-of-mind.de/patrick.koetter/smtpauth/postfix_configuration.html](http://postfix.state-of-mind.de/patrick.koetter/smtpauth/postfix_configuration.html)
-* [http://fsteam.tistory.com/67](http://fsteam.tistory.com/67)
