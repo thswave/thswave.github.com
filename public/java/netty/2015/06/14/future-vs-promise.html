@@ -2,9 +2,9 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>java remove duplicates from list. (Java list에서 중복 요소 제거)</title>
+	<title>future vs promise</title>
 	
-	<meta name="description" content="java remove duplicates from list (Java list에서 중복 요소 제거)">
+	<meta name="description" content="future vs promise">
 	
 	<meta name="author" content="thswave">
 
@@ -144,7 +144,7 @@
 	</div>
 	<div class="col-sm-10 col-sm-offset-2">
 		<div class="page-header">
-  <h1>java remove duplicates from list. (Java list에서 중복 요소 제거) </h1>
+  <h1>future vs promise </h1>
 </div>
 	
 <article>
@@ -152,56 +152,66 @@
 	<div class="col-sm-10">
 	 <span class="post-date">
 	   
-	   March 
-	   1st,
-	     
+	   June 
+	   14th,
+	   
 	   2015
 	 </span>
 	  <div class="article_body">
-	  <p><em>본 포스트의 원문은 <a href="http://www.baeldung.com/java-remove-duplicates-from-list?utm_source=email-newsletter&amp;utm_medium=email&amp;utm_campaign=auto_36_java">http://www.baeldung.com</a>에서 확인할 수 있으며 원 저작자의 번역 포스팅 허락을 받았음을 알려드립니다.</em></p>
+	  <h3>Future VS  Promise</h3>
 
-<p>이번 예제는 List에서 중복 요소를 제거하는 방법에 대해 살펴보겠습니다. - 처음에는 plain java를 활요하여, 그리고 Guava를 활용하여 마지막으로 Java 8 의 Lambda 기반 해결법을 살펴보겠습니다. </p>
+<ul>
+<li> netty 기반 프로젝트를 진행하면서 java 8의 lamdba와 더불어 netty/play framework에서 제공하는 <code>future, promise</code>를 사용하고 있습니다. 막연하게 눈으로 코드를 봐오다 둘 의 차이를 알아야할 시점이 찾아와 조사해 보았습니다. future와 promise는 다른 언어에서 널리 사용되고 있으니 본 글에 나오는 설명이 부족하거나 틀린 부분이 있다면 의견 부탁드리겠습니다.
+<br></li>
+<li>future와 promise는 netty에 종속적인 기법/방법이 아닌 concurrent programming 언어에서 동기화에 사용되고 있습니다. </li>
+<li>좀 더 상세한 내용은 wiki <a href="https://en.wikipedia.org/wiki/Futures_and_promises">https://en.wikipedia.org/wiki/Futures<em>and</em>promises</a>에 있는 정의를 참고 하시면 될 것 같습니다.</li>
+</ul>
 
-<p>이 포스트는 Baeldung 사이트의 “<a href="http://www.baeldung.com/java-tutorial">Java – Back to Basic</a>” 시리즈입니다. </p>
+<blockquote>
+<p>Futures and promises
+In computer science, future, promise, and delay refer to constructs used for synchronization in some concurrent programming languages (생략)</p>
+</blockquote>
 
-<h1>1. plain java를 사용한 중복 요소 제거</h1>
+<p><br><br></p>
 
-<p>Java Collections 프레임워크 중 List에서 중복 요소를 제거하는것은 Set을 활용하면 됩니다.
-(Set 이 중복 요소를 저장하지 않기 때문에)</p>
+<ul>
+<li>scala에서도 역시 <code>future와 promise</code> 를 제공해주고 있습니다. </li>
+</ul>
 
-<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">givenListContainsDuplicates_whenRemovingDuplicatesWithPlainJava_thenCorrect</span><span class="o">()</span> <span class="o">{</span>
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithDuplicates</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithoutDuplicates</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;(</span><span class="k">new</span> <span class="n">HashSet</span><span class="o">&lt;&gt;(</span><span class="n">listWithDuplicates</span><span class="o">));</span>
- 
-    <span class="n">assertThat</span><span class="o">(</span><span class="n">listWithoutDuplicates</span><span class="o">,</span> <span class="n">hasSize</span><span class="o">(</span><span class="mi">4</span><span class="o">));</span>
-<span class="o">}</span></code></pre></div>
+<blockquote>
+<p>Futures provide a nice way to reason about performing many operations in parallel - in an efficient and non-blocking way. The idea is simple, a Future is a sort of a placeholder object that you can create for a result that does not yet exist. Generally, the result of the Future is computed concurrently and can be later collected. Composing concurrent tasks in this way tends to result in faster, asynchronous, non-blocking parallel code</p>
+</blockquote>
 
-<p>원래 리스트(listWithDuplicates)의 값은 중복값이 남아있습니다. </p>
+<ul>
+<li>요약하자면 <code>performing many operations in parallel</code> 병렬로 연산을 수행.  <code>non-blocking way</code> </li>
+<li><p>Future는 <code>create for a result that does not yet exist</code>지금은 존재하지 않는 값/결과를 만들어준다. 고 하는데 헷갈릴 수 있는데  즉, 병렬로 연산을 수행하고 그 결과가 생성된다고 보시면 될 것 같습니다.</p></li>
+<li><p>java에서도 future와 promise는 <code>java.util.concurrent</code> package 에서 찾아볼 수 있습니다.</p></li>
+<li><p>두 용어의 의미가 비슷하고 모호해서 다시 검색해보았습니다.  </p></li>
+</ul>
 
-<h1>2. Guava를 활용한 중복 요소 제거</h1>
+<blockquote>
+<p>a Future is essentially a read-only reference to a yet-to-be-computed value. A Promise is a pretty much the same except that you can write to it as well. In other words, you can read from both Futures and Promises, but you can only write to Promises. You can get the Future associated with a Promise by calling the future method on it, but conversion in the other direction is not possible (because it would be nonsensical).</p>
+</blockquote>
 
-<p>Guava를 통해 같은 방법으로 중복 요소 제거 가능합니다. </p>
+<ul>
+<li><p>참조: <a href="http://programmers.stackexchange.com/questions/207136/what-is-the-difference-between-a-future-and-a-promise">http://programmers.stackexchange.com/questions/207136/what-is-the-difference-between-a-future-and-a-promise</a></p></li>
+<li><p>Future : <code>a read-only reference</code>(읽기 전용) to a yet-to-be-computed value </p></li>
+<li><p>Promise : pretty much the same except that you <code>can write to it</code>(쓰기 가능) </p></li>
+<li><p>공통점은  <code>yet-to-be-computed value</code> 아직 계산되지 않은 값에 대한 레퍼런스 라는 점입니다.</p></li>
+<li><p>또 다른 답변을 살펴보면 좀 더 이해가 잘 될 것 같습니다.</p></li>
+</ul>
 
-<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">givenListContainsDuplicates_whenRemovingDuplicatesWithGuava_thenCorrect</span><span class="o">()</span> <span class="o">{</span>
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithDuplicates</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithoutDuplicates</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="n">Sets</span><span class="o">.</span><span class="na">newHashSet</span><span class="o">(</span><span class="n">listWithDuplicates</span><span class="o">));</span>
- 
-    <span class="n">assertThat</span><span class="o">(</span><span class="n">listWithoutDuplicates</span><span class="o">,</span> <span class="n">hasSize</span><span class="o">(</span><span class="mi">4</span><span class="o">));</span>
-<span class="o">}</span></code></pre></div>
+<blockquote>
+<p>The Promise and Future are complementary concepts. The Future is a value which will be retrieved, well, sometime in the future and you can do stuff with it when that event happens. It is, therefore, the read or out endpoint of a computation - it is something that you retrieve a value from.</p>
 
-<p>역시 원래의 리스트 값은 변화 없습니다. </p>
+<p>A Promise is, by analogy, the writing side of the computation. You create a promise which is the place where you&#39;ll put the result of the computation and from that promise you get a future that will be used to read the result that was put into the promise. When you&#39;ll complete a Promise, either by failure or success, you will trigger all the behavior which was attached to the associated Future.  </p>
+</blockquote>
 
-<h1>3. Java 8 Lambdas 를 활용한 중복 요소 제거</h1>
-
-<p>이제 마지막으로 <code>Lambdas</code> 를 활용한 새로운 방법을 살펴보겠습니다.;  Stream API 중 <em>고유한(distinct) 요소들로 구성된 stream을 반환 해주는 <code>distinct()</code> 메서드를 활용</em>한 방법을 살펴 보겠습니다. </p>
-
-<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kt">void</span> <span class="nf">givenListContainsDuplicates_whenRemovingDuplicatesWithJava8_thenCorrect</span><span class="o">()</span> <span class="o">{</span>
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithDuplicates</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">3</span><span class="o">);</span>
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">listWithoutDuplicates</span> <span class="o">=</span> 
-      <span class="n">listWithDuplicates</span><span class="o">.</span><span class="na">parallelStream</span><span class="o">().</span><span class="na">distinct</span><span class="o">().</span><span class="na">collect</span><span class="o">(</span><span class="n">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">());</span>
-<span class="o">}</span></code></pre></div>
-
-<p>위 예제에서 살펴본 3가지 간단한 방법을 통해 list의 중복 요소들을 제거할 수 있습니다. </p>
+<ul>
+<li><p>참조 : <a href="http://stackoverflow.com/questions/13381134/what-are-the-use-cases-of-scala-concurrent-promise">http://stackoverflow.com/questions/13381134/what-are-the-use-cases-of-scala-concurrent-promise</a></p></li>
+<li><p>Future : 이벤트 발생 시 사용할 수(읽을 수) 있는 어떤 값</p></li>
+<li><p>Promise : 연산의 결과를 넣어두고(쓰고) 이 결과 값을 읽을 수 있는 Future를 얻을 수 있습니다. 즉, Promise가 끝나고 나면 성공, 혹은 실패에 연결되어 있는 Future를 통해 특정 동작을 유발시킬 수 있다.</p></li>
+</ul>
 
 	  </div>
 
@@ -213,6 +223,11 @@
 			 
 				<li><a href="/categories.html#java-ref">
 					java <span>(12)</span>
+					,
+				</a></li>
+			 
+				<li><a href="/categories.html#netty-ref">
+					netty <span>(1)</span>
 					
 				</a></li>
 			
@@ -234,8 +249,22 @@
 				</li>
 			 
 				<li>
-					<a href="/tags.html#list-ref">
-					list <span>(3)</span>
+					<a href="/tags.html#netty-ref">
+					netty <span>(1)</span>
+					,
+					</a>
+				</li>
+			 
+				<li>
+					<a href="/tags.html#promise-ref">
+					promise <span>(1)</span>
+					,
+					</a>
+				</li>
+			 
+				<li>
+					<a href="/tags.html#future-ref">
+					future <span>(1)</span>
 					
 					</a>
 				</li>
@@ -250,7 +279,7 @@
 		<div>
       <section class="share col-sm-6">
         <h4 class="section-title">Share Post</h4>
-        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=java remove duplicates from list. (Java list에서 중복 요소 제거)&via=thswave"
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=future vs promise&via=thswave"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
           <i class="fa fa-twitter fa-lg"></i>
           Twitter
@@ -278,10 +307,10 @@
 
 		<ul class="pager">
 		  
-		  <li class="previous"><a href="/java/2015/02/23/java-input-stream-to-string.html" title="Java InputStream to String">&larr; Previous</a></li>
+		  <li class="previous"><a href="/linux/postfix/2015/06/07/linux-smtp-postfix.html" title="linux postfix를 활용한 mail 전송">&larr; Previous</a></li>
 		  
 		  
-		  <li class="next"><a href="/java/2015/03/01/java-remove-nulls-from-list.html" title="Java remove nulls from list (Java list에서 null 요소 제거)">Next &rarr;</a></li>
+			<li class="next disabled"><a>Next &rarr;</a>
 		  
 		</ul>
 

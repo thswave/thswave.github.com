@@ -7,6 +7,68 @@
 		<atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>future vs promise</title>
+				<description>&lt;h3&gt;Future VS  Promise&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt; netty 기반 프로젝트를 진행하면서 java 8의 lamdba와 더불어 netty/play framework에서 제공하는 &lt;code&gt;future, promise&lt;/code&gt;를 사용하고 있습니다. 막연하게 눈으로 코드를 봐오다 둘 의 차이를 알아야할 시점이 찾아와 조사해 보았습니다. future와 promise는 다른 언어에서 널리 사용되고 있으니 본 글에 나오는 설명이 부족하거나 틀린 부분이 있다면 의견 부탁드리겠습니다.
+&lt;br&gt;&lt;/li&gt;
+&lt;li&gt;future와 promise는 netty에 종속적인 기법/방법이 아닌 concurrent programming 언어에서 동기화에 사용되고 있습니다. &lt;/li&gt;
+&lt;li&gt;좀 더 상세한 내용은 wiki &lt;a href=&quot;https://en.wikipedia.org/wiki/Futures_and_promises&quot;&gt;https://en.wikipedia.org/wiki/Futures&lt;em&gt;and&lt;/em&gt;promises&lt;/a&gt;에 있는 정의를 참고 하시면 될 것 같습니다.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Futures and promises
+In computer science, future, promise, and delay refer to constructs used for synchronization in some concurrent programming languages (생략)&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;scala에서도 역시 &lt;code&gt;future와 promise&lt;/code&gt; 를 제공해주고 있습니다. &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Futures provide a nice way to reason about performing many operations in parallel - in an efficient and non-blocking way. The idea is simple, a Future is a sort of a placeholder object that you can create for a result that does not yet exist. Generally, the result of the Future is computed concurrently and can be later collected. Composing concurrent tasks in this way tends to result in faster, asynchronous, non-blocking parallel code&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+&lt;li&gt;요약하자면 &lt;code&gt;performing many operations in parallel&lt;/code&gt; 병렬로 연산을 수행.  &lt;code&gt;non-blocking way&lt;/code&gt; &lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Future는 &lt;code&gt;create for a result that does not yet exist&lt;/code&gt;지금은 존재하지 않는 값/결과를 만들어준다. 고 하는데 헷갈릴 수 있는데  즉, 병렬로 연산을 수행하고 그 결과가 생성된다고 보시면 될 것 같습니다.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;java에서도 future와 promise는 &lt;code&gt;java.util.concurrent&lt;/code&gt; package 에서 찾아볼 수 있습니다.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;두 용어의 의미가 비슷하고 모호해서 다시 검색해보았습니다.  &lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;a Future is essentially a read-only reference to a yet-to-be-computed value. A Promise is a pretty much the same except that you can write to it as well. In other words, you can read from both Futures and Promises, but you can only write to Promises. You can get the Future associated with a Promise by calling the future method on it, but conversion in the other direction is not possible (because it would be nonsensical).&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;참조: &lt;a href=&quot;http://programmers.stackexchange.com/questions/207136/what-is-the-difference-between-a-future-and-a-promise&quot;&gt;http://programmers.stackexchange.com/questions/207136/what-is-the-difference-between-a-future-and-a-promise&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Future : &lt;code&gt;a read-only reference&lt;/code&gt;(읽기 전용) to a yet-to-be-computed value &lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Promise : pretty much the same except that you &lt;code&gt;can write to it&lt;/code&gt;(쓰기 가능) &lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;공통점은  &lt;code&gt;yet-to-be-computed value&lt;/code&gt; 아직 계산되지 않은 값에 대한 레퍼런스 라는 점입니다.&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;또 다른 답변을 살펴보면 좀 더 이해가 잘 될 것 같습니다.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;The Promise and Future are complementary concepts. The Future is a value which will be retrieved, well, sometime in the future and you can do stuff with it when that event happens. It is, therefore, the read or out endpoint of a computation - it is something that you retrieve a value from.&lt;/p&gt;
+
+&lt;p&gt;A Promise is, by analogy, the writing side of the computation. You create a promise which is the place where you&amp;#39;ll put the result of the computation and from that promise you get a future that will be used to read the result that was put into the promise. When you&amp;#39;ll complete a Promise, either by failure or success, you will trigger all the behavior which was attached to the associated Future.  &lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;참조 : &lt;a href=&quot;http://stackoverflow.com/questions/13381134/what-are-the-use-cases-of-scala-concurrent-promise&quot;&gt;http://stackoverflow.com/questions/13381134/what-are-the-use-cases-of-scala-concurrent-promise&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Future : 이벤트 발생 시 사용할 수(읽을 수) 있는 어떤 값&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Promise : 연산의 결과를 넣어두고(쓰고) 이 결과 값을 읽을 수 있는 Future를 얻을 수 있습니다. 즉, Promise가 끝나고 나면 성공, 혹은 실패에 연결되어 있는 Future를 통해 특정 동작을 유발시킬 수 있다.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+				<pubDate>Sun, 14 Jun 2015 00:00:00 +0900</pubDate>
+				<link>/java/netty/2015/06/14/future-vs-promise.html</link>
+				<guid isPermaLink="true">/java/netty/2015/06/14/future-vs-promise.html</guid>
+			</item>
+		
+			<item>
 				<title>linux postfix를 활용한 mail 전송</title>
 				<description>&lt;h3&gt;postfix&lt;/h3&gt;
 
@@ -68,7 +130,7 @@ postfix         0:off   1:off   2:on    3:on    4:on    5:on    6:off
 &lt;p&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;이제 postfix 메일서버를 가동해 보고 25번 포트에서 리스닝 하는지 확인하자!!
+&lt;li&gt;postfix를 실행시 킨 후 25번 포트가 정상적으로 떠있는지 확인합니다. 
 &lt;br&gt;&lt;br&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;# /etc/init.d/postfix start
@@ -97,8 +159,8 @@ QUIT
 &lt;p&gt;참조:&lt;/p&gt;
 
 &lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.rackspace.com/knowledge_center/article/basic-settings-in-the-postfix-maincf-file&quot;&gt;http://www.rackspace.com/knowledge_center/article/basic-settings-in-the-postfix-maincf-file&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&quot;http://postfix.state-of-mind.de/patrick.koetter/smtpauth/postfix_configuration.html&quot;&gt;http://postfix.state-of-mind.de/patrick.koetter/smtpauth/postfix_configuration.html&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;http://fsteam.tistory.com/67&quot;&gt;http://fsteam.tistory.com/67&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
 				<pubDate>Sun, 07 Jun 2015 00:00:00 +0900</pubDate>
@@ -860,133 +922,6 @@ c) Future 인터페이스는 또다른 버전의 get() 메서드를 제공해 �
 				<pubDate>Sun, 12 Apr 2015 00:00:00 +0900</pubDate>
 				<link>/java/2015/04/12/threadpoolexecutor-callable-future.html</link>
 				<guid isPermaLink="true">/java/2015/04/12/threadpoolexecutor-callable-future.html</guid>
-			</item>
-		
-			<item>
-				<title>맥 OSX에서 IE 테스트</title>
-				<description>&lt;p&gt;&lt;code&gt;본 포스트는 (아직까지) IE 11(최신 버전)에서 테스트 하는 방법을 소개해 드리고자 합니다. 테스트 이외의 용도(ex&amp;gt; 쇼핑, 결재)는 부적합 한 방식임을 미리 알려드립니다.&lt;/code&gt;&lt;/p&gt;
-
-&lt;h3&gt;맥에서 IE 테스트하기&lt;/h3&gt;
-
-&lt;p&gt;맥에서 웹 서비스를 개발하면서 IE(Internet Explorer)를 테스트하는 건 정말 고역입니다. 개발자라면 한번쯤 IE를 없어졌으면 좋겠다는 생각을 한 번 쯤....을 넘어 매번 매순간 느끼실 겁니다.&lt;/p&gt;
-
-&lt;p&gt;만약 IE에서의 테스트를 해야한다면 몇가지 대안이 있습니다. &lt;/p&gt;
-
-&lt;h4&gt;1. &lt;a href=&quot;http://www.browserstack.com/&quot;&gt;VirtualBox&lt;/a&gt;, &lt;a href=&quot;http://www.vmware.com/&quot;&gt;VMWare&lt;/a&gt;, &lt;a href=&quot;http://www.microsoft.com/en-us/server-cloud/solutions/virtualization.aspx&quot;&gt;Hyper-V&lt;/a&gt; 와 같은 VM(Virtual Machine)에 IE 버전 별로 각각 설치후 테스트&lt;/h4&gt;
-
-&lt;p&gt;&lt;br&gt;
-장점: 윈도우와 똑같은 환경. 가장 일반적인 방법
-단점: 가상머신을 띄우는데 많은 메모리 소모. 여러대의 VM을 띄울경우 느려질 수 있음.
-기존 &lt;a href=&quot;https://www.modern.ie/virtualization-tools&quot;&gt;mordern.ie&lt;/a&gt; 에서 vm에 각 ie 버전 별로 설치된 이미지를 제공했으나 사용 기간이 정해져 있어 만기되면 다시 설치해야되는 불편함
-&lt;br&gt;
-&lt;br&gt;&lt;/p&gt;
-
-&lt;h4&gt;2. &lt;a href=&quot;http://www.browserstack.com/&quot;&gt;browserstack&lt;/a&gt;과 같은 브라우저 테스트 클라우드 서비스 이용&lt;/h4&gt;
-
-&lt;p&gt;&lt;br&gt;
-장점: IE뿐 아니라 OS별 브라우저 별 다양한 지원&lt;br&gt;
-단점: 영어 + &lt;code&gt;유료 (무료이용은 30분 시간제한)&lt;/code&gt;, 로컬 테스트의 번거로움
-&lt;br&gt;
-&lt;br&gt;&lt;/p&gt;
-
-&lt;h4&gt;3. 윈도우가 설치된 노트북 대여 후 테스트&lt;/h4&gt;
-
-&lt;p&gt;&lt;br&gt;
-장점: 설치가 필요없으므로 노트북을 대여 후 원격 접속&lt;br&gt;
-단점: 노트북을 추가로 구할 수 있는 환경(회사 차원 지원)적 제약사항
-&lt;br&gt;
-&lt;br&gt;&lt;/p&gt;
-
-&lt;h4&gt;4. &lt;em&gt;&lt;a href=&quot;http://remote.mordern.ie&quot;&gt;mordern.ie&lt;/a&gt; + &lt;a href=&quot;https://ngrok.com/&quot;&gt;ngrok&lt;/a&gt;&lt;/em&gt; 조합으로 &lt;code&gt;IE 11&lt;/code&gt; 테스트&lt;/h4&gt;
-
-&lt;p&gt;&lt;br&gt;
-지금부터 소개시켜 드릴 방법은 모든 IE 버전이 테스트 되는것도 아니고 만능은 아님을 미리 알려드립니다.&lt;br&gt;
-테스트 환경은 IE 11입니다.&lt;br&gt;
-현재는 최신 버전만 지원하지만 추후 다양한 버전을 테스트 환경으로 사용될 수 있을 것 같습니다.  &lt;/p&gt;
-
-&lt;h5&gt;1) &lt;a href=&quot;http://remote.mordern.ie&quot;&gt;mordern.ie&lt;/a&gt; 접속 및 sign in&lt;/h5&gt;
-
-&lt;p&gt;&lt;br&gt;
-&lt;img src=&quot;/assets/media/0405_1.png&quot; alt=&quot;0405_1.png&quot;&gt;&lt;br&gt;
-&lt;br&gt;
-아이디가 없다면 새로 가입해서 만드셔야 합니다.&lt;br&gt;
-가입 했다면 인증 메일이 몇 분후에 도착해서 활성화 시켜줍니다.&lt;br&gt;
-&lt;br&gt;
-&lt;img src=&quot;/assets/media/0405_2.png&quot; alt=&quot;0405_2.png&quot;&gt;&lt;br&gt;
-&lt;br&gt;
-로그인 하시면 remote desktop을 할 호스트 OS에 따른 설치 프로그램이 있습니다. 본 포스트는 mac을 기준으로 테스트 하지만 iphone/android 등 다양한 환경에서도 접속이 가능합니다.&lt;br&gt;
-&lt;br&gt;
-&lt;img src=&quot;/assets/media/0405_3.png&quot; alt=&quot;0405_3.png&quot;&gt;&lt;br&gt;
-&lt;br&gt;
-&lt;code&gt;Microsoft Remote Desktop for Mac&lt;/code&gt; 을 선택하면 &lt;a href=&quot;https://itunes.apple.com/us/app/microsoft-remote-desktop/id715768417&quot;&gt;Microsoft Remote Desktop&lt;/a&gt; 을 App Store에서 다운받아 설치합니다.&lt;br&gt;
-&lt;br&gt;
-&lt;img src=&quot;/assets/media/0405_4.png&quot; alt=&quot;0405_4.png&quot;&gt;
-&lt;br&gt;
-&lt;br&gt;
-앱 설치 후 실행 시키면 &lt;code&gt;Azure RemoteApp&lt;/code&gt; 을 선택하고 다시 한번 Microsoft 계정으로 로그인 합니다.&lt;br&gt;
-&lt;br&gt;
-&lt;img src=&quot;/assets/media/0405_5.png&quot; alt=&quot;0405_5.png&quot;&gt;&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
-그 후 Internet Exploer 체크 박스를 체크 해주고 닫아주면 목록에 &lt;code&gt;IE Technical Preview&lt;/code&gt; 앱이 생성 됩니다.&lt;br&gt;
-&lt;br&gt;
-&lt;img src=&quot;/assets/media/0405_6.png&quot; alt=&quot;0405_6.png&quot;&gt;
-&lt;img src=&quot;/assets/media/0405_7.png&quot; alt=&quot;0405_7.png&quot;&gt;&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
-접속하면 Internet Explorer 창이 보이고 &lt;code&gt;F12&lt;/code&gt; 키를 누르면 &lt;em&gt;개발자 도구&lt;/em&gt;를 열어볼 수 있습니다.&lt;br&gt;
-&lt;br&gt;
-&lt;img src=&quot;/assets/media/0405_8.png&quot; alt=&quot;0405_8.png&quot;&gt;
-&lt;img src=&quot;/assets/media/0405_9.png&quot; alt=&quot;0405_9.png&quot;&gt;
-&lt;br&gt;
-&lt;br&gt;
-IE에서 이제 테스트할 서비스 주소로 접속하면 됩니다. 하지만 remote 앱은 클라우드 환경에서 접속하기 때문에 local 테스트가 불가능 합니다. 그럼 local 앱을 외부에서도 접속할 수 있도록 프록시를 설정하거나 HTTP 터널을 설정해 주면 되는데 &lt;a href=&quot;https://ngrok.com/&quot;&gt;ngrok&lt;/a&gt;이 HTTP Tunnel을 대신해 주는 서비스 입니다.
-&lt;br&gt;&lt;/p&gt;
-
-&lt;h5&gt;2) &lt;a href=&quot;https://ngrok.com/&quot;&gt;ngrok&lt;/a&gt; 을 통한 local 서비스 HTTP 터널링&lt;/h5&gt;
-
-&lt;p&gt;&lt;br&gt;
-ngrok 사이트에가서 다운로드/설치 후&lt;br&gt;
-&lt;br&gt;&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;ngrok 80  # 80 대신 서비스가 떠있는 port 번호를 입력해도 됩니다.
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;&lt;br&gt;&lt;/p&gt;
-
-&lt;p&gt;실행하면 ngrok에서 http://4ec80ab0.ngrok.com 와 같은 주소를 넘겨줍니다. 이는 local이외 외부에서도 접속 가능합니다.&lt;br&gt;
-&lt;br&gt;
-&lt;img src=&quot;/assets/media/0405_10.png&quot; alt=&quot;0405_10.png&quot;&gt;
-&lt;br&gt;
-&lt;br&gt;
-ngrok에서 생성된 주소를 토대로 IE remote app에서 접속하여 테스트 하면 됩니다.&lt;/p&gt;
-
-&lt;p&gt;&lt;br&gt;
-&lt;img src=&quot;/assets/media/0405_11.png&quot; alt=&quot;0405_11.png&quot;&gt;
-&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;&lt;/p&gt;
-
-&lt;h3&gt;결론&lt;/h3&gt;
-
-&lt;p&gt;&lt;br&gt;&lt;/p&gt;
-
-&lt;h4&gt;장점&lt;/h4&gt;
-
-&lt;ul&gt;
-&lt;li&gt;별도의 VM 설치 없이 가볍게 IE 최신버전에서 테스트해볼 수 있습니다.&lt;/li&gt;
-&lt;li&gt;아직 개발이 진행중이므로 추후 IE 최신버전과 더불어 다양한 IE 버전을 테스트 해 볼 수 있을 것 같습니다.&lt;br&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4&gt;단점&lt;/h4&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;em&gt;웹서핑이나 결재는 불가능 합니다. acticeX 및 기타 플러그인 설치 불가능&lt;/em&gt; (결재를 위해 VM으로 IE 접속하고 있다보니 개인적으로 이부분이 가장 아쉽네요.)&lt;/li&gt;
-&lt;li&gt;아직까지 불안정합니다.(장시간 멈춤 현상)&lt;/li&gt;
-&lt;li&gt;로컬 테스트를 위해선 &lt;a href=&quot;https://ngrok.com/&quot;&gt;ngrok&lt;/a&gt;과 같은 별도의 HTTP가 필요합니다. &lt;/li&gt;
-&lt;/ul&gt;
-</description>
-				<pubDate>Sun, 05 Apr 2015 00:00:00 +0900</pubDate>
-				<link>/mac/2015/04/05/ie-test-mac-osx.html</link>
-				<guid isPermaLink="true">/mac/2015/04/05/ie-test-mac-osx.html</guid>
 			</item>
 		
 	</channel>
