@@ -2,9 +2,9 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>spring에서 json response 한글 깨짐</title>
+	<title>mybatis string parameter를 if문(test)에서 사용하는 방법</title>
 	
-	<meta name="description" content="spring에서 json response 한글 깨짐">
+	<meta name="description" content="mybatis string parameter를 if문(test)문에서 사용하는 방법">
 	
 	<meta name="author" content="thswave">
 
@@ -144,7 +144,7 @@
 	</div>
 	<div class="col-sm-10 col-sm-offset-2">
 		<div class="page-header">
-  <h1>spring에서 json response 한글 깨짐 </h1>
+  <h1>mybatis string parameter를 if문(test)에서 사용하는 방법 </h1>
 </div>
 	
 <article>
@@ -152,24 +152,50 @@
 	<div class="col-sm-10">
 	 <span class="post-date">
 	   
-	   February 
-	   22nd,
-	     
+	   June 
+	   18th,
+	   
 	   2015
 	 </span>
 	  <div class="article_body">
-	  <p>상황 : RESTful api 구현을 위해 @RestController에서 json객체를 produces를 application/json으로 설정 시 한글 깨짐</p>
+	  <ul>
+<li><p>mybatis로 개발하면서 알게 된 팁을 공유하고자 합니다. <em>주의: ibatis와 동작이 다를 수 있습니다.</em></p></li>
+<li><p>select 문 파라미터로 String을 매개변수로 넘기는 경우가 있습니다. </p></li>
+</ul>
+<div class="highlight"><pre><code class="language-text" data-lang="text">return selectList(&quot;A.selectXXX&quot;, &quot;StringParame&quot;);
+</code></pre></div>
+<ul>
+<li>이 때 쿼리에서 이 String 파라미터를 지칭/레펀런스 할 경우 임의의 이름으로 붙여도 정상동작 합니다.</li>
+</ul>
+<div class="highlight"><pre><code class="language-text" data-lang="text">&lt;select id=&quot;selectXXX&quot; parameterType=&quot;String&quot; resultType=&quot;resultType&quot;&gt;
+    SELECT a, b, c
+    FROM table
+    WHERE condition = #{anyName}
+&lt;/select&gt;
+</code></pre></div>
+<p><br></p>
 
-<p>the default charset of @ResponseBody is iso-8859-1, how to change to <code>utf8</code>.</p>
-
-<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/path&quot;</span><span class="o">,</span> <span class="n">produces</span><span class="o">=</span><span class="s">&quot;text/plain;charset=UTF-8&quot;</span><span class="o">)</span>
-<span class="kd">public</span> <span class="nd">@ResponseBody</span> <span class="n">String</span> <span class="nf">handlePath</span><span class="o">()</span> <span class="o">{</span>
-
-    <span class="o">.....</span>
-
-<span class="o">}</span></code></pre></div>
-
-<p>produces=&quot;text/plain;charset=UTF-8&quot;를 사용하여 응답 페이지에 대한 UTF-8 인코딩이 가능하여 한글 깨짐을 방지 할 수 있음.</p>
+<ul>
+<li>이 외에 추가적인 if 문(test)이 필요할 경우가 있는데 이 때는 넘어온 파라미터를 임의의 이름으로 지칭할 경우 예외가 발생합니다. </li>
+</ul>
+<div class="highlight"><pre><code class="language-text" data-lang="text">There is no getter for property named &#39;abc&#39; in &#39;class java.lang.String&#39;
+</code></pre></div>
+<ul>
+<li>해결책: <code>_parameter</code> 로 파라미터를 지칭할 수 있습니다.</li>
+</ul>
+<div class="highlight"><pre><code class="language-text" data-lang="text">&lt;select id=&quot;selectXXX&quot; parameterType=&quot;String&quot; resultType=&quot;resultType&quot;&gt;
+    SELECT a, b, c 
+    FROM table
+    &lt;where&gt;
+        &lt;if test = “ _parameter != null and _parameter.equals(&#39;aaa&#39;) &quot;&gt;
+        AND d = #{_parameter}
+        &lt;/if&gt;
+    &lt;/where&gt;
+&lt;/select&gt;
+</code></pre></div>
+<ul>
+<li>여기저기 찾아보니 <code>_parameter</code> is undocumented. MyBatis is a nice framework but, sadly, lacks on the documentation part 설명처럼 문서화가 부족한 부분이 있어 쉽게 해법을 찾지 못하고 헤멧던 것 같네요.</li>
+</ul>
 
 	  </div>
 
@@ -218,7 +244,7 @@
 		<div>
       <section class="share col-sm-6">
         <h4 class="section-title">Share Post</h4>
-        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=spring에서 json response 한글 깨짐&via=thswave"
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=mybatis string parameter를 if문(test)에서 사용하는 방법&via=thswave"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
           <i class="fa fa-twitter fa-lg"></i>
           Twitter
@@ -246,10 +272,10 @@
 
 		<ul class="pager">
 		  
-		  <li class="previous"><a href="/javascript/2015/02/15/javascript-basic-event.html" title="javascript 이벤트 핸들러 등록">&larr; Previous</a></li>
+		  <li class="previous"><a href="/java/netty/2015/06/14/future-vs-promise.html" title="future vs promise">&larr; Previous</a></li>
 		  
 		  
-		  <li class="next"><a href="/javascript/2015/02/22/under-ie9-trim.html" title="javascript trim() method">Next &rarr;</a></li>
+			<li class="next disabled"><a>Next &rarr;</a>
 		  
 		</ul>
 
