@@ -1,9 +1,9 @@
 ---
 layout: post
-title: Java Exception은 느리다.
+title: Java Exception 생성 비용이 비싸다.
 categories: [java, exception]
 tags: [java, exception]
-description: Java Exception은 느리다.
+description: Java Exception 생성 비용이 비싸다.
 ---
 
 
@@ -44,9 +44,23 @@ at sun.misc.CharacterDecoder.decodeBuffer(CharacterDecoder.java:194)
 ##### Caching an exception
 
 * stack trace를 가지지 않도록 Overriding 해둔 Exception이라면 `static final` 로 선언하고 일종의 상수 값 형태로 예외를 캐싱해두고 쓰는것이 매번 new로 생성하는 것보다 효율적입니다. new 로 매번 같은 종류의 예외를 생성하는건 비효율적이니까요.
-
-
-
-
-
-
+  
+  
+{% highlight java %}
+public class CustomException extends RuntimeException {
+	public static final CustomException INVALID_NICKNAME = new CustomException(ResponseType.INVALID_NICKNAME);
+	public static final CustomException INVALID_PARAMETER = new CustomException(ResponseType.INVALID_PARAMETER);
+	public static final CustomException INVALID_TOKEN = new CustomException(ResponseType.INVALID_TOKEN);
+	//생략
+}
+{% endhighlight %}
+  
+* Exception 클래스에 예외 상황에 대한 적당한 응답 메세지나 코드를 담도록 한 뒤 예외 발생 상황에서 `new` 키워드 없이 `throw` 합니다.
+  
+{% highlight java %}
+if (StringUtils.isBlank(parameter)) {
+	throw WebtoonCoreException.INVALID_PARAMETER;
+}
+{% endhighlight %}
+  
+* 이렇게 던진 예외를 프레임워크에서 핸들링 해주는 영역에서 처리하거나 호출 클래스로 넘겨 처리할 수 있습니다.
