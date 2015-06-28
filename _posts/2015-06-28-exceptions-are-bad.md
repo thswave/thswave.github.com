@@ -34,12 +34,22 @@ at sun.misc.CharacterDecoder.decodeBuffer(CharacterDecoder.java:163)
 at sun.misc.CharacterDecoder.decodeBuffer(CharacterDecoder.java:194)
 ```
 
+<br><br>
 
 ##### Overriding `fillInStackTrace` method
 
 * 예외라는 것은 NullPointException이나 OutOfMemory 와 같은 예외나 비정상적인 상태나 값에 대한  예외가 있지만 우리가 만든 Custom Exception은 값을 검사해 하위 비지니스 로직을 수행할 수 없어 이를 방지하기 위한 용도로 만들었기 때문에 사실 현재 값이 어떤 call stack을 가지는지에 대한 trace는 필요하지 않았습니다. 
 
-* exception stack trace는 `Throwable.fillInStackTrace` 메소드드를 통해 생성되므로 이를  아무런 trace도 가지지 않게 Override해둘 수 있습니다.
+* exception stack trace는 `Throwable.fillInStackTrace` 메소드를 통해 생성되므로 이를  아무런 trace도 가지지 않게 Override해둘 수 있습니다.
+
+{% highlight java %}
+@Override 
+public synchronized Throwable fillInStackTrace() {
+	return this;
+}
+{% endhighlight %}  
+
+<br><br>
 
 ##### Caching an exception
 
