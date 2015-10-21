@@ -8,7 +8,7 @@ description: object list subtract via CollectionUtils
 
 
 ### 상황 
-* String이나 primitive 타입이 아닌 리스트 List<A> 간 subtract가 필요했습니다.  
+* String이나 primitive 타입이 아닌 리스트 `List<A>` 간 subtract가 필요했습니다.  
 * 리스트 A와 리스트 B는 서로 다른 객체이지만 필드들이 같은 값을 가지고 있고 `equals()` 메소드도 Override  
 * 인터넷에 나와있는 대부분의 예시는 String이나 Primitive 타입(Integer, etc..)이라 `CollectionUtils.subtract(a, b)` 로 제거가 가능했지만 Object list는 제대로 차집합을 구하지 못해 여러차례 다른 방법 시도했습니다.
 
