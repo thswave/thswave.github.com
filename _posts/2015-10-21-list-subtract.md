@@ -1,6 +1,6 @@
 ---
 layout: post
-title: object list subtract 
+title: CollectionUtils object list subtract 
 categories: [java]
 tags: [java, list, subtract, removeAll, CollectionUtils]
 description: object list subtract via CollectionUtils
