@@ -17,7 +17,7 @@ GET /abc/hi
 
 * 위와 같은 형태의 uri를 `@RequestMapping("/abc/{id}")` 로 매핑할 경우 id가 숫자인지 문자인지 구분할 수 없어 적합한 매퍼로 연결할 수 없습니다.
 
-{% highlight java 
+{% highlight java %}
 
 @RequestMapping(value = "/abc/{id}", method = RequestMethod.GET)
 public void a(@PathVariable long id) {}
