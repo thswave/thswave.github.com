@@ -33,7 +33,7 @@ public void b(@PathVariable String name) {}
 
 * `정규식`!
 
-{% highlight java 
+{% highlight java %}
 
 @RequestMapping(value = "/abc/{id:[\\d]+}", method = RequestMethod.GET)
 public void a(@PathVariable long id) {}
