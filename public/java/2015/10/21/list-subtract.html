@@ -2,9 +2,9 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>fabric을 활용한 배포</title>
+	<title>CollectionUtils object list subtract</title>
 	
-	<meta name="description" content="fabric을 활용한 배포">
+	<meta name="description" content="object list subtract via CollectionUtils">
 	
 	<meta name="author" content="thswave">
 
@@ -144,7 +144,7 @@
 	</div>
 	<div class="col-sm-10 col-sm-offset-2">
 		<div class="page-header">
-  <h1>fabric을 활용한 배포 </h1>
+  <h1>CollectionUtils object list subtract </h1>
 </div>
 	
 <article>
@@ -152,112 +152,38 @@
 	<div class="col-sm-10">
 	 <span class="post-date">
 	   
-	   May 
-	   31st,
+	   October 
+	   21st,
 	     
 	   2015
 	 </span>
 	  <div class="article_body">
-	  <h3>fabric ?</h3>
+	  <h3>상황</h3>
 
 <ul>
-<li><a href="http://www.fabfile.org/">http://www.fabfile.org/</a> </li>
-<li><em>Fabric is a Python (2.5-2.7) library and command-line tool for streamlining the <code>use of SSH for application deployment or systems administration tasks</code></em></li>
-<li>빌드 서버에서 간단한 명령으로 배포 및 스크립트 실행과 같은 task 들을 실행 시켜주는 tool</li>
-<li>언제 유용할까? 빌드 서버에서 jenkins로 빌드한 후 빌드 결과물을 원격 서버로 배포(deploy)하고 원격 서버에서 서버의 재시작이나 기본적인 작업(task)를 수행하기 할 때 사용할 수 있다. 물론 빌드 서버에서 원격 서버로 ssh + scp 를 하는 스크립트를 만들어 할 수 있지만 python의 기능과 더불어 사용할 수 있기 때문에 좀 더 쉽게 배포 및 task 처리를 할 수 있습니다.
-<br></li>
-<li>command-line tool 이므로 jenkins 빌드 후 <code>execute shell</code>을 통해 fabric을 실행 시켜주면 됩니다.</li>
+<li>String이나 primitive 타입이 아닌 리스트 <code>List&lt;A&gt;</code> 간 subtract가 필요했습니다.<br></li>
+<li>리스트 A와 리스트 B는 서로 다른 객체이지만 필드들이 같은 값을 가지고 있고 <code>equals()</code> 메소드도 Override<br></li>
+<li>인터넷에 나와있는 대부분의 예시는 String이나 Primitive 타입(Integer, etc..)이라 <code>CollectionUtils.subtract(a, b)</code> 로 제거가 가능했지만 Object list는 제대로 차집합을 구하지 못해 여러차례 다른 방법 시도했습니다.</li>
 </ul>
 
-<h6>설치</h6>
+<h4>해결</h4>
 
 <ul>
-<li>설치가이드 : <a href="http://www.fabfile.org/installing.html">http://www.fabfile.org/installing.html</a></li>
+<li><code>List c = CollectionUtils.removeAll(listA, listB)</code><br></li>
+<li><code>removeAll()</code>의 경우 내부적으로 같은 아이템인지 확인하는 과정에 내부적으로 <code>equals()</code> 호출.</li>
+<li>removeAll 이란 이름에서 혹시 listA 에서 중복이 제거되지 않을까 싶지만 실제로는 <code>new ArrayList&lt;&gt;()</code> 로 새 리스트를 반환</li>
 </ul>
 
-<p><br></p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">pip install fabric
-# 또는 
-sudo apt-get install fabric
-</code></pre></div>
-<p><br>
-* Fabric requires Python version 2.5 - 2.7
-<br></p>
-
-<ul>
-<li>간단한 튜토리얼 : <a href="http://docs.fabfile.org/en/latest/tutorial.html">http://docs.fabfile.org/en/latest/tutorial.html</a> </li>
-<li>간단하게 설명드리면 <code>fabfile.py</code> 파일을 프로젝트 working directory에 만들어 둡니다.</li>
-</ul>
-
-<p><br></p>
-
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c">#!/usr/bin/env python</span>
-<span class="c"># -*- conding: utf-8 -*-</span>
-
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">with_statement</span>
-<span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">fabric.contrib.console</span> <span class="kn">import</span> <span class="n">confirm</span>
-<span class="kn">from</span> <span class="nn">StringIO</span> <span class="kn">import</span> <span class="n">StringIO</span>
-<span class="kn">import</span> <span class="nn">pprint</span>
-<span class="kn">import</span> <span class="nn">time</span>
-
-<span class="n">env</span><span class="o">.</span><span class="n">use_ssh_config</span> <span class="o">=</span> <span class="bp">True</span>
-
-<span class="n">env</span><span class="o">.</span><span class="n">roledefs</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s">&#39;dev&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;hosts&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;id@host&#39;</span><span class="p">],</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-
-<span class="k">def</span> <span class="nf">hello</span><span class="p">():</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Hello world!&quot;</span><span class="p">)</span></code></pre></div>
-
-<ul>
-<li><em>실행: fab + method 명</em></li>
-</ul>
-<div class="highlight"><pre><code class="language-text" data-lang="text">$ fab hello
-Hello world!
-
-Done.
-</code></pre></div>
-<ul>
-<li><em>argument 받기</em></li>
-</ul>
-
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># 생략..</span>
-
-<span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;world&quot;</span><span class="p">):</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Hello </span><span class="si">%s</span><span class="s">!&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span></code></pre></div>
-<div class="highlight"><pre><code class="language-text" data-lang="text">$ fab hello:name=Changwon
-Hello Changwon!
-
-Done.
-</code></pre></div>
-<ul>
-<li>프로젝트에 활용한 몇 가지 활용 사례를 예제와 함께 설명하겠습니다.
-<br>
-<br></li>
-</ul>
-
-<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">stop_tomcat</span><span class="p">():</span>
-    <span class="k">with</span> <span class="n">cd</span><span class="p">(</span><span class="s">&#39;/path/to/tomcat&#39;</span><span class="p">):</span>
-        <span class="n">run</span><span class="p">(</span><span class="s">&#39;./shutdown.sh&#39;</span><span class="p">)</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">upload_war</span><span class="p">():</span>
-    <span class="n">put</span><span class="p">(</span><span class="s">&#39;./target/WAR_FILE_NAME&#39;</span><span class="p">,</span> <span class="s">&#39;path/to/upload&#39;</span><span class="p">);</span>
-
-<span class="k">def</span> <span class="nf">execute_cmd</span><span class="p">():</span>
-    <span class="n">run</span><span class="p">(</span><span class="s">&#39;ln -s a b&#39;</span><span class="p">)</span>
-    <span class="n">run</span><span class="p">(</span><span class="s">&#39;mkdir -p /path/new/dir/test&#39;</span><span class="p">)</span></code></pre></div>
-
-<ul>
-<li>puth(a,b) : 빌드 서버의 a 파일을 원격 서버의 b 로 복사합니다. 디렉토리/파일 모두 가능합니다. </li>
-<li>run() : 메서드의 인자로 원격 서버에서 수행할 명령어를 넣어주면 됩니다.</li>
-<li><p>복잡하지 않고 간단하게 원하는 작업만 수행할 수 있는 점이 편리한 것 같습니다.</p></li>
-<li><p>ruby의 빌드/배포 툴인 <a href="http://capistranorb.com/">capistrano</a>를 활용할 수 있었지만 기존에 python으로 세팅되어 있어 굳이 capistrano를 설치하지 않고 python을 활용하게 되었습니다.</p></li>
-</ul>
+<div class="highlight"><pre><code class="language-java" data-lang="java"><span class="c1">// package org.apache.commons.collections4.ListUtils</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="nf">removeAll</span><span class="o">(</span><span class="kd">final</span> <span class="n">Collection</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="n">collection</span><span class="o">,</span> <span class="kd">final</span> <span class="n">Collection</span><span class="o">&lt;?&gt;</span> <span class="n">remove</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">E</span><span class="o">&gt;();</span>
+    <span class="k">for</span> <span class="o">(</span><span class="kd">final</span> <span class="n">E</span> <span class="n">obj</span> <span class="o">:</span> <span class="n">collection</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">remove</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">obj</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">obj</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">list</span><span class="o">;</span>
+<span class="o">}</span></code></pre></div>
 
 	  </div>
 
@@ -267,13 +193,8 @@ Done.
 		  
 		  
 			 
-				<li><a href="/categories.html#python-ref">
-					python <span>(1)</span>
-					,
-				</a></li>
-			 
-				<li><a href="/categories.html#fabric-ref">
-					fabric <span>(1)</span>
+				<li><a href="/categories.html#java-ref">
+					java <span>(15)</span>
 					
 				</a></li>
 			
@@ -288,15 +209,36 @@ Done.
 		  
 			 
 				<li>
-					<a href="/tags.html#python-ref">
-					python <span>(1)</span>
+					<a href="/tags.html#java-ref">
+					java <span>(16)</span>
 					,
 					</a>
 				</li>
 			 
 				<li>
-					<a href="/tags.html#fabric-ref">
-					fabric <span>(1)</span>
+					<a href="/tags.html#list-ref">
+					list <span>(4)</span>
+					,
+					</a>
+				</li>
+			 
+				<li>
+					<a href="/tags.html#subtract-ref">
+					subtract <span>(1)</span>
+					,
+					</a>
+				</li>
+			 
+				<li>
+					<a href="/tags.html#removeAll-ref">
+					removeAll <span>(1)</span>
+					,
+					</a>
+				</li>
+			 
+				<li>
+					<a href="/tags.html#CollectionUtils-ref">
+					CollectionUtils <span>(1)</span>
 					
 					</a>
 				</li>
@@ -311,7 +253,7 @@ Done.
 		<div>
       <section class="share col-sm-6">
         <h4 class="section-title">Share Post</h4>
-        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=fabric을 활용한 배포&via=thswave"
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=CollectionUtils object list subtract&via=thswave"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
           <i class="fa fa-twitter fa-lg"></i>
           Twitter
@@ -339,10 +281,10 @@ Done.
 
 		<ul class="pager">
 		  
-		  <li class="previous"><a href="/ruby/sinatra/2015/05/26/introduce-sinatra.html" title="sinatra를 활용한 간단한 서버 구축">&larr; Previous</a></li>
+		  <li class="previous"><a href="/java/exception/2015/06/28/exceptions-are-bad.html" title="Java Exception 생성 비용이 비싸다.">&larr; Previous</a></li>
 		  
 		  
-		  <li class="next"><a href="/linux/postfix/2015/06/07/linux-smtp-postfix.html" title="linux postfix를 활용한 mail 전송">Next &rarr;</a></li>
+		  <li class="next"><a href="/spring/java/2015/10/22/spring-requestmapping.html" title="Spring RequestMapping url with digit, string 구분 방법.">Next &rarr;</a></li>
 		  
 		</ul>
 
