@@ -2,9 +2,9 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>linux file size 0으로 만들기</title>
+	<title>java detect encoding</title>
 	
-	<meta name="description" content="linux file size 0으로 만들기 cat /dev/null > dest">
+	<meta name="description" content="java detect encoding">
 	
 	<meta name="author" content="thswave">
 
@@ -144,7 +144,7 @@
 	</div>
 	<div class="col-sm-10 col-sm-offset-2">
 		<div class="page-header">
-  <h1>linux file size 0으로 만들기 </h1>
+  <h1>java detect encoding </h1>
 </div>
 	
 <article>
@@ -152,16 +152,64 @@
 	<div class="col-sm-10">
 	 <span class="post-date">
 	   
-	   February 
-	   15th,
+	   January 
+	   8th,
 	   
-	   2015
+	   2016
 	 </span>
 	  <div class="article_body">
-	  <p>톰캣/아파치 로그가 쌓이고 있는데 log rotation을 하지 않는 상태에서 파일 사이즈만이라도 줄이고 싶을 수 있다.
-(만약 파일을 지울경우 로그가 더이상 쌓이지 않기 때문에 지우지 않는 상태에서 파일 내용만 지워야 하는 경우)</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">cat /dev/null &gt; dest
+	  <p>프로그램을 짜면서 온갖 한글 깨짐 현상을 경험해 보셨을겁니다. 
+한글이 깨지는 곳은 많지만 웹 개발을 하면서 자주 경험하는 곳은 <code>tomcat</code>, <code>html 페이지</code>, <code>DB</code> 정도 같습니다. 하지만 비교적 간단한 설정으로 해결할 수 있는것 같습니다.
+(ex&gt; tomcat은 Connector에서 URIEncoding, DB 스키마/테이블 인코딩 설정, DB connection url에서의 인코딩 명시 등등)
+오늘 알아볼 인코딩 탐지는 조금 특수한 케이스라 할 수 있습니다.</p>
+
+<p>** 파일에서 읽어들인 byte[]의 인코딩을 탐지하는 방법**</p>
+
+<ul>
+<li>사실 java 8 에서(이전 버전은 동일하지 않을 수 있습니다) 인코딩을 굳이 탐지 하지 않아도 자동으로 처리해 줍니다.</li>
+</ul>
+
+<p>String 생성자로 charset을 명시적으로 넘겨주기도 하지만 <code>String(byte[] bytes, Charset charset)</code>, byte[]만 넘겨줘도 내부적으로 인코딩을 탐지 해 줍니다. <code>String(byte[] bytes)</code>
+하지만 이렇게 생성된 String은 어떤 인코딩으로 처리되었는지 알수 없습니다.(알 수 있는 방법이 있다면 댓글 부탁드리겠습니다.) </p>
+
+<p>인코딩인지 탐지 라이브러리를 사용해서 알 수 있습니다.</p>
+
+<ul>
+<li>참조: <a href="http://mvnrepository.com/artifact/com.googlecode.juniversalchardet/juniversalchardet">http://mvnrepository.com/artifact/com.googlecode.juniversalchardet/juniversalchardet</a></li>
+</ul>
+
+<p>예제.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">private String detectCharset(byte[] bytes) {
+        UniversalDetector detector = new UniversalDetector(null);
+        detector.handleData(bytes, 0, bytes.length);
+        detector.dataEnd();
+        String detectedCharset = detector.getDetectedCharset();
+        if (detectedCharset != null &amp;&amp; detector.isDone() &amp;&amp; Charset.isSupported(detectedCharset)) {
+           return detectedCharset;
+        }
+    }
 </code></pre></div>
+<p>아주 간단한 예제로 작성되었지만 쉽게 이해하실 수 있습니다. </p>
+
+<h4>참고</h4>
+
+<ul>
+<li>encoding? charset? 무슨 차이인가?</li>
+</ul>
+
+<blockquote>
+<p>charset is the set of characters you can use
+encoding is the way these characters are stored into memory</p>
+</blockquote>
+
+<p><a href="http://stackoverflow.com/questions/2281646/whats-the-difference-between-encoding-and-charset">http://stackoverflow.com/questions/2281646/whats-the-difference-between-encoding-and-charset</a></p>
+
+<p>위 링크의 답변 중 특별한 사항이 있다면 javadoc에서 encoding을 charset로 잘못사용했다는 의견입니다.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">Note that javadoc wrongly uses &quot;charset&quot; instead of &quot;encoding&quot;, for example in InputStreamReader, we read &quot;An InputStreamReader is a bridge from byte streams to character streams: It reads bytes and decodes them into characters using a specified charset. The charset that it uses may be specified by name or may be given explicitly, or the platform&#39;s default charset may be accepted.&quot;. However, what they mean is &quot;encoding&quot;. –
+</code></pre></div>
+<p>Q. UTF-8은 encoding? charset?
+A. Encoding입니다. unicode를 표현하는 여러 인코딩 중 하나입니다.(UTF-16, UTF-8 등등)</p>
+
 	  </div>
 
 		
@@ -170,8 +218,8 @@
 		  
 		  
 			 
-				<li><a href="/categories.html#linux-ref">
-					linux <span>(4)</span>
+				<li><a href="/categories.html#java-ref">
+					java <span>(17)</span>
 					
 				</a></li>
 			
@@ -186,15 +234,22 @@
 		  
 			 
 				<li>
-					<a href="/tags.html#linux-ref">
-					linux <span>(3)</span>
+					<a href="/tags.html#java-ref">
+					java <span>(18)</span>
 					,
 					</a>
 				</li>
 			 
 				<li>
-					<a href="/tags.html#shell-ref">
-					shell <span>(1)</span>
+					<a href="/tags.html#encoding-ref">
+					encoding <span>(1)</span>
+					,
+					</a>
+				</li>
+			 
+				<li>
+					<a href="/tags.html#charset-ref">
+					charset <span>(1)</span>
 					
 					</a>
 				</li>
@@ -209,7 +264,7 @@
 		<div>
       <section class="share col-sm-6">
         <h4 class="section-title">Share Post</h4>
-        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=linux file size 0으로 만들기&via=thswave"
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=java detect encoding&via=thswave"
            onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
           <i class="fa fa-twitter fa-lg"></i>
           Twitter
@@ -237,10 +292,10 @@
 
 		<ul class="pager">
 		  
-		  <li class="previous"><a href="/network/2015/02/14/fiddler2-setting.html" title="fiddler2 피들러 설치방법">&larr; Previous</a></li>
+		  <li class="previous"><a href="/server/2015/11/17/jenkins-deploy-remote-server.html" title="jenkins에서 fabric을 활용한 원격 배포 remote deploy">&larr; Previous</a></li>
 		  
 		  
-		  <li class="next"><a href="/javascript/2015/02/15/javascript-basic-event.html" title="javascript 이벤트 핸들러 등록">Next &rarr;</a></li>
+			<li class="next disabled"><a>Next &rarr;</a>
 		  
 		</ul>
 

@@ -1,12 +1,4 @@
 ---
-published: true
-layout: post
-date: ""
-category: ""
-title: "2016-01-08-java-detect-encoding"
----
-
----
 layout: post
 title: java detect encoding
 categories: [java]

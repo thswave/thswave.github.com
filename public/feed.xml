@@ -7,6 +7,141 @@
 		<atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>java detect encoding</title>
+				<description>&lt;p&gt;프로그램을 짜면서 온갖 한글 깨짐 현상을 경험해 보셨을겁니다. 
+한글이 깨지는 곳은 많지만 웹 개발을 하면서 자주 경험하는 곳은 &lt;code&gt;tomcat&lt;/code&gt;, &lt;code&gt;html 페이지&lt;/code&gt;, &lt;code&gt;DB&lt;/code&gt; 정도 같습니다. 하지만 비교적 간단한 설정으로 해결할 수 있는것 같습니다.
+(ex&amp;gt; tomcat은 Connector에서 URIEncoding, DB 스키마/테이블 인코딩 설정, DB connection url에서의 인코딩 명시 등등)
+오늘 알아볼 인코딩 탐지는 조금 특수한 케이스라 할 수 있습니다.&lt;/p&gt;
+
+&lt;p&gt;** 파일에서 읽어들인 byte[]의 인코딩을 탐지하는 방법**&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;사실 java 8 에서(이전 버전은 동일하지 않을 수 있습니다) 인코딩을 굳이 탐지 하지 않아도 자동으로 처리해 줍니다.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;String 생성자로 charset을 명시적으로 넘겨주기도 하지만 &lt;code&gt;String(byte[] bytes, Charset charset)&lt;/code&gt;, byte[]만 넘겨줘도 내부적으로 인코딩을 탐지 해 줍니다. &lt;code&gt;String(byte[] bytes)&lt;/code&gt;
+하지만 이렇게 생성된 String은 어떤 인코딩으로 처리되었는지 알수 없습니다.(알 수 있는 방법이 있다면 댓글 부탁드리겠습니다.) &lt;/p&gt;
+
+&lt;p&gt;인코딩인지 탐지 라이브러리를 사용해서 알 수 있습니다.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;참조: &lt;a href=&quot;http://mvnrepository.com/artifact/com.googlecode.juniversalchardet/juniversalchardet&quot;&gt;http://mvnrepository.com/artifact/com.googlecode.juniversalchardet/juniversalchardet&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;예제.&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;private String detectCharset(byte[] bytes) {
+        UniversalDetector detector = new UniversalDetector(null);
+        detector.handleData(bytes, 0, bytes.length);
+        detector.dataEnd();
+        String detectedCharset = detector.getDetectedCharset();
+        if (detectedCharset != null &amp;amp;&amp;amp; detector.isDone() &amp;amp;&amp;amp; Charset.isSupported(detectedCharset)) {
+           return detectedCharset;
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;아주 간단한 예제로 작성되었지만 쉽게 이해하실 수 있습니다. &lt;/p&gt;
+
+&lt;h4&gt;참고&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;encoding? charset? 무슨 차이인가?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;charset is the set of characters you can use
+encoding is the way these characters are stored into memory&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://stackoverflow.com/questions/2281646/whats-the-difference-between-encoding-and-charset&quot;&gt;http://stackoverflow.com/questions/2281646/whats-the-difference-between-encoding-and-charset&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;위 링크의 답변 중 특별한 사항이 있다면 javadoc에서 encoding을 charset로 잘못사용했다는 의견입니다.&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;Note that javadoc wrongly uses &amp;quot;charset&amp;quot; instead of &amp;quot;encoding&amp;quot;, for example in InputStreamReader, we read &amp;quot;An InputStreamReader is a bridge from byte streams to character streams: It reads bytes and decodes them into characters using a specified charset. The charset that it uses may be specified by name or may be given explicitly, or the platform&amp;#39;s default charset may be accepted.&amp;quot;. However, what they mean is &amp;quot;encoding&amp;quot;. –
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Q. UTF-8은 encoding? charset?
+A. Encoding입니다. unicode를 표현하는 여러 인코딩 중 하나입니다.(UTF-16, UTF-8 등등)&lt;/p&gt;
+</description>
+				<pubDate>Fri, 08 Jan 2016 00:00:00 +0900</pubDate>
+				<link>/java/2016/01/08/java-detect-encoding.html</link>
+				<guid isPermaLink="true">/java/2016/01/08/java-detect-encoding.html</guid>
+			</item>
+		
+			<item>
+				<title>jenkins에서 fabric을 활용한 원격 배포 remote deploy</title>
+				<description>&lt;ul&gt;
+&lt;li&gt;Makefile&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;all:
+
+deploy: build
+    fab -R $(PROFILE) deploy:$(PROFILE)
+
+build: check-profile clean
+    sbt clean stage
+
+init: check-profile
+    fab -R $(PROFILE) init
+
+check-profile:
+ifndef PROFILE
+    $(error PROFILE is undefined)
+endif
+
+clean: clean-target
+
+clean-target:
+    rm -rf target
+
+.PHONY: clean-deploy clean-target check-profile
+
+# vim:noet
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+				<pubDate>Tue, 17 Nov 2015 00:00:00 +0900</pubDate>
+				<link>/server/2015/11/17/jenkins-deploy-remote-server.html</link>
+				<guid isPermaLink="true">/server/2015/11/17/jenkins-deploy-remote-server.html</guid>
+			</item>
+		
+			<item>
+				<title>linux 에서 java 프로그램 시작 시 pid 알아내기</title>
+				<description>&lt;h3&gt;상황&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;웹 서비스가 아닌 일반 자바 프로그램을 CI 서버에 연동하는 과정에서 tomcat이나 play framework 처럼 start, stop으로 프로세스를 정지, 실행 시켜야 했습니다.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;grep&lt;/code&gt; 으로 pid를 찾을 수 도 있지만 이는 100% 정확하다고 보장할 수 없기 때문에 프로그램이 시작되고 할당 받는 pid를 알아낼 방법이 필요했습니다. &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4&gt;해결&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;자바 프로그램 실행 직후 &lt;code&gt;echo &amp;quot;$!&amp;quot; &amp;gt; test.pid&lt;/code&gt; 를 통해 pid를 알아낼 수 있습니다. &lt;/li&gt;
+&lt;li&gt;start, stop이 되도록 shell script 작성.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;#!/bin/bash
+
+PID_FILE=&amp;quot;$(pwd)/test.pid&amp;quot;
+
+case &amp;quot;$1&amp;quot; in
+start)
+  nohup java -jar test.jar &amp;amp;
+  echo &amp;quot;$!&amp;quot; &amp;gt; $PID_FILE
+  echo STARTED
+  ;;
+stop)
+  if [ -f $PID_FILE ]; then
+    kill `cat $PID_FILE`
+    echo &amp;quot;STOPPED&amp;quot;
+    rm $PID_FILE
+  else
+    echo &amp;quot;It seems that the process isn&amp;#39;t running.&amp;quot;
+  fi
+  ;;
+esac
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+				<pubDate>Tue, 17 Nov 2015 00:00:00 +0900</pubDate>
+				<link>/java/linux/2015/11/17/how-to-know-java-pid-when-start.html</link>
+				<guid isPermaLink="true">/java/linux/2015/11/17/how-to-know-java-pid-when-start.html</guid>
+			</item>
+		
+			<item>
 				<title>git hook 을 활용한 pre commit, pre push</title>
 				<description>&lt;h3&gt;git hook&lt;/h3&gt;
 
@@ -409,296 +544,6 @@ QUIT
 				<pubDate>Sun, 07 Jun 2015 00:00:00 +0900</pubDate>
 				<link>/linux/postfix/2015/06/07/linux-smtp-postfix.html</link>
 				<guid isPermaLink="true">/linux/postfix/2015/06/07/linux-smtp-postfix.html</guid>
-			</item>
-		
-			<item>
-				<title>fabric을 활용한 배포</title>
-				<description>&lt;h3&gt;fabric ?&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;http://www.fabfile.org/&quot;&gt;http://www.fabfile.org/&lt;/a&gt; &lt;/li&gt;
-&lt;li&gt;&lt;em&gt;Fabric is a Python (2.5-2.7) library and command-line tool for streamlining the &lt;code&gt;use of SSH for application deployment or systems administration tasks&lt;/code&gt;&lt;/em&gt;&lt;/li&gt;
-&lt;li&gt;빌드 서버에서 간단한 명령으로 배포 및 스크립트 실행과 같은 task 들을 실행 시켜주는 tool&lt;/li&gt;
-&lt;li&gt;언제 유용할까? 빌드 서버에서 jenkins로 빌드한 후 빌드 결과물을 원격 서버로 배포(deploy)하고 원격 서버에서 서버의 재시작이나 기본적인 작업(task)를 수행하기 할 때 사용할 수 있다. 물론 빌드 서버에서 원격 서버로 ssh + scp 를 하는 스크립트를 만들어 할 수 있지만 python의 기능과 더불어 사용할 수 있기 때문에 좀 더 쉽게 배포 및 task 처리를 할 수 있습니다.
-&lt;br&gt;&lt;/li&gt;
-&lt;li&gt;command-line tool 이므로 jenkins 빌드 후 &lt;code&gt;execute shell&lt;/code&gt;을 통해 fabric을 실행 시켜주면 됩니다.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h6&gt;설치&lt;/h6&gt;
-
-&lt;ul&gt;
-&lt;li&gt;설치가이드 : &lt;a href=&quot;http://www.fabfile.org/installing.html&quot;&gt;http://www.fabfile.org/installing.html&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;br&gt;&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;pip install fabric
-# 또는 
-sudo apt-get install fabric
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;&lt;br&gt;
-* Fabric requires Python version 2.5 - 2.7
-&lt;br&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;간단한 튜토리얼 : &lt;a href=&quot;http://docs.fabfile.org/en/latest/tutorial.html&quot;&gt;http://docs.fabfile.org/en/latest/tutorial.html&lt;/a&gt; &lt;/li&gt;
-&lt;li&gt;간단하게 설명드리면 &lt;code&gt;fabfile.py&lt;/code&gt; 파일을 프로젝트 working directory에 만들어 둡니다.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;br&gt;&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;c&quot;&gt;#!/usr/bin/env python&lt;/span&gt;
-&lt;span class=&quot;c&quot;&gt;# -*- conding: utf-8 -*-&lt;/span&gt;
-
-&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;__future__&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;with_statement&lt;/span&gt;
-&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;fabric.api&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;
-&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;fabric.contrib.console&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;confirm&lt;/span&gt;
-&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;StringIO&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;StringIO&lt;/span&gt;
-&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;pprint&lt;/span&gt;
-&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;time&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;use_ssh_config&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;roledefs&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;&amp;#39;dev&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;s&quot;&gt;&amp;#39;hosts&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;id@host&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;hello&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Hello world!&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;em&gt;실행: fab + method 명&lt;/em&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;$ fab hello
-Hello world!
-
-Done.
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;em&gt;argument 받기&lt;/em&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;c&quot;&gt;# 생략..&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;hello&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;world&amp;quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Hello &lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%s&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;!&amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;$ fab hello:name=Changwon
-Hello Changwon!
-
-Done.
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;ul&gt;
-&lt;li&gt;프로젝트에 활용한 몇 가지 활용 사례를 예제와 함께 설명하겠습니다.
-&lt;br&gt;
-&lt;br&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-python&quot; data-lang=&quot;python&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;stop_tomcat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;/path/to/tomcat&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;./shutdown.sh&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sleep&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;upload_war&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;put&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;./target/WAR_FILE_NAME&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&amp;#39;path/to/upload&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;execute_cmd&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;ln -s a b&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;run&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;#39;mkdir -p /path/new/dir/test&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;ul&gt;
-&lt;li&gt;puth(a,b) : 빌드 서버의 a 파일을 원격 서버의 b 로 복사합니다. 디렉토리/파일 모두 가능합니다. &lt;/li&gt;
-&lt;li&gt;run() : 메서드의 인자로 원격 서버에서 수행할 명령어를 넣어주면 됩니다.&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;복잡하지 않고 간단하게 원하는 작업만 수행할 수 있는 점이 편리한 것 같습니다.&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;ruby의 빌드/배포 툴인 &lt;a href=&quot;http://capistranorb.com/&quot;&gt;capistrano&lt;/a&gt;를 활용할 수 있었지만 기존에 python으로 세팅되어 있어 굳이 capistrano를 설치하지 않고 python을 활용하게 되었습니다.&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-				<pubDate>Sun, 31 May 2015 00:00:00 +0900</pubDate>
-				<link>/python/fabric/2015/05/31/introduce-fabric.html</link>
-				<guid isPermaLink="true">/python/fabric/2015/05/31/introduce-fabric.html</guid>
-			</item>
-		
-			<item>
-				<title>sinatra를 활용한 간단한 서버 구축</title>
-				<description>&lt;h3&gt;Sinatra&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;a href=&quot;http://www.sinatrarb.com/intro-ko.html&quot;&gt;Sinatra 한글 홈페이지&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;외부 서버와 통신이 필요한데 어떤 이유(로컬에서 연결이 안된다거나, 외부 서버가 아직 미구현 단계이거나)에 의해 이를 대신할 서버가 필요한 경우가 있습니다.&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;만약 여러분이 간단하면서도 빠르게 이 외부서버를 대체할 임시 목(mock) 서버를 구축해야 하다면 어떻게 만드시겠습니까?&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;로컬 환경에서 개발하면서 외부 서버를 대체할 목 서버를 위해 스프링을 쓴다거나 아니면 톰켓에 띄우기 위해 Servlet을 구현하고 이를 서버로 띄우는 건 개인적으로 번거롭다는 생각이 듭니다.  단지 원하는건 &lt;code&gt;특정 요청에 대한 특정 응답&lt;/code&gt;만 필요하기 때문에 무언가 부가 작업이 많이 들고 번거로움이 앞서기 때문입니다.&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;다양한 경량 웹서버가 많이 소개되어 있지만 개인적으로 &lt;a href=&quot;http://www.sinatrarb.com/&quot;&gt;Sinatra&lt;/a&gt; 활용하여 목 서버 역활을 하도록 구현했습니다. &lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;&lt;a href=&quot;http://sparkjava.com/&quot;&gt;java의 spark&lt;/a&gt;나 , &lt;a href=&quot;http://flask.pocoo.org/&quot;&gt;python flask&lt;/a&gt;, node 등을 활용할 수 있으니 언어나 개인적 취향에 맞춰 선택할 수 있습니다. 
-&lt;br&gt;&lt;br&gt;&lt;/p&gt;
-
-&lt;h4&gt;Sinatra?&lt;/h4&gt;
-
-&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;&lt;code&gt;quickly&lt;/code&gt; creating web applications in Ruby with &lt;code&gt;minimal effort&lt;/code&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;Sinatra는 위 설명에서 알 수 있듯 빠르고 쉽게 만들 수 있음이 특징입니다.
-&lt;br&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;ruby gem이 설치되어 있다고 가정하겠습니다. sinatra 설치는 다음과 같습니다. 만약 gem이 설치되어 있지 않다면 &lt;code&gt;gem install&lt;/code&gt; 검색 하시면 됩니다.
-&lt;br&gt;
-&lt;code&gt;
-gem install siantra
-&lt;/code&gt;
-&lt;br&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;파일을 하나 만들고 (ex&amp;gt; mock.rb) 다음과 같이 작성합니다.
-&lt;br&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# mock.rb file&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;sinatra&amp;#39;&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;/&amp;#39;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
-  &lt;span class=&quot;s1&quot;&gt;&amp;#39;Hello world!&amp;#39;&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;&lt;br&gt;
-* 콘솔에서 다음과 같이 실행하면 기본 4567 포트로 웹 서버가 뜹니다.&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;ruby mock.rb
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;ul&gt;
-&lt;li&gt;저 같은 경우 특정 url 응답으로 json 필요해 아래와 같이 사용했습니다. &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# mock.rb file&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;sinatra&amp;#39;&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;json&amp;#39;&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;/url&amp;#39;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt;
-  &lt;span class=&quot;n&quot;&gt;content_type&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:json&lt;/span&gt;
-  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:key1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;value1&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:key2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;value2&amp;#39;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;to_json&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;get뿐만 아니라 post, patch, delete 등 다양한 method를 사용할 수 있습니다. 공식 홈페이지에 다양한 사용법이 설명되어있으니 참고하시면 됩니다.   &lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;사실 sinatra는 간단한 웹서버 뿐 아니라 정말 다양한 방법으로 응용할 수 있습니다. 경량 웹서버로 쓰거나 RESTful 방식으로 쓸 수도 있고 활용법은 정말 다양합니다. &lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-				<pubDate>Tue, 26 May 2015 00:00:00 +0900</pubDate>
-				<link>/ruby/sinatra/2015/05/26/introduce-sinatra.html</link>
-				<guid isPermaLink="true">/ruby/sinatra/2015/05/26/introduce-sinatra.html</guid>
-			</item>
-		
-			<item>
-				<title>Strategy Pattern using Lambda Expressions in Java 8</title>
-				<description>&lt;h3&gt;Strategy Pattern&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;전략 패턴 : 어떤 알고리즘을 위한 전략을 정의하는 인터페이스를 정의한다. 상호 교환 가능한 클래스군이 인터페이스를 구현하며, 하나의 클래스는 하나의 알고리즘을 나타낸다. &lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;Strategy : 알고리즘으로의 접근을 허용하는 인터페이스&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;Concrete Strategy : Strategy 인터페이스를 따라 특정 알고리즘을 구현한다.&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;Context : Strategy 인터페이스를 통해 알고리즘을 사용한다.&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;img src=&quot;/assets/media/0517_1.png&quot; alt=&quot;0517_1.png&quot;&gt;  &lt;/p&gt;
-
-&lt;p&gt;JDK 에도 전략 패턴을 찾아볼 수 있다. Collection.sort(List, Comparator) 메서드에서 Comparator 가 전략에 해당하고 Collection.sort() 가 Context에 해당한다.&lt;br&gt;
-또 다른 예는 java.util.Arrays#sort(T[], Comparator &amp;lt; ? super T&amp;gt; c) 메서드가 Collection.sort() 메서드와 List라는 점만 제와하고 유사하다.&lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Strategy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;strategy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-
-&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;FirstStratgey&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Strategy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-
-  &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
-  &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;strategy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;strategy 1&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-  
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SecondStratgey&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;implements&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Strategy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-
-  &lt;span class=&quot;nd&quot;&gt;@Override&lt;/span&gt;
-  &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;strategy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;another strategy&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-  
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;StartegyPatternOldWay&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-
-  &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Strategy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;strategies&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 
-        &lt;span class=&quot;n&quot;&gt;Arrays&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;asList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
-          &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;FirstStratgey&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(),&lt;/span&gt; 
-          &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;SecondStratgey&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-                      
-    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Strategy&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;stg&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;strategies&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;){&lt;/span&gt;
-      &lt;span class=&quot;n&quot;&gt;stg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;strategy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
- 
-
-&lt;p&gt;&lt;br&gt;
-&lt;br&gt;&lt;/p&gt;
-
-&lt;h3&gt;Strategy Pattern in Java 8&lt;/h3&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;java.util.Arrays&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;java.util.List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
-
-&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;StrategyPattern&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    
-    &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Strategy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;strategies&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; 
-      &lt;span class=&quot;n&quot;&gt;Arrays&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;asList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;strategy 1&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);},&lt;/span&gt;
-        &lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;strategy 2&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);}&lt;/span&gt;
-      &lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
-    
-    &lt;span class=&quot;n&quot;&gt;strategies&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;forEach&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;elem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;elem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;strategy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
-  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-  
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
- 
-
-&lt;p&gt;&lt;br&gt;
-&lt;br&gt;
-기존 자바 에서는 매개변수로 원시 값, 객체만 넘길 수 있었기 때문에 어떤 메서드(동작)는 넘길 수 없다.
-예를 들어 데이터를 정렬하기 위해 특성에 따라 다른 정렬 알고리즘을 적용하고 싶을 경우 전략패턴을 사용할 수 있을것이다. 전략패턴의 핵심은 인터페이스로 메서드를 추상화하는 것이라 볼 수 있다. &lt;/p&gt;
-
-&lt;p&gt;Java 8에서 동작(메서드)를 정의하고 이를 매개변수로 넘길 수 있는 lambda 가 소개 되어 경우에 따라 인터페이스 생성을 생략할 수 도 있다. 람다식으로 특정 행위를 매개변수로 넘기기만 하면 Context에서 이를 활용할 수 있기 때문이다. &lt;/p&gt;
-
-&lt;h3&gt;How Scala killed the Strategy Pattern&lt;/h3&gt;
-
-&lt;p&gt;스칼라에서 전략패턴은 사실상 아주 간결하게 표현할 수 있다. 아래 예제에서는 알고리즘(여기서는 간단한 사칙연산)을 매개변수로 넘겨준다. &lt;/p&gt;
-
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-scala&quot; data-lang=&quot;scala&quot;&gt;&lt;span class=&quot;k&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;DeathToStrategy&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;App&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
- 
-  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;subtract&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;
-  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;multiply&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;
-   
-  &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;execute&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;callback&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;Int&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;callback&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
- 
-  &lt;span class=&quot;n&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Add:      &amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;execute&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
-  &lt;span class=&quot;n&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Subtract: &amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;execute&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;subtract&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
-  &lt;span class=&quot;n&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Multiply: &amp;quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;execute&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;multiply&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
- 
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
- 
-
-&lt;p&gt;&lt;br&gt;&lt;/p&gt;
-
-&lt;h3&gt;DI는 전략 패턴?&lt;/h3&gt;
-
-&lt;p&gt;&lt;br&gt;
-의존성을 외부(클라이언트)에서 주입하는 측면에서 볼 때 전략 패턴과 DI(Dependency Injection)은 닮았다고 볼 수 있다. 전략 패턴은 의존성 객체의 lifetime에 걸쳐 상호 교환되도록 의도 되었고, DI의 경우 한 의존 instance를 주입하곤 한다. &lt;/p&gt;
-
-&lt;h5&gt;참조&lt;/h5&gt;
-
-&lt;p&gt;(http://en.wikipedia.org/wiki/Dependency&lt;em&gt;injection)[http://en.wikipedia.org/wiki/Dependency&lt;/em&gt;injection]&lt;/p&gt;
-</description>
-				<pubDate>Sun, 17 May 2015 00:00:00 +0900</pubDate>
-				<link>/mac/2015/05/17/strategy-pattern-in-java8-lambda.html</link>
-				<guid isPermaLink="true">/mac/2015/05/17/strategy-pattern-in-java8-lambda.html</guid>
 			</item>
 		
 	</channel>

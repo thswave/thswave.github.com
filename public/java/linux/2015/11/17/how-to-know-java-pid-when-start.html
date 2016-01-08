@@ -2,7 +2,9 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title></title>
+	<title>linux 에서 java 프로그램 시작 시 pid 알아내기</title>
+	
+	<meta name="description" content="linux 에서 java 프로그램 시작 시 pid 알아내기">
 	
 	<meta name="author" content="thswave">
 
@@ -142,184 +144,170 @@
 	</div>
 	<div class="col-sm-10 col-sm-offset-2">
 		<div class="page-header">
-  <h1> </h1>
+  <h1>linux 에서 java 프로그램 시작 시 pid 알아내기 </h1>
 </div>
+	
+<article>
 
+	<div class="col-sm-10">
+	 <span class="post-date">
+	   
+	   November 
+	   17th,
+	   
+	   2015
+	 </span>
+	  <div class="article_body">
+	  <h3>상황</h3>
 
-
-<article class="home">
-
-  <span class="post-date">
-    
-    February
-    15th,
-    
-    2015
-  </span>
-
-  <h2>
-    <a href="/linux/2015/02/15/filesize-to-zero.html">linux file size 0으로 만들기</a>
-  </h2>
-
-  <div>
-    
-    
-    linux file size 0으로 만들기 cat /dev/null > dest
-    
-    
-  </div>
-
-</article>
-
-
-<article class="home">
-
-  <span class="post-date">
-    
-    February
-    14th,
-    
-    2015
-  </span>
-
-  <h2>
-    <a href="/network/2015/02/14/fiddler2-setting.html">fiddler2 피들러 설치방법</a>
-  </h2>
-
-  <div>
-    
-    
-    fiddler 피들러 설치방법, 모바일 패킷 피들러로 잡기
-    
-    
-  </div>
-
-</article>
-
-
-<article class="home">
-
-  <span class="post-date">
-    
-    February
-    14th,
-    
-    2015
-  </span>
-
-  <h2>
-    <a href="/database/2015/02/14/delete-truncate-differece.html">truncate 와 delete 차이점.</a>
-  </h2>
-
-  <div>
-    
-    
-    truncate 와 delete 차이점.
-    
-    
-  </div>
-
-</article>
-
-
-<article class="home">
-
-  <span class="post-date">
-    
-    February
-    2nd,
-    
-    2015
-  </span>
-
-  <h2>
-    <a href="/spring/2015/02/02/spring-mvc-annotaion.html">스프링 &lt;context:component-scan&gt; 분석</a>
-  </h2>
-
-  <div>
-    
-    
-    스프링 &lt;context:component-scan&gt; 분석
-    
-    
-  </div>
-
-</article>
-
-
-<article class="home">
-
-  <span class="post-date">
-    
-    February
-    1st,
-    
-    2015
-  </span>
-
-  <h2>
-    <a href="/linux/2015/02/01/logrotate.html">logrotate</a>
-  </h2>
-
-  <div>
-    
-    
-    로그 로테이트, 아파치 로그 파일을 주기적으로(하루 단위로 rotation) 압축하여 일 별 관리하고 싶을 경우
-    
-    
-  </div>
-
-</article>
-
-
-<article class="home">
-
-  <span class="post-date">
-    
-    February
-    1st,
-    
-    2015
-  </span>
-
-  <h2>
-    <a href="/javascript/2015/02/01/javascript-date.html">javascript 날짜 계산 Date 사용법</a>
-  </h2>
-
-  <div>
-    
-    
-    javascript 날짜 계산 Date 사용법
-    
-    
-  </div>
-
-</article>
-
-<hr/>
-
-<ul class="pager"> 
-
-  
-  <li class="previous">
-    
-    <a href="/page3">&larr; Newer</a>
-    
-  </li>
-  
-  
-  <li>
-    <span class="page_number">Page: 4 of 4</span>
-  </li>
-
-  
-  <li class="next disabled">
-    <a>Older &rarr;</a>        
-  </li>
-  
-
+<ul>
+<li>웹 서비스가 아닌 일반 자바 프로그램을 CI 서버에 연동하는 과정에서 tomcat이나 play framework 처럼 start, stop으로 프로세스를 정지, 실행 시켜야 했습니다.</li>
+<li><code>grep</code> 으로 pid를 찾을 수 도 있지만 이는 100% 정확하다고 보장할 수 없기 때문에 프로그램이 시작되고 할당 받는 pid를 알아낼 방법이 필요했습니다. </li>
 </ul>
 
+<h4>해결</h4>
+
+<ul>
+<li>자바 프로그램 실행 직후 <code>echo &quot;$!&quot; &gt; test.pid</code> 를 통해 pid를 알아낼 수 있습니다. </li>
+<li>start, stop이 되도록 shell script 작성.</li>
+</ul>
+<div class="highlight"><pre><code class="language-text" data-lang="text">#!/bin/bash
+
+PID_FILE=&quot;$(pwd)/test.pid&quot;
+
+case &quot;$1&quot; in
+start)
+  nohup java -jar test.jar &amp;
+  echo &quot;$!&quot; &gt; $PID_FILE
+  echo STARTED
+  ;;
+stop)
+  if [ -f $PID_FILE ]; then
+    kill `cat $PID_FILE`
+    echo &quot;STOPPED&quot;
+    rm $PID_FILE
+  else
+    echo &quot;It seems that the process isn&#39;t running.&quot;
+  fi
+  ;;
+esac
+</code></pre></div>
+	  </div>
+
+		
+		<ul class="tag_box list-unstyled list-inline">
+		  <li><i class="fa fa-folder-open"></i></li>
+		  
+		  
+			 
+				<li><a href="/categories.html#java-ref">
+					java <span>(17)</span>
+					,
+				</a></li>
+			 
+				<li><a href="/categories.html#linux-ref">
+					linux <span>(4)</span>
+					
+				</a></li>
+			
+		  
+		</ul>
+		  
+
+		
+		<ul class="list-inline">
+		  <li><i class="fa fa-tags"></i></li>
+		  
+		  
+			 
+				<li>
+					<a href="/tags.html#java-ref">
+					java <span>(18)</span>
+					,
+					</a>
+				</li>
+			 
+				<li>
+					<a href="/tags.html#linux-ref">
+					linux <span>(3)</span>
+					,
+					</a>
+				</li>
+			 
+				<li>
+					<a href="/tags.html#pid-ref">
+					pid <span>(1)</span>
+					
+					</a>
+				</li>
+			
+		  
+		  
+		</ul>
+		  
+
+		<hr>
+
+		<div>
+      <section class="share col-sm-6">
+        <h4 class="section-title">Share Post</h4>
+        <a class="btn btn-default btn-sm twitter" href="http://twitter.com/share?text=linux 에서 java 프로그램 시작 시 pid 알아내기&via=thswave"
+           onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+          <i class="fa fa-twitter fa-lg"></i>
+          Twitter
+        </a>
+        <a class="btn btn-default btn-sm facebook" href="https://www.facebook.com/sharer/sharer.php"
+           onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+          <i class="fa fa-facebook fa-lg"></i>
+          Facebook
+        </a>
+        <a class="btn btn-default btn-sm gplus"
+           onclick="window.open('https://plus.google.com/share?url='+window.location.href, 'google-plus-share', 'width=490,height=530');return false;">
+          <i class="fa fa-google-plus fa-lg"></i>
+          Google+
+        </a>
+      </section>
+
+      <section class="col-sm-6 author">
+        <img src="http://www.gravatar.com/avatar/c1e626278fb674ec46bde944b163f3d9" class="img-rounded author-image" />
+        <h4 class="section-title author-name">thswave</h4>
+        <p class="author-bio">try hard, try hard!</p>
+      </section>
+    </div>
+
+    <div class="clearfix"></div>
+
+		<ul class="pager">
+		  
+		  <li class="previous"><a href="/git/2015/10/28/git-hook.html" title="git hook 을 활용한 pre commit, pre push">&larr; Previous</a></li>
+		  
+		  
+		  <li class="next"><a href="/server/2015/11/17/jenkins-deploy-remote-server.html" title="jenkins에서 fabric을 활용한 원격 배포 remote deploy">Next &rarr;</a></li>
+		  
+		</ul>
+
+		<hr>
+	</div>
+	<div class="col-sm-2 sidebar-2">
+	
+	</div>
+	 
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'thswavegithubio'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</article>
+<div class="clearfix"></div>
 
 
 
