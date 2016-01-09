@@ -4,3 +4,4 @@ _site
 .idea
 atlassian-ide-plugin.xml
 thswave.github.com.iml
+public/*

@@ -10,8 +10,10 @@ description: java detect encoding
 한글이 깨지는 곳은 많지만 웹 개발을 하면서 자주 경험하는 곳은 `tomcat`, `html 페이지`, `DB` 정도 같습니다. 하지만 비교적 간단한 설정으로 해결할 수 있는것 같습니다.
 (ex> tomcat은 Connector에서 URIEncoding, DB 스키마/테이블 인코딩 설정, DB connection url에서의 인코딩 명시 등등)
 오늘 알아볼 인코딩 탐지는 조금 특수한 케이스라 할 수 있습니다.
+  
 
-** 파일에서 읽어들인 byte[]의 인코딩을 탐지하는 방법**
+   
+#### *파일에서 읽어들인 byte[]의 인코딩을 탐지하는 방법*
 
 * 사실 java 8 에서(이전 버전은 동일하지 않을 수 있습니다) 인코딩을 굳이 탐지 하지 않아도 자동으로 처리해 줍니다.
 
@@ -37,14 +39,15 @@ private String detectCharset(byte[] bytes) {
 ```
 
 아주 간단한 예제로 작성되었지만 쉽게 이해하실 수 있습니다. 
+  
 
 
 #### 참고
 
 * encoding? charset? 무슨 차이인가?
 
-> charset is the set of characters you can use
-> encoding is the way these characters are stored into memory
+> `charset` is the set of characters you can use  
+> `encoding` is the way these characters are stored into memory
 
 [http://stackoverflow.com/questions/2281646/whats-the-difference-between-encoding-and-charset](http://stackoverflow.com/questions/2281646/whats-the-difference-between-encoding-and-charset)
 
