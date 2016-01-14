@@ -7,6 +7,85 @@
 		<atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>ssh login without password</title>
+				<description>&lt;h3&gt;비밀번호 없이 ssh 로그인&lt;/h3&gt;
+
+&lt;p&gt;로컬(A로 지칭)에서 특정 서버(B로 지칭)로 ssh 원격접속하기 위해 매 번 비밀번호를 입력하는 것이 불편하여 비밀번호 없이 접속하기&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Hot to do it&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;a@A:~&amp;gt; ssh-keygen -t rsa
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/a/.ssh/id_rsa):
+Created directory &amp;#39;/home/a/.ssh&amp;#39;.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/a/.ssh/id_rsa.
+Your public key has been saved in /home/a/.ssh/id_rsa.pub.
+The key fingerprint is:
+3e:4f:05:79:3a:9f:96:7c:3b:ad:e9:58:37:bc:37:e4 a@A
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;B 서버의 b유저로 ssh 접속하여  ~/.ssh 디렉토리 생성(이미 해당 디렉토리가 존재한다면 패스):&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;a@A:~&amp;gt; ssh b@B mkdir -p .ssh
+b@B&amp;#39;s password:
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;A에서 생성한 id&lt;em&gt;rsa.pub(public&lt;/em&gt;key)를 B의 .ssh/authorized_keys 파일에 입력.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;a@A:~&amp;gt; cat .ssh/id_rsa.pub | ssh b@B &amp;#39;cat &amp;gt;&amp;gt; .ssh/authorized_keys&amp;#39;
+b@B&amp;#39;s password:
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;이제부터 password 없이 A에서 B로 ssh 로그인 할 수 있습니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;a@A:~&amp;gt; ssh b@B
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h5&gt;참고&lt;/h5&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.linuxproblem.org/art_9.html&quot;&gt;http://www.linuxproblem.org/art_9.html&lt;/a&gt;&lt;/p&gt;
+</description>
+				<pubDate>Thu, 14 Jan 2016 00:00:00 +0900</pubDate>
+				<link>/linux/2016/01/14/ssh-without-password.html</link>
+				<guid isPermaLink="true">/linux/2016/01/14/ssh-without-password.html</guid>
+			</item>
+		
+			<item>
+				<title>ruby simple httpd (similar python SimpleHTTPServer)</title>
+				<description>&lt;h4&gt;특정 디렉토리의 파일들을 다른 서버/컴퓨터 등에서 다운로드/접근 하고 싶을 경우&lt;/h4&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://thswave.github.io/ruby/sinatra/2015/05/26/introduce-sinatra.html&quot;&gt;sinatra를 활용한 간단한 서버 구축&lt;/a&gt; 과는 별도로 파일을 다른 위치(다른 서버)에서 접근하고 싶은 경우 보통은 다운로드 받아 해당 서버로 &lt;code&gt;scp&lt;/code&gt;를 통해 넣어주곤 했는데 빠르게 전달하기 불편한 상황이 있을 수 있습니다.(예를 들어 각 서버에 접근하기 위해 여러 단계의 인증을 거쳐야만 접근할 수 있는 경우)  &lt;/p&gt;
+
+&lt;p&gt;이럴 때 ftp를 열어준다거나 파일 전송을 위해 아파치를 띄워 특정 경로 파일을 지정해주는 등 여러가지 방법이 있을 수 있지만 빠르고 쉽게 하는 방법을 찾았습니다.(혹시 더 간단한 방법이 있다면 제보 부탁드립니다.)&lt;/p&gt;
+
+&lt;p&gt;공유할 파일이 위치한 디렉토리로 이동 한 뒤 ruby/python으로 서버를 띄웁니다.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ruby&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;ruby -run -e httpd . -p &amp;lt;port번호&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;python&lt;br&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;python -m SimpleHTTPServer &amp;lt;port번호&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;브라우저로 접근할 경우 해당 디렉토리의 파일 리스트를 확인할 수 있습니다. &lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;curl http://&amp;lt;serverIp&amp;gt;:&amp;lt;port&amp;gt;/&amp;lt;filename&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;참고
+** &lt;a href=&quot;http://stackoverflow.com/questions/3108395/serve-current-directory-from-command-line&quot;&gt;http://stackoverflow.com/questions/3108395/serve-current-directory-from-command-line&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+				<pubDate>Thu, 14 Jan 2016 00:00:00 +0900</pubDate>
+				<link>/ruby/2016/01/14/simple-file-server.html</link>
+				<guid isPermaLink="true">/ruby/2016/01/14/simple-file-server.html</guid>
+			</item>
+		
+			<item>
 				<title>java detect encoding</title>
 				<description>&lt;p&gt;프로그램을 짜면서 온갖 한글 깨짐 현상을 경험해 보셨을겁니다. 
 한글이 깨지는 곳은 많지만 웹 개발을 하면서 자주 경험하는 곳은 &lt;code&gt;tomcat&lt;/code&gt;, &lt;code&gt;html 페이지&lt;/code&gt;, &lt;code&gt;DB&lt;/code&gt; 정도 같습니다. 하지만 비교적 간단한 설정으로 해결할 수 있는것 같습니다.
@@ -382,168 +461,6 @@ at sun.misc.CharacterDecoder.decodeBuffer(CharacterDecoder.java:194)
 				<pubDate>Thu, 18 Jun 2015 00:00:00 +0900</pubDate>
 				<link>/spring/2015/06/18/mybatis-test-string-parameter.html</link>
 				<guid isPermaLink="true">/spring/2015/06/18/mybatis-test-string-parameter.html</guid>
-			</item>
-		
-			<item>
-				<title>future vs promise</title>
-				<description>&lt;h3&gt;Future VS  Promise&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt; netty 기반 프로젝트를 진행하면서 java 8의 lamdba와 더불어 netty/play framework에서 제공하는 &lt;code&gt;future, promise&lt;/code&gt;를 사용하고 있습니다. 막연하게 눈으로 코드를 봐오다 둘 의 차이를 알아야할 시점이 찾아와 조사해 보았습니다. future와 promise는 다른 언어에서 널리 사용되고 있으니 본 글에 나오는 설명이 부족하거나 틀린 부분이 있다면 의견 부탁드리겠습니다.
-&lt;br&gt;&lt;/li&gt;
-&lt;li&gt;future와 promise는 netty에 종속적인 기법/방법이 아닌 concurrent programming 언어에서 동기화에 사용되고 있습니다. &lt;/li&gt;
-&lt;li&gt;좀 더 상세한 내용은 wiki &lt;a href=&quot;https://en.wikipedia.org/wiki/Futures_and_promises&quot;&gt;https://en.wikipedia.org/wiki/Futures&lt;em&gt;and&lt;/em&gt;promises&lt;/a&gt;에 있는 정의를 참고 하시면 될 것 같습니다.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Futures and promises
-In computer science, future, promise, and delay refer to constructs used for synchronization in some concurrent programming languages (생략)&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;scala에서도 역시 &lt;code&gt;future와 promise&lt;/code&gt; 를 제공해주고 있습니다. &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Futures provide a nice way to reason about performing many operations in parallel - in an efficient and non-blocking way. The idea is simple, a Future is a sort of a placeholder object that you can create for a result that does not yet exist. Generally, the result of the Future is computed concurrently and can be later collected. Composing concurrent tasks in this way tends to result in faster, asynchronous, non-blocking parallel code&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ul&gt;
-&lt;li&gt;요약하자면 &lt;code&gt;performing many operations in parallel&lt;/code&gt; 병렬로 연산을 수행.  &lt;code&gt;non-blocking way&lt;/code&gt; &lt;/li&gt;
-&lt;li&gt;&lt;p&gt;Future는 &lt;code&gt;create for a result that does not yet exist&lt;/code&gt;지금은 존재하지 않는 값/결과를 만들어준다. 고 하는데 헷갈릴 수 있는데  즉, 병렬로 연산을 수행하고 그 결과가 생성된다고 보시면 될 것 같습니다.&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;java에서도 future와 promise는 &lt;code&gt;java.util.concurrent&lt;/code&gt; package 에서 찾아볼 수 있습니다.&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;두 용어의 의미가 비슷하고 모호해서 다시 검색해보았습니다.  &lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;a Future is essentially a read-only reference to a yet-to-be-computed value. A Promise is a pretty much the same except that you can write to it as well. In other words, you can read from both Futures and Promises, but you can only write to Promises. You can get the Future associated with a Promise by calling the future method on it, but conversion in the other direction is not possible (because it would be nonsensical).&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;참조: &lt;a href=&quot;http://programmers.stackexchange.com/questions/207136/what-is-the-difference-between-a-future-and-a-promise&quot;&gt;http://programmers.stackexchange.com/questions/207136/what-is-the-difference-between-a-future-and-a-promise&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;Future : &lt;code&gt;a read-only reference&lt;/code&gt;(읽기 전용) to a yet-to-be-computed value &lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;Promise : pretty much the same except that you &lt;code&gt;can write to it&lt;/code&gt;(쓰기 가능) &lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;공통점은  &lt;code&gt;yet-to-be-computed value&lt;/code&gt; 아직 계산되지 않은 값에 대한 레퍼런스 라는 점입니다.&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;또 다른 답변을 살펴보면 좀 더 이해가 잘 될 것 같습니다.&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;The Promise and Future are complementary concepts. The Future is a value which will be retrieved, well, sometime in the future and you can do stuff with it when that event happens. It is, therefore, the read or out endpoint of a computation - it is something that you retrieve a value from.&lt;/p&gt;
-
-&lt;p&gt;A Promise is, by analogy, the writing side of the computation. You create a promise which is the place where you&amp;#39;ll put the result of the computation and from that promise you get a future that will be used to read the result that was put into the promise. When you&amp;#39;ll complete a Promise, either by failure or success, you will trigger all the behavior which was attached to the associated Future.  &lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;참조 : &lt;a href=&quot;http://stackoverflow.com/questions/13381134/what-are-the-use-cases-of-scala-concurrent-promise&quot;&gt;http://stackoverflow.com/questions/13381134/what-are-the-use-cases-of-scala-concurrent-promise&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;Future : 이벤트 발생 시 사용할 수(읽을 수) 있는 어떤 값&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;Promise : 연산의 결과를 넣어두고(쓰고) 이 결과 값을 읽을 수 있는 Future를 얻을 수 있습니다. 즉, Promise가 끝나고 나면 성공, 혹은 실패에 연결되어 있는 Future를 통해 특정 동작을 유발시킬 수 있다.&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-				<pubDate>Sun, 14 Jun 2015 00:00:00 +0900</pubDate>
-				<link>/java/netty/2015/06/14/future-vs-promise.html</link>
-				<guid isPermaLink="true">/java/netty/2015/06/14/future-vs-promise.html</guid>
-			</item>
-		
-			<item>
-				<title>linux postfix를 활용한 mail 전송</title>
-				<description>&lt;h3&gt;postfix&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;http://www.postfix.org&quot;&gt;postfix&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;정의를 찾아보자면 &lt;code&gt;mail server&lt;/code&gt; &lt;code&gt;alternative to the widely-used Sendmail program&lt;/code&gt; 로 축약해 볼 수 있을것 같습니다. 메일 서버이며 sendmail 의 대안? 후발주자인 것 같습니다.&lt;/li&gt;
-&lt;li&gt;메일 서버를 직접 만들어 사용하는 사람은 극히 드물것입니다. rfc 문서를 읽어가며 프로토콜을 언제 다 이해하고 이를 구현체로 만드는 작업이 쉽지많은 않을것이기 때문입니다.&lt;/li&gt;
-&lt;li&gt;리눅스 기반에서는 &lt;em&gt;yum&lt;/em&gt;이나 &lt;em&gt;apt-get&lt;/em&gt; 으로 &lt;code&gt;posftfix&lt;/code&gt;를 쉽게 설치할 수 있고 사용법 또한 생각보다 간단한 것 같습니다. 물론 보안이나 세부 설정으로 들어간다면 간단하지 않습니다.&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h5&gt;Install postfix&lt;/h5&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;CentOs를 사용하고 있어 yum 을 통해 설치합니다.(root권한 필요)
-&lt;br&gt;
-&lt;code&gt;
-yum -y install postfix
-&lt;/code&gt;
-&lt;br&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;postfix를 실행 전에 /etc/postfix/main.cf 설정 파일을 수정해 주면 됩니다. 기본으로 주석 처리 되어있는 부분을 주석 해제하고 각 서버에 맞게 수정해주면 됩니다.&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;vi /etc/postfix/main.cf
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;# 기본적인 동작을 위해 필요한 부분만 보고 나머지는 생략
-
-# 호스트 명 
-myhostname = smtp.myhostname.com
-
-# 도메인 명
-mydomain = mydomain.com
-
-# MAIL From 설정
-myorigin = $mydomain
-
-# 메일 수신 네트워크 범위 지정 
-# 전체 수신을 원하면 all, 혹은 127.0.0.0/8 특정 대역만 수신하도록 지정할 수 있습니다.
-net_interfaces = all
-#inet_interfaces = $myhostname
-#inet_interfaces = $myhostname, localhost
-#inet_interfaces = localhost
-
-# 메일 서버가 최종 수신처가 되는 메일수신 도메인 설정
-mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain
-
-
-# 릴레이할 도메인 지정. 
-# 외부로 relay 시킬 경우 다른(ex&amp;gt; gmail) smtp로 바로 밀어넣을 수 있습니다.
-relay_domains = $mydestination
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
-* CentOs 버전에 따라 sendmail이 설치 되어 있다면 이를 &lt;code&gt;chkconfig&lt;/code&gt; 로 확인 후 &lt;code&gt;postfix&lt;/code&gt;로 수정 해 주면 됩니다. &lt;/p&gt;
-
-&lt;p&gt;&lt;br&gt;&lt;/p&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;# chkconfig postfix on
-# chkconfig --list postfix
-postfix         0:off   1:off   2:on    3:on    4:on    5:on    6:off
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;postfix를 실행시 킨 후 25번 포트가 정상적으로 떠있는지 확인합니다. 
-&lt;br&gt;&lt;br&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;# /etc/init.d/postfix start
-Starting postfix:                                          [  OK  ]
-
-# netstat -nap|grep :25
-tcp        0      0 127.0.0.1:25                0.0.0.0:*                   LISTEN
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-text&quot; data-lang=&quot;text&quot;&gt;# telnet localhost 25
-Trying 127.0.0.1...
-Connected to localhost.localdomain (127.0.0.1).
-Escape character is &amp;#39;^]&amp;#39;.
-220 smtp.myhostname.com ESMTP Postfix
-MAIL FROM: thswave@naver.com
-250 2.1.0 Ok
-RCPT TO: thswave@gmail.com
-250 2.1.5 Ok
-DATA
-354 End data with &amp;lt;CR&amp;gt;&amp;lt;LF&amp;gt;.&amp;lt;CR&amp;gt;&amp;lt;LF&amp;gt;
-Subject: title
-mail content body
-.
-250 2.0.0 Ok: queued as B64BC48DDA0
-QUIT
-221 2.0.0 Bye
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-&lt;p&gt;참조:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;http://www.rackspace.com/knowledge_center/article/basic-settings-in-the-postfix-maincf-file&quot;&gt;http://www.rackspace.com/knowledge_center/article/basic-settings-in-the-postfix-maincf-file&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;http://postfix.state-of-mind.de/patrick.koetter/smtpauth/postfix_configuration.html&quot;&gt;http://postfix.state-of-mind.de/patrick.koetter/smtpauth/postfix_configuration.html&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-				<pubDate>Sun, 07 Jun 2015 00:00:00 +0900</pubDate>
-				<link>/linux/postfix/2015/06/07/linux-smtp-postfix.html</link>
-				<guid isPermaLink="true">/linux/postfix/2015/06/07/linux-smtp-postfix.html</guid>
 			</item>
 		
 	</channel>
