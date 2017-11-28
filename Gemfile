@@ -12,6 +12,6 @@ group :development do
 	gem 'guard-jekyll'	 # Jekyll.
 	gem 'guard-jekyll-plus' # Jekyll Plus.
 	gem 'guard-livereload' , require: false  # Browser reload.
-	gem 'yajl-ruby'          # Faster JSON with LiveReload in the browser.
+	# gem 'yajl-ruby'          # Faster JSON with LiveReload in the browser.
 	gem 'json', '1.8.2'
 end
